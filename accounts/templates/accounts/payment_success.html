@@ -1,0 +1,134 @@
+{% extends 'base.html' %}
+
+{% block title %}Paiement Réussi - YEE E-Commerce{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8 text-center">
+            <div class="card border-success shadow">
+                <div class="card-body py-5">
+                    <!-- Icône de succès -->
+                    <div class="mb-4">
+                        <i class="bi bi-check-circle-fill text-success" style="font-size: 5rem;"></i>
+                    </div>
+                    
+                    <!-- Titre principal -->
+                    <h1 class="text-success mb-3">🎉 Paiement Réussi !</h1>
+                    <h2 class="mb-4">Merci pour votre commande !</h2>
+                    
+                    <!-- Message de confirmation -->
+                    <div class="alert alert-success border-0">
+                        <h5><i class="bi bi-info-circle"></i> Votre commande a été confirmée</h5>
+                        <p class="mb-0">
+                            Votre paiement a été traité avec succès et votre commande est maintenant confirmée.
+                            Vous recevrez bientôt un email de confirmation avec tous les détails.
+                        </p>
+                    </div>
+                    
+                    <!-- Informations sur la livraison -->
+                    <div class="card bg-light border-0 my-4">
+                        <div class="card-body">
+                            <h5><i class="bi bi-truck"></i> Prochaines étapes</h5>
+                            <div class="row text-start">
+                                <div class="col-md-4 mb-3">
+                                    <div class="d-flex align-items-center">
+                                        <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                                            <span class="fw-bold">1</span>
+                                        </div>
+                                        <div>
+                                            <div class="fw-bold">Préparation</div>
+                                            <small class="text-muted">24-48h</small>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <div class="d-flex align-items-center">
+                                        <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                                            <span class="fw-bold">2</span>
+                                        </div>
+                                        <div>
+                                            <div class="fw-bold">Expédition</div>
+                                            <small class="text-muted">Email de suivi</small>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <div class="d-flex align-items-center">
+                                        <div class="bg-success text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                                            <span class="fw-bold">3</span>
+                                        </div>
+                                        <div>
+                                            <div class="fw-bold">Livraison</div>
+                                            <small class="text-muted">2-5 jours</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Email de confirmation -->
+                    <div class="alert alert-info border-0">
+                        <h6><i class="bi bi-envelope"></i> Email de confirmation</h6>
+                        <p class="mb-0">
+                            Un email de confirmation a été envoyé à <strong>{{ user.email }}</strong> 
+                            avec votre facture et les détails de livraison.
+                        </p>
+                    </div>
+                    
+                    <!-- Actions -->
+                    <div class="d-grid gap-3 d-md-flex justify-content-md-center mt-4">
+                        <a href="{% url 'order_history' %}" class="btn btn-primary btn-lg">
+                            <i class="bi bi-list-check"></i> Voir mes commandes
+                        </a>
+                        <a href="{% url 'transaction_history' %}" class="btn btn-outline-primary btn-lg">
+                            <i class="bi bi-receipt"></i> Historique des paiements
+                        </a>
+                        <a href="{% url 'index' %}" class="btn btn-outline-secondary btn-lg">
+                            <i class="bi bi-shop"></i> Continuer les achats
+                        </a>
+                    </div>
+                    
+                    <!-- Support -->
+                    <div class="mt-5 pt-4 border-top">
+                        <h6 class="text-muted">Besoin d'aide ?</h6>
+                        <p class="text-muted small">
+                            Si vous avez des questions concernant votre commande ou votre paiement, 
+                            n'hésitez pas à consulter votre <a href="{% url 'profile' %}" class="text-decoration-none">profil</a> 
+                            ou à nous contacter.
+                        </p>
+                        <div class="d-flex justify-content-center gap-3">
+                            <a href="{% url 'profile' %}" class="btn btn-outline-secondary btn-sm">
+                                <i class="bi bi-person"></i> Mon profil
+                            </a>
+                            <a href="#" class="btn btn-outline-secondary btn-sm">
+                                <i class="bi bi-headset"></i> Support client
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Animation de confettis (optionnel) -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Animation simple de succès
+    const successIcon = document.querySelector('.bi-check-circle-fill');
+    if (successIcon) {
+        successIcon.style.transform = 'scale(0)';
+        successIcon.style.transition = 'transform 0.5s ease-out';
+        
+        setTimeout(() => {
+            successIcon.style.transform = 'scale(1)';
+        }, 200);
+    }
+    
+    // Auto-scroll vers le haut
+    window.scrollTo(0, 0);
+});
+</script>
+{% endblock %}

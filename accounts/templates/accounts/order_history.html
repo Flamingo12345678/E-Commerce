@@ -1,0 +1,224 @@
+{% extends 'base.html' %}
+{% load custom_filters %}
+
+{% block title %}Historique des Commandes - YEE E-Commerce{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row">
+        <div class="col-12">
+            <!-- En-tête -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1>
+                    <i class="bi bi-list-check text-primary"></i>
+                    Mes Commandes
+                </h1>
+                <a href="{% url 'index' %}" class="btn btn-outline-primary">
+                    <i class="bi bi-shop"></i>
+                    Continuer les achats
+                </a>
+            </div>
+
+            {% if orders %}
+                <!-- Liste des commandes -->
+                <div class="row">
+                    {% for order in orders %}
+                    <div class="col-lg-6 col-xl-4 mb-4">
+                        <div class="card border-0 shadow-sm h-100">
+                            <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                                <h6 class="mb-0">
+                                    <i class="bi bi-bag-check"></i>
+                                    Commande #{{ order.id }}
+                                </h6>
+                                <span class="badge bg-success">Confirmée</span>
+                            </div>
+                            <div class="card-body">
+                                <!-- Produit -->
+                                <div class="d-flex align-items-center mb-3">
+                                    {% if order.product.thumbnail %}
+                                        <img src="{{ order.product.thumbnail.url }}" 
+                                             alt="{{ order.product.name }}" 
+                                             class="rounded me-3"
+                                             style="width: 60px; height: 60px; object-fit: cover;">
+                                    {% else %}
+                                        <div class="bg-light rounded me-3 d-flex align-items-center justify-content-center"
+                                             style="width: 60px; height: 60px;">
+                                            <i class="bi bi-image text-muted"></i>
+                                        </div>
+                                    {% endif %}
+                                    <div class="flex-grow-1">
+                                        <h6 class="mb-1">{{ order.product.name }}</h6>
+                                        <p class="text-muted mb-0 small">
+                                            {% if order.product.category %}
+                                                {{ order.product.category.name }}
+                                            {% else %}
+                                                Catégorie non définie
+                                            {% endif %}
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <!-- Détails -->
+                                <div class="row text-center mb-3">
+                                    <div class="col-4">
+                                        <div class="border-end">
+                                            <div class="fw-bold text-primary">{{ order.quantity }}</div>
+                                            <small class="text-muted">Quantité</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-4">
+                                        <div class="border-end">
+                                            <div class="fw-bold text-success">{{ order.product.price }} €</div>
+                                            <small class="text-muted">Prix unitaire</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-4">
+                                        <div class="fw-bold text-dark">
+                                            {{ order.quantity|mul:order.product.price|format_price }} €
+                                        </div>
+                                        <small class="text-muted">Total</small>
+                                    </div>
+                                </div>
+
+                                <!-- Date -->
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <small class="text-muted">
+                                        <i class="bi bi-calendar"></i>
+                                        {% if order.date_ordered %}
+                                            {{ order.date_ordered|date:"d M Y à H:i" }}
+                                        {% else %}
+                                            {{ order.created_at|date:"d M Y à H:i" }}
+                                        {% endif %}
+                                    </small>
+                                    <div class="btn-group btn-group-sm">
+                                        <button class="btn btn-outline-secondary btn-sm" 
+                                                onclick="showOrderDetails({{ order.id }})">
+                                            <i class="bi bi-eye"></i>
+                                        </button>
+                                        <a href="#" class="btn btn-outline-primary btn-sm">
+                                            <i class="bi bi-download"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <!-- Pagination (si nécessaire) -->
+                {% if orders|length > 12 %}
+                <nav aria-label="Navigation des commandes" class="mt-4">
+                    <ul class="pagination justify-content-center">
+                        <li class="page-item disabled">
+                            <span class="page-link">Précédent</span>
+                        </li>
+                        <li class="page-item active">
+                            <span class="page-link">1</span>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="#">2</a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="#">Suivant</a>
+                        </li>
+                    </ul>
+                </nav>
+                {% endif %}
+
+            {% else %}
+                <!-- Aucune commande -->
+                <div class="text-center py-5">
+                    <div class="mb-4">
+                        <i class="bi bi-bag-x text-muted" style="font-size: 5rem;"></i>
+                    </div>
+                    <h3 class="text-muted mb-3">Aucune commande</h3>
+                    <p class="text-muted mb-4">
+                        Vous n'avez pas encore passé de commande. 
+                        Découvrez nos produits et passez votre première commande !
+                    </p>
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-center">
+                        <a href="{% url 'index' %}" class="btn btn-primary btn-lg">
+                            <i class="bi bi-shop"></i>
+                            Découvrir les produits
+                        </a>
+                        <a href="{% url 'cart' %}" class="btn btn-outline-secondary btn-lg">
+                            <i class="bi bi-cart"></i>
+                            Voir le panier
+                        </a>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Modal pour les détails de commande -->
+<div class="modal fade" id="orderDetailsModal" tabindex="-1" aria-labelledby="orderDetailsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="orderDetailsModalLabel">
+                    <i class="bi bi-list-check"></i>
+                    Détails de la commande
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+            </div>
+            <div class="modal-body" id="orderDetailsContent">
+                <!-- Contenu dynamique -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+                <button type="button" class="btn btn-primary">
+                    <i class="bi bi-download"></i>
+                    Télécharger la facture
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function showOrderDetails(orderId) {
+    // Afficher les détails de la commande dans une modal
+    const modal = new bootstrap.Modal(document.getElementById('orderDetailsModal'));
+    const content = document.getElementById('orderDetailsContent');
+    
+    content.innerHTML = `
+        <div class="text-center">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Chargement...</span>
+            </div>
+            <p class="mt-2">Chargement des détails...</p>
+        </div>
+    `;
+    
+    modal.show();
+    
+    // Simuler le chargement (à remplacer par un appel AJAX réel)
+    setTimeout(() => {
+        content.innerHTML = `
+            <div class="alert alert-info">
+                <h6><i class="bi bi-info-circle"></i> Commande #${orderId}</h6>
+                <p class="mb-0">Les détails complets de la commande seraient affichés ici.</p>
+            </div>
+        `;
+    }, 1000);
+}
+
+// Animation d'entrée pour les cartes
+document.addEventListener('DOMContentLoaded', function() {
+    const cards = document.querySelectorAll('.card');
+    cards.forEach((card, index) => {
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(20px)';
+        
+        setTimeout(() => {
+            card.style.transition = 'all 0.5s ease-out';
+            card.style.opacity = '1';
+            card.style.transform = 'translateY(0)';
+        }, index * 100);
+    });
+});
+</script>
+{% endblock %}

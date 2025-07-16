@@ -1,0 +1,184 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Payer la facture {{ invoice.invoice_number }} - {{ block.super }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/invoices.css' %}">
+<script src="https://js.stripe.com/v3/"></script>
+{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="max-w-2xl mx-auto">
+        <!-- Navigation -->
+        <div class="mb-6">
+            <nav class="flex items-center space-x-2 text-sm text-gray-500">
+                <a href="{% url 'invoice_list' %}" class="hover:text-gray-700">Mes factures</a>
+                <span>/</span>
+                <a href="{% url 'invoice_detail' invoice.uuid %}" class="hover:text-gray-700">{{ invoice.invoice_number }}</a>
+                <span>/</span>
+                <span class="text-gray-900">Paiement</span>
+            </nav>
+        </div>
+
+        <!-- Résumé de la facture -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
+            <h1 class="text-2xl font-bold text-gray-900 mb-4">
+                Paiement de la facture {{ invoice.invoice_number }}
+            </h1>
+            
+            <div class="grid grid-cols-2 gap-4 text-sm">
+                <div>
+                    <span class="text-gray-600">Date d'émission:</span>
+                    <span class="font-medium">{{ invoice.issue_date|date:"d/m/Y" }}</span>
+                </div>
+                <div>
+                    <span class="text-gray-600">Date d'échéance:</span>
+                    <span class="font-medium {% if invoice.is_overdue %}text-red-600{% endif %}">
+                        {{ invoice.due_date|date:"d/m/Y" }}
+                    </span>
+                </div>
+                <div class="col-span-2 pt-4 border-t border-gray-200">
+                    <div class="flex justify-between items-center">
+                        <span class="text-lg font-semibold text-gray-900">Montant à payer:</span>
+                        <span class="text-2xl font-bold text-blue-600">{{ invoice.total_amount|floatformat:2 }} €</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Options de paiement -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <h2 class="text-xl font-semibold text-gray-900 mb-6">Choisissez votre méthode de paiement</h2>
+            
+            <form method="post" class="space-y-4">
+                {% csrf_token %}
+                
+                <!-- Stripe -->
+                {% if payment_links.stripe %}
+                    <div class="border border-gray-200 rounded-lg p-4 hover:border-blue-300 transition-colors">
+                        <label class="flex items-center cursor-pointer">
+                            <input type="radio" name="payment_method" value="stripe" class="sr-only" checked>
+                            <div class="flex items-center w-full">
+                                <div class="flex-shrink-0 w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                                    <svg class="w-6 h-6 text-blue-600" viewBox="0 0 24 24" fill="currentColor">
+                                        <path d="M13.976 9.15c-2.172-.806-3.596-1.191-3.596-2.647 0-1.138.895-1.91 2.357-1.91 1.301 0 2.402.61 2.402 1.463v.232h1.81V6.05c0-1.68-1.458-2.925-3.953-2.925-2.494 0-4.331 1.245-4.331 3.164 0 2.206 1.459 2.925 4.331 3.765 2.172.806 3.596 1.191 3.596 2.647 0 1.138-.895 1.91-2.357 1.91-1.301 0-2.402-.61-2.402-1.463v-.232H8.023v.232c0 1.68 1.458 2.925 3.953 2.925 2.494 0 4.331-1.245 4.331-3.164 0-2.206-1.459-2.925-4.331-3.765z"/>
+                                    </svg>
+                                </div>
+                                <div class="ml-4 flex-1">
+                                    <h3 class="text-lg font-medium text-gray-900">Stripe</h3>
+                                    <p class="text-sm text-gray-600">Paiement sécurisé par carte bancaire</p>
+                                    <div class="flex items-center mt-2">
+                                        <div class="flex space-x-1">
+                                            <div class="w-8 h-5 bg-blue-600 rounded-sm flex items-center justify-center">
+                                                <span class="text-white text-xs font-bold">VISA</span>
+                                            </div>
+                                            <div class="w-8 h-5 bg-red-500 rounded-sm flex items-center justify-center">
+                                                <span class="text-white text-xs font-bold">MC</span>
+                                            </div>
+                                            <div class="w-8 h-5 bg-green-600 rounded-sm flex items-center justify-center">
+                                                <span class="text-white text-xs font-bold">AMEX</span>
+                                            </div>
+                                        </div>
+                                        <span class="ml-2 text-xs text-gray-500">et plus</span>
+                                    </div>
+                                </div>
+                                <div class="flex-shrink-0">
+                                    <div class="w-4 h-4 border-2 border-blue-600 rounded-full bg-blue-600 flex items-center justify-center">
+                                        <div class="w-2 h-2 bg-white rounded-full"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </label>
+                    </div>
+                {% endif %}
+
+                <!-- PayPal -->
+                {% if payment_links.paypal %}
+                    <div class="border border-gray-200 rounded-lg p-4 hover:border-yellow-300 transition-colors">
+                        <label class="flex items-center cursor-pointer">
+                            <input type="radio" name="payment_method" value="paypal" class="sr-only">
+                            <div class="flex items-center w-full">
+                                <div class="flex-shrink-0 w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
+                                    <svg class="w-6 h-6 text-yellow-600" viewBox="0 0 24 24" fill="currentColor">
+                                        <path d="M7.076 21.337H2.47a.641.641 0 0 1-.633-.74L4.944.901C5.026.382 5.474 0 5.998 0h7.46c2.57 0 4.578.543 5.69 1.81 1.01 1.15 1.304 2.42 1.012 4.287-.023.143-.047.288-.077.437-.983 5.05-4.349 6.797-8.647 6.797h-2.19c-.524 0-.968.382-1.05.9l-1.12 7.106zm14.146-14.42a3.35 3.35 0 0 0-.607-.834c-.404-.422-.957-.715-1.68-.87a8.695 8.695 0 0 0-1.92-.184h-4.705c-.524 0-.968.382-1.05.9L9.647 9.184c-.082.518.333.934.852.934h2.86c3.706 0 6.584-1.295 7.51-5.543.082-.37.131-.748.131-1.126 0-.186-.014-.37-.043-.552h.265z"/>
+                                    </svg>
+                                </div>
+                                <div class="ml-4 flex-1">
+                                    <h3 class="text-lg font-medium text-gray-900">PayPal</h3>
+                                    <p class="text-sm text-gray-600">Paiement via votre compte PayPal</p>
+                                    <p class="text-xs text-gray-500 mt-1">Connectez-vous à votre compte PayPal pour payer</p>
+                                </div>
+                                <div class="flex-shrink-0">
+                                    <div class="w-4 h-4 border-2 border-gray-300 rounded-full"></div>
+                                </div>
+                            </div>
+                        </label>
+                    </div>
+                {% endif %}
+
+                <!-- Bouton de paiement -->
+                <div class="pt-6">
+                    <button type="submit" 
+                            class="w-full bg-blue-600 text-white py-3 px-4 rounded-lg text-lg font-medium hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                        Procéder au paiement
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Sécurité -->
+        <div class="bg-gray-50 rounded-lg p-4 mt-6">
+            <div class="flex items-center">
+                <svg class="w-5 h-5 text-green-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"></path>
+                </svg>
+                <div>
+                    <p class="text-sm font-medium text-gray-900">Paiement sécurisé</p>
+                    <p class="text-xs text-gray-600">Vos informations de paiement sont protégées par un chiffrement SSL 256 bits</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Aide -->
+        <div class="text-center mt-6">
+            <p class="text-sm text-gray-600">
+                Besoin d'aide ? 
+                <a href="mailto:support@yee-commerce.com" class="text-blue-600 hover:text-blue-800">
+                    Contactez notre support
+                </a>
+            </p>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Gestion de la sélection des méthodes de paiement
+    const paymentMethods = document.querySelectorAll('input[name="payment_method"]');
+    const labels = document.querySelectorAll('label');
+    
+    paymentMethods.forEach((method, index) => {
+        method.addEventListener('change', function() {
+            // Retirer la sélection de tous les éléments
+            labels.forEach(label => {
+                const radioDiv = label.querySelector('.w-4.h-4');
+                radioDiv.className = 'w-4 h-4 border-2 border-gray-300 rounded-full';
+            });
+            
+            // Ajouter la sélection à l'élément actuel
+            const selectedDiv = labels[index].querySelector('.w-4.h-4');
+            selectedDiv.className = 'w-4 h-4 border-2 border-blue-600 rounded-full bg-blue-600 flex items-center justify-center';
+            selectedDiv.innerHTML = '<div class="w-2 h-2 bg-white rounded-full"></div>';
+        });
+    });
+
+    // Initialiser la première option si elle existe
+    if (paymentMethods.length > 0) {
+        paymentMethods[0].checked = true;
+        paymentMethods[0].dispatchEvent(new Event('change'));
+    }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,571 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Choisir un moyen de paiement - MyStore{% endblock %}
+
+{% block extra_css %}
+<style>
+    .payment-container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    .payment-header {
+        text-align: center;
+        margin-bottom: 40px;
+        padding: 30px;
+        background: linear-gradient(135deg, #6c757d, #495057);
+        color: white;
+        border-radius: 15px;
+    }
+    .amount-display {
+        font-size: 2.5rem;
+        font-weight: bold;
+        margin: 15px 0;
+    }
+    .payment-methods {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+        gap: 30px;
+        margin: 40px 0;
+    }
+    .payment-method {
+        background: white;
+        border: 2px solid #dee2e6;
+        border-radius: 15px;
+        padding: 30px;
+        text-align: center;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
+    }
+    .payment-method::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+        transition: left 0.5s;
+    }
+    .payment-method:hover::before {
+        left: 100%;
+    }
+    .payment-method:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+        border-color: #007bff;
+    }
+    .payment-method.stripe {
+        border-color: #635bff;
+    }
+    .payment-method.stripe:hover {
+        border-color: #635bff;
+        box-shadow: 0 15px 35px rgba(99,91,255,0.2);
+    }
+    .payment-method.paypal {
+        border-color: #0070ba;
+    }
+    .payment-method.paypal:hover {
+        border-color: #0070ba;
+        box-shadow: 0 15px 35px rgba(0,112,186,0.2);
+    }
+    .payment-icon {
+        font-size: 4rem;
+        margin-bottom: 20px;
+    }
+    .payment-title {
+        font-size: 1.5rem;
+        font-weight: bold;
+        margin-bottom: 15px;
+    }
+    .payment-description {
+        color: #6c757d;
+        margin-bottom: 20px;
+        line-height: 1.6;
+    }
+    .payment-features {
+        list-style: none;
+        padding: 0;
+        margin: 20px 0;
+    }
+    .payment-features li {
+        padding: 5px 0;
+        color: #495057;
+    }
+    .payment-features i {
+        color: #28a745;
+        margin-right: 8px;
+    }
+    .payment-pricing {
+        background: #f8f9fa;
+        border-radius: 8px;
+        padding: 15px;
+        margin: 20px 0;
+    }
+    .original-amount {
+        font-size: 1.1rem;
+        color: #6c757d;
+    }
+    .fee-amount {
+        font-size: 0.9rem;
+        color: #dc3545;
+    }
+    .total-amount {
+        font-size: 1.3rem;
+        font-weight: bold;
+        color: #28a745;
+    }
+    .select-button {
+        padding: 12px 30px;
+        font-size: 1.1rem;
+        font-weight: bold;
+        border-radius: 25px;
+        border: none;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-block;
+        margin-top: 15px;
+    }
+    .select-button.stripe {
+        background: linear-gradient(135deg, #635bff, #4c43d8);
+        color: white;
+    }
+    .select-button.paypal {
+        background: linear-gradient(135deg, #ffc439, #ffb800);
+        color: #003087;
+    }
+    .select-button:hover {
+        transform: scale(1.05);
+        text-decoration: none;
+    }
+    .order-summary {
+        background: #e8f4f8;
+        border: 1px solid #b8daff;
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 30px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="payment-container">
+    <!-- En-tête -->
+    <div class="payment-header">
+        <h1><i class="fas fa-credit-card me-2"></i>Choisir un moyen de paiement</h1>
+        <p class="mb-2">Sélectionnez votre méthode de paiement préférée</p>
+        <div class="amount-display">{{ amount }}€</div>
+    </div>
+
+    <!-- Résumé de la commande -->
+    {% if order_id %}
+    <div class="order-summary">
+        <h5><i class="fas fa-shopping-cart text-primary me-2"></i>Résumé de votre commande</h5>
+        <div class="row">
+            <div class="col-md-6">
+                <strong>Commande :</strong> #{{ order_id }}
+            </div>
+            <div class="col-md-6">
+                <strong>Description :</strong> {{ description|default:"Achat en ligne" }}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Méthodes de paiement -->
+    <div class="payment-methods">
+        <!-- Stripe (Carte bancaire) -->
+        <div class="payment-method stripe">
+            <div class="payment-icon">
+                <i class="fas fa-credit-card text-primary"></i>
+            </div>
+            <div class="payment-title">Carte Bancaire</div>
+            <div class="payment-description">
+                Paiement sécurisé par carte bancaire via Stripe
+            </div>
+            <ul class="payment-features">
+                <li><i class="fas fa-check"></i>Visa, MasterCard, American Express</li>
+                <li><i class="fas fa-check"></i>Paiement instantané</li>
+                <li><i class="fas fa-check"></i>Chiffrement SSL 256-bit</li>
+                <li><i class="fas fa-check"></i>3D Secure</li>
+            </ul>
+            <div class="payment-pricing">
+                <div class="original-amount">Montant : {{ amount }}€</div>
+                <div class="fee-amount">Frais : + {{ stripe_fee }}€</div>
+                <hr class="my-2">
+                <div class="total-amount">Total : {{ stripe_total }}€</div>
+            </div>
+            <a href="{% url 'stripe_payment' %}?amount={{ amount }}&order_id={{ order_id }}&description={{ description }}" 
+               class="select-button stripe">
+                <i class="fas fa-credit-card me-2"></i>Payer par carte
+            </a>
+        </div>
+
+        <!-- PayPal -->
+        <div class="payment-method paypal">
+            <div class="payment-icon">
+                <i class="fab fa-paypal" style="color: #0070ba;"></i>
+            </div>
+            <div class="payment-title">PayPal</div>
+            <div class="payment-description">
+                Paiement simple et sécurisé avec votre compte PayPal
+            </div>
+            <ul class="payment-features">
+                <li><i class="fas fa-check"></i>Paiement en 1 clic</li>
+                <li><i class="fas fa-check"></i>Protection des achats</li>
+                <li><i class="fas fa-check"></i>Aucune donnée bancaire partagée</li>
+                <li><i class="fas fa-check"></i>Remboursement facile</li>
+            </ul>
+            <div class="payment-pricing">
+                <div class="original-amount">Montant : {{ amount }}€</div>
+                <div class="fee-amount">Frais : + {{ paypal_fee }}€</div>
+                <hr class="my-2">
+                <div class="total-amount">Total : {{ paypal_total }}€</div>
+            </div>
+            <a href="{% url 'paypal_payment' %}?amount={{ amount }}&order_id={{ order_id }}&description={{ description }}" 
+               class="select-button paypal">
+                <i class="fab fa-paypal me-2"></i>Payer avec PayPal
+            </a>
+        </div>
+    </div>
+
+    <!-- Informations de sécurité -->
+    <div class="row mt-5">
+        <div class="col-md-4 text-center">
+            <i class="fas fa-shield-alt fa-3x text-success mb-3"></i>
+            <h6>Paiement sécurisé</h6>
+            <p class="small text-muted">Vos données sont protégées par un chiffrement de niveau bancaire</p>
+        </div>
+        <div class="col-md-4 text-center">
+            <i class="fas fa-clock fa-3x text-info mb-3"></i>
+            <h6>Traitement immédiat</h6>
+            <p class="small text-muted">Votre commande sera traitée dès réception du paiement</p>
+        </div>
+        <div class="col-md-4 text-center">
+            <i class="fas fa-headset fa-3x text-warning mb-3"></i>
+            <h6>Support 24/7</h6>
+            <p class="small text-muted">Notre équipe est disponible pour vous aider à tout moment</p>
+        </div>
+    </div>
+
+    <!-- Bouton retour -->
+    <div class="text-center mt-4">
+        <a href="{% url 'checkout' %}" class="btn btn-outline-secondary btn-lg">
+            <i class="fas fa-arrow-left me-2"></i>Retour au panier
+        </a>
+    </div>
+</div>
+{% endblock %}
+        border-radius: 4px;
+        background-color: white;
+        box-shadow: 0 1px 3px 0 #e6ebf1;
+        -webkit-transition: box-shadow 150ms ease;
+        transition: box-shadow 150ms ease;
+    }
+    .StripeElement--focus {
+        box-shadow: 0 1px 3px 0 #cfd7df;
+    }
+    .StripeElement--invalid {
+        border-color: #fa755a;
+    }
+    .StripeElement--webkit-autofill {
+        background-color: #fefde5 !important;
+    }
+    
+    #card-errors {
+        color: #fa755a;
+        margin-top: 10px;
+    }
+    
+    .paypal-button-container {
+        margin-top: 15px;
+    }
+    
+    .checkout-info {
+        background: linear-gradient(135deg, #6c757d, #495057);
+        color: white;
+        border-radius: 10px;
+        padding: 15px;
+        margin-bottom: 20px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0">
+                        <i class="fas fa-credit-card me-2"></i>
+                        Finaliser votre paiement
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <!-- Informations de commande si provient du checkout -->
+                    <div id="checkout-info" class="checkout-info d-none">
+                        <h6 class="mb-2">
+                            <i class="fas fa-info-circle me-2"></i>
+                            Informations de commande
+                        </h6>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <small><strong>Livraison :</strong></small>
+                                <div class="small" id="delivery-info"></div>
+                            </div>
+                            <div class="col-md-6">
+                                <small><strong>Email :</strong></small>
+                                <div class="small" id="customer-email"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Affichage du montant -->
+                    <div class="alert alert-info text-center">
+                        <h4>Montant à payer : <span class="amount-display">{{ amount }}€</span></h4>
+                        {% if description %}
+                            <p class="mb-0">{{ description }}</p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Option Stripe -->
+                    <div class="payment-option" data-payment="stripe">
+                        <div class="row align-items-center">
+                            <div class="col-md-3 text-center">
+                                <i class="fab fa-stripe-s fa-3x text-primary"></i>
+                            </div>
+                            <div class="col-md-9">
+                                <h5>Carte Bancaire (Stripe)</h5>
+                                <p class="mb-0">Paiement sécurisé par carte bancaire</p>
+                                <small class="text-muted">Visa, MasterCard, American Express</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Formulaire Stripe -->
+                    <div id="stripe-form" class="payment-form">
+                        <form id="payment-form-stripe" method="post" action="{% url 'create_stripe_payment' %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="amount" value="{{ amount }}">
+                            {% if description %}
+                                <input type="hidden" name="description" value="{{ description }}">
+                            {% endif %}
+                            <!-- Champs cachés pour les données de commande -->
+                            <input type="hidden" name="checkout_data" id="checkout-data-input">
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="card-name" class="form-label">Nom sur la carte</label>
+                                        <input type="text" class="form-control" id="card-name" 
+                                               placeholder="John Doe" required>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="card-email" class="form-label">Email</label>
+                                        <input type="email" class="form-control" id="card-email" 
+                                               value="{{ user.email }}" required>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="card-element" class="form-label">Informations de la carte</label>
+                                <div id="card-element">
+                                    <!-- Stripe Elements injectera le formulaire de carte ici -->
+                                </div>
+                                <div id="card-errors" role="alert"></div>
+                            </div>
+                            
+                            <button type="submit" class="btn btn-primary btn-lg w-100" id="stripe-submit">
+                                <span id="button-text">
+                                    <i class="fas fa-lock me-2"></i>
+                                    Payer {{ amount }}€
+                                </span>
+                                <span id="spinner" class="d-none">
+                                    <i class="fas fa-spinner fa-spin me-2"></i>
+                                    Traitement...
+                                </span>
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Option PayPal -->
+                    <div class="payment-option" data-payment="paypal">
+                        <div class="row align-items-center">
+                            <div class="col-md-3 text-center">
+                                <i class="fab fa-paypal fa-3x" style="color: #003087;"></i>
+                            </div>
+                            <div class="col-md-9">
+                                <h5>PayPal</h5>
+                                <p class="mb-0">Paiement via votre compte PayPal</p>
+                                <small class="text-muted">Connexion sécurisée à PayPal</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Formulaire PayPal -->
+                    <div id="paypal-form" class="payment-form">
+                        <div class="text-center">
+                            <p>Vous allez être redirigé vers PayPal pour finaliser votre paiement.</p>
+                            <form method="post" action="{% url 'create_paypal_payment' %}">
+                                {% csrf_token %}
+                                <input type="hidden" name="amount" value="{{ amount }}">
+                                {% if description %}
+                                    <input type="hidden" name="description" value="{{ description }}">
+                                {% endif %}
+                                <!-- Champs cachés pour les données de commande -->
+                                <input type="hidden" name="checkout_data" class="checkout-data-input">
+                                <button type="submit" class="btn btn-primary btn-lg">
+                                    <i class="fab fa-paypal me-2"></i>
+                                    Payer avec PayPal {{ amount }}€
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div class="text-center mt-4">
+                        <a href="{% if request.GET.source == 'checkout' %}{% url 'checkout' %}{% else %}{% url 'profile' %}{% endif %}" class="btn btn-secondary btn-lg">
+                            <i class="fas fa-arrow-left me-2"></i>
+                            Retour
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Inclure Stripe.js -->
+<script src="https://js.stripe.com/v3/"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const paymentOptions = document.querySelectorAll('.payment-option');
+    const stripForm = document.getElementById('stripe-form');
+    const paypalForm = document.getElementById('paypal-form');
+    let selectedPayment = null;
+
+    // Récupérer les données de commande du sessionStorage
+    const checkoutData = sessionStorage.getItem('checkout_data');
+    if (checkoutData) {
+        const data = JSON.parse(checkoutData);
+        
+        // Afficher les informations de commande
+        const checkoutInfo = document.getElementById('checkout-info');
+        const deliveryInfo = document.getElementById('delivery-info');
+        const customerEmail = document.getElementById('customer-email');
+        
+        deliveryInfo.innerHTML = `${data.first_name} ${data.last_name}<br>${data.address}<br>${data.postal_code} ${data.city}`;
+        customerEmail.textContent = data.email;
+        checkoutInfo.classList.remove('d-none');
+        
+        // Remplir le champ email avec celui du checkout
+        document.getElementById('card-email').value = data.email;
+        document.getElementById('card-name').value = `${data.first_name} ${data.last_name}`;
+        
+        // Ajouter les données de commande aux formulaires
+        document.getElementById('checkout-data-input').value = checkoutData;
+        document.querySelector('.checkout-data-input').value = checkoutData;
+    }
+
+    // Configuration Stripe
+    const stripe = Stripe('{{ stripe_publishable_key }}');
+    const elements = stripe.elements();
+    
+    // Créer l'élément de carte
+    const style = {
+        base: {
+            color: '#32325d',
+            fontFamily: '"Helvetica Neue", Helvetica, sans-serif',
+            fontSmoothing: 'antialiased',
+            fontSize: '16px',
+            '::placeholder': {
+                color: '#aab7c4'
+            }
+        },
+        invalid: {
+            color: '#fa755a',
+            iconColor: '#fa755a'
+        }
+    };
+    
+    const card = elements.create('card', {style: style});
+    card.mount('#card-element');
+    
+    // Gérer les erreurs de carte en temps réel
+    card.on('change', function(event) {
+        const displayError = document.getElementById('card-errors');
+        if (event.error) {
+            displayError.textContent = event.error.message;
+        } else {
+            displayError.textContent = '';
+        }
+    });
+
+    // Gestion de la sélection des options de paiement
+    paymentOptions.forEach(option => {
+        option.addEventListener('click', function() {
+            // Retirer la sélection précédente
+            paymentOptions.forEach(opt => opt.classList.remove('selected'));
+            document.querySelectorAll('.payment-form').forEach(form => form.classList.remove('active'));
+            
+            // Sélectionner l'option cliquée
+            this.classList.add('selected');
+            selectedPayment = this.dataset.payment;
+            
+            // Afficher le formulaire correspondant
+            if (selectedPayment === 'stripe') {
+                stripForm.classList.add('active');
+            } else if (selectedPayment === 'paypal') {
+                paypalForm.classList.add('active');
+            }
+        });
+    });
+
+    // Gestion du formulaire Stripe
+    const form = document.getElementById('payment-form-stripe');
+    form.addEventListener('submit', async function(event) {
+        event.preventDefault();
+        
+        const submitButton = document.getElementById('stripe-submit');
+        const buttonText = document.getElementById('button-text');
+        const spinner = document.getElementById('spinner');
+        
+        // Désactiver le bouton et afficher le spinner
+        submitButton.disabled = true;
+        buttonText.classList.add('d-none');
+        spinner.classList.remove('d-none');
+
+        const {token, error} = await stripe.createToken(card, {
+            name: document.getElementById('card-name').value,
+            email: document.getElementById('card-email').value
+        });
+
+        if (error) {
+            // Afficher l'erreur
+            const errorElement = document.getElementById('card-errors');
+            errorElement.textContent = error.message;
+            
+            // Réactiver le bouton
+            submitButton.disabled = false;
+            buttonText.classList.remove('d-none');
+            spinner.classList.add('d-none');
+        } else {
+            // Ajouter le token au formulaire et le soumettre
+            const tokenInput = document.createElement('input');
+            tokenInput.type = 'hidden';
+            tokenInput.name = 'stripeToken';
+            tokenInput.value = token.id;
+            form.appendChild(tokenInput);
+            
+            form.submit();
+        }
+    });
+});
+</script>
+{% endblock %}

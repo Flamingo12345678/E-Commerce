@@ -1,0 +1,258 @@
+{% extends 'base.html' %}
+
+{% block title %}Paiement Accepté - YEE E-Commerce{% endblock %}
+
+{% block content %}
+<div class="container-fluid vh-100 d-flex align-items-center justify-content-center bg-light">
+    <div class="row justify-content-center w-100">
+        <div class="col-lg-6 col-md-8 col-sm-10">
+            <!-- Notification de succès avec animation -->
+            <div id="success-notification" class="card border-0 shadow-lg notification-card">
+                <div class="card-body text-center py-5">
+                    <!-- Animation de succès -->
+                    <div class="success-animation mb-4">
+                        <div class="checkmark-circle">
+                            <div class="checkmark"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- Titre principal -->
+                    <h1 class="text-success fw-bold mb-3">
+                        <i class="bi bi-check-circle-fill"></i>
+                        Paiement Accepté !
+                    </h1>
+                    
+                    <!-- Message de confirmation -->
+                    <div class="alert alert-success border-0 mx-auto" style="max-width: 400px;">
+                        <h5 class="mb-2">
+                            <i class="bi bi-credit-card-2-front"></i>
+                            Transaction réussie
+                        </h5>
+                        <p class="mb-1">
+                            <strong>Montant :</strong> {{ amount }} €
+                        </p>
+                        {% if latest_order %}
+                        <p class="mb-1">
+                            <strong>Commande :</strong> #{{ latest_order.id }}
+                        </p>
+                        <p class="mb-1">
+                            <strong>Produit :</strong> {{ latest_order.product.name }}
+                        </p>
+                        <p class="mb-1">
+                            <strong>Quantité :</strong> {{ latest_order.quantity }}
+                        </p>
+                        {% endif %}
+                        <p class="mb-1">
+                            <strong>Méthode :</strong> 
+                            {% if payment_method == 'stripe' %}
+                                <span class="badge bg-primary">Carte bancaire</span>
+                            {% elif payment_method == 'paypal' %}
+                                <span class="badge bg-info">PayPal</span>
+                            {% else %}
+                                <span class="badge bg-secondary">{{ payment_method|title }}</span>
+                            {% endif %}
+                        </p>
+                        {% if transaction_id %}
+                        <p class="mb-0">
+                            <small class="text-muted">Transaction : {{ transaction_id }}</small>
+                        </p>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Message de redirection avec compteur -->
+                    <div class="redirection-info">
+                        <div class="d-flex align-items-center justify-content-center mb-3">
+                            <div class="spinner-border text-primary me-3" role="status" style="width: 1.5rem; height: 1.5rem;">
+                                <span class="visually-hidden">Chargement...</span>
+                            </div>
+                            <div>
+                                <p class="mb-1 fw-semibold">Redirection automatique</p>
+                                <p class="mb-0 text-muted">
+                                    Vous serez redirigé vers 
+                                    {% if latest_order %}
+                                        les détails de votre commande dans 
+                                    {% else %}
+                                        vos commandes dans 
+                                    {% endif %}
+                                    <span id="countdown" class="fw-bold text-primary">{{ redirect_delay }}</span> secondes
+                                </p>
+                            </div>
+                        </div>
+                        
+                        <!-- Actions immédiates -->
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-center">
+                            <a href="{{ redirect_url }}" class="btn btn-primary btn-lg">
+                                <i class="bi bi-list-check"></i>
+                                {% if latest_order %}
+                                    Voir ma commande #{{ latest_order.id }}
+                                {% else %}
+                                    Voir mes commandes
+                                {% endif %}
+                            </a>
+                            <a href="{% url 'index' %}" class="btn btn-outline-secondary">
+                                <i class="bi bi-shop"></i>
+                                Continuer les achats
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <!-- Informations supplémentaires -->
+                    <div class="mt-4 pt-3 border-top">
+                        <p class="text-muted small mb-2">
+                            <i class="bi bi-envelope"></i>
+                            Un email de confirmation a été envoyé à {{ user.email }}
+                        </p>
+                        <p class="text-muted small mb-0">
+                            <i class="bi bi-shield-check"></i>
+                            Vos données de paiement sont sécurisées et cryptées
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Styles CSS pour les animations -->
+<style>
+    .notification-card {
+        animation: slideInUp 0.6s ease-out;
+        border-radius: 15px !important;
+    }
+    
+    @keyframes slideInUp {
+        from {
+            transform: translateY(50px);
+            opacity: 0;
+        }
+        to {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    }
+    
+    .success-animation {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    
+    .checkmark-circle {
+        width: 80px;
+        height: 80px;
+        position: relative;
+        border-radius: 50%;
+        background: linear-gradient(45deg, #28a745, #20c997);
+        animation: pulse 0.8s ease-in-out;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .checkmark {
+        width: 40px;
+        height: 40px;
+        position: relative;
+    }
+    
+    .checkmark:before {
+        content: '';
+        position: absolute;
+        width: 3px;
+        height: 20px;
+        background: white;
+        left: 13px;
+        top: 10px;
+        transform: rotate(45deg);
+        animation: checkmarkDraw 0.5s ease-in-out 0.3s forwards;
+        transform-origin: bottom;
+        opacity: 0;
+    }
+    
+    .checkmark:after {
+        content: '';
+        position: absolute;
+        width: 3px;
+        height: 10px;
+        background: white;
+        left: 8px;
+        top: 18px;
+        transform: rotate(-45deg);
+        animation: checkmarkDraw 0.3s ease-in-out 0.5s forwards;
+        transform-origin: bottom;
+        opacity: 0;
+    }
+    
+    @keyframes pulse {
+        0% {
+            transform: scale(0);
+            opacity: 0;
+        }
+        50% {
+            transform: scale(1.1);
+        }
+        100% {
+            transform: scale(1);
+            opacity: 1;
+        }
+    }
+    
+    @keyframes checkmarkDraw {
+        0% {
+            opacity: 0;
+            transform: scale(0) rotate(45deg);
+        }
+        100% {
+            opacity: 1;
+            transform: scale(1) rotate(45deg);
+        }
+    }
+    
+    .redirection-info {
+        animation: fadeIn 1s ease-in-out 1s forwards;
+        opacity: 0;
+    }
+    
+    @keyframes fadeIn {
+        to {
+            opacity: 1;
+        }
+    }
+</style>
+
+<!-- JavaScript pour le compteur et la redirection -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    let countdown = {{ redirect_delay }};
+    const countdownElement = document.getElementById('countdown');
+    const redirectUrl = "{{ redirect_url }}";
+    
+    // Mettre à jour le compteur chaque seconde
+    const timer = setInterval(function() {
+        countdown--;
+        countdownElement.textContent = countdown;
+        
+        if (countdown <= 0) {
+            clearInterval(timer);
+            // Redirection automatique
+            window.location.href = redirectUrl;
+        }
+    }, 1000);
+    
+    // Animation d'entrée
+    setTimeout(() => {
+        document.getElementById('success-notification').style.transform = 'scale(1.02)';
+        setTimeout(() => {
+            document.getElementById('success-notification').style.transform = 'scale(1)';
+        }, 200);
+    }, 500);
+    
+    // Arrêter la redirection si l'utilisateur navigue manuellement
+    document.querySelectorAll('a').forEach(link => {
+        link.addEventListener('click', () => {
+            clearInterval(timer);
+        });
+    });
+});
+</script>
+{% endblock %}

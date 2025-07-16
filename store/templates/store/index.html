@@ -1,0 +1,572 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}YEE - Fashion Forward{% endblock %}
+
+{% block content %}
+<!-- Hero Section - Style Zara/Bershka -->
+<section class="hero-fashion position-relative overflow-hidden">
+  <div class="hero-slider">
+    <!-- Slide principal -->
+    <div class="hero-slide active">
+      <div class="hero-image">
+        <img src="{% static 'images/Hero-Section.png' %}" 
+             alt="New Collection" 
+             class="w-100 h-100 object-fit-cover">
+      </div>
+      <div class="hero-content">
+        <div class="container">
+          <div class="row">
+            <div class="col-lg-6 offset-lg-1">
+              <div class="hero-text">
+                <h1 class="hero-title">NEW COLLECTION</h1>
+                <p class="hero-subtitle">Discover the latest trends</p>
+                <a href="#products" class="btn-hero">SHOP NOW</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Navigation Catégories - Style Vitrine -->
+<section class="categories-nav py-4 bg-white">
+  <div class="container">
+    <div class="row">
+      <div class="col-12 text-center">
+        <h2 class="collection-title mb-4">EXPLORE OUR COLLECTIONS</h2>
+        <nav class="main-categories d-flex justify-content-center flex-wrap">
+          <a href="{% url 'category' 'women' %}" class="category-nav-link">
+            <div class="category-preview">
+              <div class="category-image women-preview"></div>
+              <h3>WOMAN</h3>
+              <p>Elegant & Contemporary</p>
+            </div>
+          </a>
+          <a href="{% url 'category' 'men' %}" class="category-nav-link">
+            <div class="category-preview">
+              <div class="category-image men-preview"></div>
+              <h3>MAN</h3>
+              <p>Classic & Modern</p>
+            </div>
+          </a>
+          <a href="{% url 'category' 'accessories' %}" class="category-nav-link">
+            <div class="category-preview">
+              <div class="category-image accessories-preview"></div>
+              <h3>ACCESSORIES</h3>
+              <p>Complete Your Look</p>
+            </div>
+          </a>
+          <a href="{% url 'category' 'sale' %}" class="category-nav-link sale-category">
+            <div class="category-preview">
+              <div class="category-image sale-preview"></div>
+              <h3>SALE</h3>
+              <p>Up to 70% Off</p>
+              <span class="sale-badge">SALE</span>
+            </div>
+          </a>
+        </nav>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Section Présentation Collections - Style Vitrine -->
+<section class="collections-showcase py-5 bg-white" id="collections">
+  <div class="container-fluid px-4">
+    <div class="row mb-5">
+      <div class="col-12 text-center">
+        <h2 class="showcase-title">DISCOVER OUR COLLECTIONS</h2>
+        <p class="showcase-subtitle">Explore our carefully curated fashion collections</p>
+      </div>
+    </div>
+    
+    <!-- Grille de présentation des collections -->
+    <div class="collections-grid">
+      
+      <!-- Collection Femme -->
+      <div class="collection-card large-card">
+        <div class="collection-image-wrapper">
+          <div class="collection-placeholder" style="background: linear-gradient(135deg, #f8f9fa, #e9ecef);">
+            <div class="collection-overlay">
+              <div class="collection-content">
+                <h3 class="collection-name">WOMAN</h3>
+                <p class="collection-description">Elegant & Contemporary</p>
+                <span class="collection-count">240+ Items</span>
+                <a href="{% url 'category' 'women' %}" class="btn-collection">EXPLORE COLLECTION</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Collection Homme -->
+      <div class="collection-card medium-card">
+        <div class="collection-image-wrapper">
+          <div class="collection-placeholder" style="background: linear-gradient(135deg, #495057, #6c757d);">
+            <div class="collection-overlay">
+              <div class="collection-content">
+                <h3 class="collection-name">MAN</h3>
+                <p class="collection-description">Classic & Modern</p>
+                <span class="collection-count">180+ Items</span>
+                <a href="{% url 'category' 'men' %}" class="btn-collection">EXPLORE COLLECTION</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Accessoires -->
+      <div class="collection-card medium-card">
+        <div class="collection-image-wrapper">
+          <div class="collection-placeholder" style="background: linear-gradient(135deg, #ffc107, #fd7e14);">
+            <div class="collection-overlay">
+              <div class="collection-content">
+                <h3 class="collection-name">ACCESSORIES</h3>
+                <p class="collection-description">Complete Your Look</p>
+                <span class="collection-count">95+ Items</span>
+                <a href="{% url 'category' 'accessories' %}" class="btn-collection">EXPLORE COLLECTION</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Sale -->
+      <div class="collection-card sale-card">
+        <div class="collection-image-wrapper">
+          <div class="collection-placeholder" style="background: linear-gradient(135deg, #dc3545, #e74c3c);">
+            <div class="sale-badge-large">SALE</div>
+            <div class="collection-overlay">
+              <div class="collection-content">
+                <h3 class="collection-name">SUMMER SALE</h3>
+                <p class="collection-description">Up to 70% Off</p>
+                <span class="collection-count">150+ Items</span>
+                <a href="{% url 'category' 'sale' %}" class="btn-collection btn-sale">SHOP SALE</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Collection Homme -->
+      <div class="collection-card medium-card">
+        <div class="collection-image-wrapper">
+          <div class="collection-placeholder" style="background: linear-gradient(135deg, #212529, #495057);">
+            <div class="collection-overlay">
+              <div class="collection-content">
+                <h3 class="collection-name">MAN</h3>
+                <p class="collection-description">Sharp & Modern</p>
+                <span class="collection-count">180+ Items</span>
+                <a href="{% url 'category' 'men' %}" class="btn-collection">EXPLORE COLLECTION</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Nouvelles Arrivées -->
+      <div class="collection-card medium-card">
+        <div class="collection-image-wrapper">
+          <div class="collection-placeholder" style="background: linear-gradient(135deg, #ffc107, #fd7e14);">
+            <div class="collection-overlay">
+              <div class="collection-content">
+                <h3 class="collection-name">NEW IN</h3>
+                <p class="collection-description">Fresh Arrivals</p>
+                <span class="collection-count">50+ Items</span>
+                <a href="{% url 'category' 'new-arrivals' %}" class="btn-collection">DISCOVER NEW</a>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="new-badge">NEW</div>
+      </div>
+      
+      <!-- Collection Enfants -->
+      <div class="collection-card small-card">
+        <div class="collection-image-wrapper">
+          <div class="collection-placeholder" style="background: linear-gradient(135deg, #e3f2fd, #bbdefb);">
+            <div class="collection-overlay">
+              <div class="collection-content">
+                <h3 class="collection-name">KIDS</h3>
+                <p class="collection-description">Playful Style</p>
+                <span class="collection-count">120+ Items</span>
+                <a href="{% url 'category' 'kids' %}" class="btn-collection">SHOP KIDS</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Collection Soldes -->
+      <div class="collection-card small-card sale-card">
+        <div class="collection-image-wrapper">
+          <div class="collection-placeholder" style="background: linear-gradient(135deg, #dc3545, #c82333);">
+            <div class="collection-overlay">
+              <div class="collection-content">
+                <h3 class="collection-name">SALE</h3>
+                <p class="collection-description">Up to 50% Off</p>
+                <span class="collection-count">300+ Items</span>
+                <a href="{% url 'category' 'sale' %}" class="btn-collection">SHOP SALE</a>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="sale-badge">-50%</div>
+      </div>
+      
+      <!-- Collection Accessoires -->
+      <div class="collection-card medium-card">
+        <div class="collection-image-wrapper">
+          <div class="collection-placeholder" style="background: linear-gradient(135deg, #6f42c1, #495057);">
+            <div class="collection-overlay">
+              <div class="collection-content">
+                <h3 class="collection-name">ACCESSORIES</h3>
+                <p class="collection-description">Complete Your Look</p>
+                <span class="collection-count">90+ Items</span>
+                <a href="{% url 'category' 'accessories' %}" class="btn-collection">VIEW ACCESSORIES</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+    </div>
+  </div>
+</section>
+
+<!-- Section Aperçu Produits Vedettes -->
+<section class="featured-preview py-5 bg-light" id="products">
+  <div class="container">
+    <div class="row mb-4">
+      <div class="col-12 text-center">
+        <h2 class="section-title">FEATURED ITEMS</h2>
+        <p class="text-muted">A glimpse of what's trending</p>
+      </div>
+    </div>
+    
+    <div class="row">
+      {% for product in hero_products %}
+        <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+          <div class="card product-card h-100 border-0 shadow-sm">
+            <!-- Badge de stock faible -->
+            {% if product.stock <= 5 and product.stock > 0 %}
+              <div class="stock-badge">Only {{ product.stock }} left!</div>
+            {% elif product.stock == 0 %}
+              <div class="stock-badge out-of-stock">Out of Stock</div>
+            {% endif %}
+            
+            <div class="card-img-top position-relative">
+              {% if product.thumbnail %}
+                <img src="{{ product.thumbnail.url }}" alt="{{ product.name }}" class="img-fluid product-image">
+              {% else %}
+                <div class="product-placeholder">
+                  <i class="fas fa-image fa-3x text-muted"></i>
+                </div>
+              {% endif %}
+              
+              <!-- Overlay avec catégorie -->
+              <div class="product-overlay">
+                <span class="product-category">{{ product.category.name|default:"Fashion"|upper }}</span>
+              </div>
+            </div>
+            
+            <div class="card-body d-flex flex-column">
+              <h5 class="card-title product-name">{{ product.name }}</h5>
+              
+              <!-- Prix et évaluation -->
+              <div class="product-meta mb-2">
+                <div class="price-section">
+                  <span class="product-price">${{ product.price }}</span>
+                </div>
+                {% if product.rating > 0 %}
+                <div class="rating-section">
+                  <div class="stars">
+                    {% for i in "12345" %}
+                      {% if forloop.counter <= product.rating %}
+                        <span class="star filled">★</span>
+                      {% else %}
+                        <span class="star">☆</span>
+                      {% endif %}
+                    {% endfor %}
+                  </div>
+                  <span class="review-count">({{ product.review_count }})</span>
+                </div>
+                {% endif %}
+              </div>
+              
+              <!-- Indicateur de stock -->
+              <div class="stock-indicator mb-3">
+                {% if product.stock > 5 %}
+                  <small class="text-success"><i class="fas fa-check-circle"></i> {{ product.stock }} in stock</small>
+                {% elif product.stock > 0 %}
+                  <small class="text-warning"><i class="fas fa-exclamation-triangle"></i> {{ product.stock }} in stock</small>
+                {% else %}
+                  <small class="text-danger"><i class="fas fa-times-circle"></i> Out of stock</small>
+                {% endif %}
+              </div>
+              
+              <!-- Boutons d'action -->
+              <div class="product-actions mt-auto">
+                <div class="action-buttons">
+                  <a href="{% url 'product' product.slug %}" class="btn btn-outline-primary btn-sm flex-fill me-2">
+                    <i class="fas fa-eye"></i> View
+                  </a>
+                  {% if product.stock > 0 %}
+                    <a href="{% url 'add_to_cart' product.slug %}" class="btn btn-primary btn-sm flex-fill">
+                      <i class="fas fa-shopping-cart"></i> Add to Cart
+                    </a>
+                  {% else %}
+                    <button class="btn btn-secondary btn-sm flex-fill" disabled>
+                      <i class="fas fa-ban"></i> Out of Stock
+                    </button>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      {% empty %}
+        <!-- Produits de démonstration si aucun produit en base -->
+        <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+          <div class="card product-card h-100 border-0 shadow-sm">
+            <div class="stock-badge">New Collection!</div>
+            <div class="card-img-top position-relative">
+              <div class="product-placeholder" style="background: linear-gradient(45deg, #f1f3f4, #e8eaed); height: 200px; display: flex; align-items: center; justify-content: center;">
+                <i class="fas fa-tshirt fa-3x text-muted"></i>
+              </div>
+              <div class="product-overlay">
+                <span class="product-category">WOMAN</span>
+              </div>
+            </div>
+            <div class="card-body d-flex flex-column">
+              <h5 class="card-title product-name">Stylish Blouse</h5>
+              <div class="product-meta mb-2">
+                <div class="price-section">
+                  <span class="product-price">$45,00</span>
+                </div>
+                <div class="rating-section">
+                  <div class="stars">
+                    <span class="star filled">★</span>
+                    <span class="star filled">★</span>
+                    <span class="star filled">★</span>
+                    <span class="star filled">★</span>
+                    <span class="star">☆</span>
+                  </div>
+                  <span class="review-count">(28)</span>
+                </div>
+              </div>
+              <div class="stock-indicator mb-3">
+                <small class="text-success"><i class="fas fa-check-circle"></i> 12 in stock</small>
+              </div>
+              <div class="product-actions mt-auto">
+                <div class="action-buttons">
+                  <a href="#" class="btn btn-outline-primary btn-sm flex-fill me-2">
+                    <i class="fas fa-eye"></i> View
+                  </a>
+                  <a href="#" class="btn btn-primary btn-sm flex-fill">
+                    <i class="fas fa-shopping-cart"></i> Add to Cart
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+          <div class="card product-card h-100 border-0 shadow-sm">
+            <div class="card-img-top position-relative">
+              <div class="product-placeholder" style="background: linear-gradient(45deg, #f8f9fa, #dee2e6); height: 200px; display: flex; align-items: center; justify-content: center;">
+                <i class="fas fa-shoe-prints fa-3x text-muted"></i>
+              </div>
+              <div class="product-overlay">
+                <span class="product-category">MAN</span>
+              </div>
+            </div>
+            <div class="card-body d-flex flex-column">
+              <h5 class="card-title product-name">Classic Sneakers</h5>
+              <div class="product-meta mb-2">
+                <div class="price-section">
+                  <span class="product-price">$89,00</span>
+                </div>
+                <div class="rating-section">
+                  <div class="stars">
+                    <span class="star filled">★</span>
+                    <span class="star filled">★</span>
+                    <span class="star filled">★</span>
+                    <span class="star filled">★</span>
+                    <span class="star filled">★</span>
+                  </div>
+                  <span class="review-count">(156)</span>
+                </div>
+              </div>
+              <div class="stock-indicator mb-3">
+                <small class="text-success"><i class="fas fa-check-circle"></i> 25 in stock</small>
+              </div>
+              <div class="product-actions mt-auto">
+                <div class="action-buttons">
+                  <a href="#" class="btn btn-outline-primary btn-sm flex-fill me-2">
+                    <i class="fas fa-eye"></i> View
+                  </a>
+                  <a href="#" class="btn btn-primary btn-sm flex-fill">
+                    <i class="fas fa-shopping-cart"></i> Add to Cart
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+          <div class="card product-card h-100 border-0 shadow-sm">
+            <div class="card-img-top position-relative">
+              <div class="product-placeholder" style="background: linear-gradient(45deg, #fff3cd, #ffeaa7); height: 200px; display: flex; align-items: center; justify-content: center;">
+                <i class="fas fa-gem fa-3x text-muted"></i>
+              </div>
+              <div class="product-overlay">
+                <span class="product-category">ACCESSORIES</span>
+              </div>
+            </div>
+            <div class="card-body d-flex flex-column">
+              <h5 class="card-title product-name">Designer Watch</h5>
+              <div class="product-meta mb-2">
+                <div class="price-section">
+                  <span class="product-price">$199,00</span>
+                </div>
+                <div class="rating-section">
+                  <div class="stars">
+                    <span class="star filled">★</span>
+                    <span class="star filled">★</span>
+                    <span class="star filled">★</span>
+                    <span class="star filled">★</span>
+                    <span class="star">☆</span>
+                  </div>
+                  <span class="review-count">(89)</span>
+                </div>
+              </div>
+              <div class="stock-indicator mb-3">
+                <small class="text-warning"><i class="fas fa-exclamation-triangle"></i> 3 in stock</small>
+              </div>
+              <div class="product-actions mt-auto">
+                <div class="action-buttons">
+                  <a href="#" class="btn btn-outline-primary btn-sm flex-fill me-2">
+                    <i class="fas fa-eye"></i> View
+                  </a>
+                  <a href="#" class="btn btn-primary btn-sm flex-fill">
+                    <i class="fas fa-shopping-cart"></i> Add to Cart
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+    
+    <!-- Bouton pour voir tous les produits dirigé vers une catégorie spécifique -->
+    <div class="row mt-5">
+      <div class="col-12 text-center">
+        <p class="text-muted mb-3">Ready to explore our full collection?</p>
+        <a href="{% url 'category' 'women' %}" class="btn btn-dark btn-lg px-5">EXPLORE COLLECTIONS</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Section FAQ -->
+<section class="faq-section py-5 bg-light">
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-8 mx-auto">
+        <div class="text-center mb-5">
+          <h2 class="display-5 fw-bold mb-3">Frequently Asked Questions</h2>
+          <p class="lead text-muted">Everything you need to know about shopping with YEE Store</p>
+        </div>
+        
+        <div class="accordion" id="faqAccordion">
+          <div class="accordion-item border-0 mb-3 rounded-3 shadow-sm">
+            <h2 class="accordion-header">
+              <button class="accordion-button fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#faq1">
+                🚚 How fast is your shipping?
+              </button>
+            </h2>
+            <div id="faq1" class="accordion-collapse collapse show" data-bs-parent="#faqAccordion">
+              <div class="accordion-body">
+                We offer lightning-fast delivery! Most orders arrive within 24-48 hours for local deliveries, and 3-5 business days internationally. Plus, free shipping on orders over $50.
+              </div>
+            </div>
+          </div>
+          
+          <div class="accordion-item border-0 mb-3 rounded-3 shadow-sm">
+            <h2 class="accordion-header">
+              <button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#faq2">
+                🛡️ What's your return policy?
+              </button>
+            </h2>
+            <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+              <div class="accordion-body">
+                We offer a 30-day satisfaction guarantee. If you're not completely happy with your purchase, return it for a full refund - no questions asked. We even cover return shipping costs.
+              </div>
+            </div>
+          </div>
+          
+          <div class="accordion-item border-0 mb-3 rounded-3 shadow-sm">
+            <h2 class="accordion-header">
+              <button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#faq3">
+                💳 What payment methods do you accept?
+              </button>
+            </h2>
+            <div id="faq3" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+              <div class="accordion-body">
+                We accept all major credit cards (Visa, MasterCard, American Express), PayPal, Apple Pay, Google Pay, and bank transfers. All payments are secured with SSL encryption.
+              </div>
+            </div>
+          </div>
+          
+          <div class="accordion-item border-0 mb-3 rounded-3 shadow-sm">
+            <h2 class="accordion-header">
+              <button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#faq4">
+                🎯 How do you ensure product quality?
+              </button>
+            </h2>
+            <div id="faq4" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+              <div class="accordion-body">
+                Every product is handpicked by our expert team and undergoes rigorous quality testing. We partner only with trusted suppliers and manufacturers who meet our high standards.
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="text-center mt-4">
+          <p class="text-muted">Still have questions? <a href="#" class="text-primary fw-bold">Contact our support team</a> - we're here 24/7!</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+
+<!-- Section CTA finale -->
+<section class="final-cta-section py-5" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+  <div class="container text-center text-white">
+    <div class="row">
+      <div class="col-lg-8 mx-auto">
+<!-- Bannière promotionnelle style mode -->
+<section class="promo-banner bg-black text-white py-2">
+  <div class="container-fluid">
+    <div class="text-center">
+      <p class="mb-0 small">FREE SHIPPING ON ORDERS OVER $50 | RETURN WITHIN 30 DAYS</p>
+    </div>
+  </div>
+</section>
+
+{% endblock %}

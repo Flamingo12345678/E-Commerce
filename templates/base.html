@@ -1,0 +1,355 @@
+{% load static %}
+{% load cart_tags %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}YEE E-Commerce{% endblock %}</title>
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="{% static 'favicon.svg' %}">
+    <link rel="icon" type="image/png" href="{% static 'favicon.png' %}">
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+
+    <!-- Google Fonts (optionnel) -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/landing.css' %}">
+    <link rel="stylesheet" href="{% static 'css/landing-fashion.css' %}">
+    <link rel="stylesheet" href="{% static 'css/product-detail.css' %}">
+
+    <!-- Favicon (optionnel) -->
+    <link rel="icon" href="{% static 'images/favicon.ico' %}" type="image/x-icon">
+
+    <!-- Custom dropdown styles -->
+    <style>
+        /* Fix pour le dropdown du profil */
+        .dropdown-menu {
+            min-width: 200px !important;
+            border: 1px solid rgba(0,0,0,.15) !important;
+            border-radius: 0.5rem !important;
+            padding: 0.5rem 0 !important;
+            z-index: 9999 !important;
+            position: absolute !important;
+        }
+        
+        /* S'assurer que la navbar a un z-index élevé */
+        .navbar {
+            z-index: 9998 !important;
+            position: relative !important;
+        }
+        
+        /* Fix pour que le dropdown soit au-dessus de tout */
+        .dropdown {
+            z-index: 9999 !important;
+            position: relative !important;
+        }
+        
+        .dropdown-item {
+            padding: 0.5rem 1rem !important;
+            transition: all 0.2s ease !important;
+        }
+        
+        .dropdown-item:hover {
+            background-color: rgba(99, 102, 241, 0.1) !important;
+            color: var(--bs-primary) !important;
+        }
+        
+        .dropdown-item-text {
+            padding: 0.5rem 1rem !important;
+            font-weight: 500 !important;
+        }
+        
+        .dropdown-divider {
+            margin: 0.5rem 0 !important;
+        }
+        
+        /* S'assurer que le bouton dropdown est visible */
+        .btn-link {
+            color: var(--bs-dark) !important;
+            text-decoration: none !important;
+        }
+        
+        .btn-link:hover {
+            color: var(--bs-primary) !important;
+        }
+        
+        /* Fix pour la hero-section qui pourrait avoir un z-index trop élevé */
+        .hero-section {
+            z-index: 1 !important;
+            position: relative !important;
+            min-height: 75vh;
+        }
+        
+        .hero-section::before {
+            z-index: 1 !important;
+        }
+        
+        .hero-content {
+            z-index: 2 !important;
+        }
+        
+        /* Styles spécifiques pour la hero-section avec image de fond */
+        .hero-section {
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+        }
+        
+        .hero-section img {
+            transition: transform 0.5s ease;
+        }
+        
+        .hero-section:hover img {
+            transform: scale(1.02);
+        }
+        
+        /* Assurer que le texte est lisible sur l'image */
+        .hero-section .text-white {
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        /* Animation subtile */
+        @keyframes heroFadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .hero-section .container > .row > .col-lg-6 {
+            animation: heroFadeIn 1s ease-out;
+        }
+        
+        /* Override pour s'assurer que la navbar reste au-dessus */
+        header,
+        header .navbar {
+            z-index: 9999 !important;
+            position: relative !important;
+        }
+    </style>
+
+    {% block extra_head %}{% endblock %}
+</head>
+<body class="d-flex flex-column min-vh-100">
+
+<!-- 🔝 Navbar -->
+<header>
+  <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+    <div class="container">
+      <a class="navbar-brand fw-bold text-primary d-flex align-items-center" href="{% url 'index' %}">
+        <i class="bi bi-circle-fill text-primary me-2" style="font-size: 0.8rem;"></i>
+        YEE Store
+      </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse justify-content-center" id="navbarNav">
+        <ul class="navbar-nav me-auto">
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'index' %}">Home</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'order_history' %}">My Orders</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'index' %}">Products</a>
+          </li>
+        </ul>
+        
+        <div class="d-flex align-items-center gap-3">
+          <!-- Barre de recherche -->
+          <form class="d-flex" method="get" action="{% url 'index' %}">
+            <div class="input-group">
+              <span class="input-group-text bg-transparent border-end-0">
+                <i class="bi bi-search"></i>
+              </span>
+              <input class="form-control border-start-0" type="search" placeholder="Search Products..." name="q" value="{{ request.GET.q }}">
+            </div>
+          </form>
+
+          {% if user.is_authenticated %}
+            <!-- Panier -->
+            <div class="position-relative">
+              {% cart_badge user %}
+            </div>
+            
+            <!-- Menu utilisateur -->
+            <div class="dropdown">
+              <button class="btn btn-link dropdown-toggle p-0 border-0 text-dark" type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="bi bi-person-circle fs-4"></i>
+              </button>
+              <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="userDropdown">
+                <li><span class="dropdown-item-text text-muted small">👋 {{ user.get_full_name|default:user.username }}</span></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item" href="{% url 'profile' %}"><i class="bi bi-person me-2"></i>Mon profil</a></li>
+                <li><a class="dropdown-item" href="{% url 'order_history' %}"><i class="bi bi-bag me-2"></i>Mes commandes</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item text-danger" href="{% url 'logout' %}"><i class="bi bi-box-arrow-right me-2"></i>Déconnexion</a></li>
+              </ul>
+            </div>
+          {% else %}
+            <a class="btn btn-outline-primary me-2" href="{% url 'login' %}">Connexion</a>
+            <a class="btn btn-primary" href="{% url 'signup' %}">S'inscrire</a>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </nav>
+</header>
+
+<!-- 📢 Messages Django -->
+{% if messages %}
+  <div class="container mt-3">
+    {% for message in messages %}
+      <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fermer"></button>
+      </div>
+    {% endfor %}
+  </div>
+{% endif %}
+
+<!-- 🧱 Contenu principal -->
+<main class="flex-grow-1">
+  {% block content %}
+  {% endblock %}
+</main>
+
+<!-- 🔻 Footer professionnel -->
+<footer class="bg-dark text-white py-5 mt-auto">
+  <div class="container">
+    <div class="row g-4">
+      <!-- Logo et description -->
+      <div class="col-lg-4 col-md-6">
+        <div class="mb-4">
+          <h4 class="fw-bold d-flex align-items-center">
+            <i class="bi bi-circle-fill text-primary me-2" style="font-size: 0.8rem;"></i>
+            YEE Store
+          </h4>
+          <p class="text-white-50 mb-4">
+            Your trusted partner for premium products. We curate only the finest items to enhance your lifestyle and bring joy to your everyday moments.
+          </p>
+          <!-- Newsletter simplifié -->
+          <div class="newsletter-footer">
+            <h6 class="fw-bold mb-3">Stay Updated</h6>
+            <form class="d-flex gap-2">
+              <input type="email" class="form-control form-control-sm" placeholder="Your email address" style="border-radius: 25px;">
+              <button class="btn btn-primary btn-sm px-3" type="submit" style="border-radius: 25px;">
+                <i class="bi bi-arrow-right"></i>
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Quick Links -->
+      <div class="col-lg-2 col-md-6">
+        <h6 class="fw-bold mb-3">Quick Links</h6>
+        <ul class="list-unstyled">
+          <li class="mb-2"><a href="{% url 'index' %}" class="text-white-50 text-decoration-none hover-primary">Home</a></li>
+          <li class="mb-2"><a href="#products" class="text-white-50 text-decoration-none hover-primary">Products</a></li>
+          <li class="mb-2"><a href="{% url 'order_history' %}" class="text-white-50 text-decoration-none hover-primary">My Orders</a></li>
+          <li class="mb-2"><a href="#" class="text-white-50 text-decoration-none hover-primary">About Us</a></li>
+          <li class="mb-2"><a href="#" class="text-white-50 text-decoration-none hover-primary">Contact</a></li>
+        </ul>
+      </div>
+      
+      <!-- Customer Service -->
+      <div class="col-lg-3 col-md-6">
+        <h6 class="fw-bold mb-3">Customer Service</h6>
+        <ul class="list-unstyled">
+          <li class="mb-2"><a href="#" class="text-white-50 text-decoration-none hover-primary">Help Center</a></li>
+          <li class="mb-2"><a href="#" class="text-white-50 text-decoration-none hover-primary">Shipping Info</a></li>
+          <li class="mb-2"><a href="#" class="text-white-50 text-decoration-none hover-primary">Returns</a></li>
+          <li class="mb-2"><a href="#" class="text-white-50 text-decoration-none hover-primary">Size Guide</a></li>
+          <li class="mb-2"><a href="#" class="text-white-50 text-decoration-none hover-primary">Track Order</a></li>
+        </ul>
+      </div>
+      
+      <!-- Contact Info -->
+      <div class="col-lg-3 col-md-6">
+        <h6 class="fw-bold mb-3">Get in Touch</h6>
+        <div class="contact-info">
+          <div class="d-flex align-items-center mb-3">
+            <i class="bi bi-telephone text-primary me-3"></i>
+            <div>
+              <small class="text-white-50 d-block">Customer Support</small>
+              <span class="fw-medium">+1 (555) 123-4567</span>
+            </div>
+          </div>
+          <div class="d-flex align-items-center mb-3">
+            <i class="bi bi-envelope text-primary me-3"></i>
+            <div>
+              <small class="text-white-50 d-block">Email Us</small>
+              <span class="fw-medium">support@yeestore.com</span>
+            </div>
+          </div>
+          <div class="d-flex align-items-center mb-3">
+            <i class="bi bi-chat-dots text-primary me-3"></i>
+            <div>
+              <small class="text-white-50 d-block">Live Chat</small>
+              <span class="fw-medium">24/7 Available</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <hr class="my-4 border-white-50">
+    
+    <!-- Bottom footer -->
+    <div class="row align-items-center">
+      <div class="col-lg-6 col-md-12">
+        <div class="d-flex flex-column flex-md-row align-items-center gap-3">
+          <div class="d-flex gap-3">
+            <span class="text-white-50 small">© 2024 YEE Store</span>
+            <a href="#" class="text-white-50 text-decoration-none small hover-primary">Privacy Policy</a>
+            <a href="#" class="text-white-50 text-decoration-none small hover-primary">Terms of Service</a>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-lg-6 col-md-12">
+        <div class="d-flex justify-content-center justify-content-lg-end align-items-center gap-3">
+          <!-- Social Links -->
+          <div class="d-flex gap-3 me-4">
+            <a href="#" class="text-white-50 hover-primary fs-5"><i class="bi bi-facebook"></i></a>
+            <a href="#" class="text-white-50 hover-primary fs-5"><i class="bi bi-twitter"></i></a>
+            <a href="#" class="text-white-50 hover-primary fs-5"><i class="bi bi-instagram"></i></a>
+            <a href="#" class="text-white-50 hover-primary fs-5"><i class="bi bi-linkedin"></i></a>
+          </div>
+          
+          <!-- Payment methods -->
+          <div class="d-flex gap-2">
+            <i class="bi bi-credit-card text-white-50" title="Credit Cards"></i>
+            <i class="bi bi-paypal text-white-50" title="PayPal"></i>
+            <i class="bi bi-apple text-white-50" title="Apple Pay"></i>
+            <i class="bi bi-google text-white-50" title="Google Pay"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- Custom JavaScript -->
+<script src="{% static 'js/landing-fashion.js' %}"></script>
+
+<!-- Scripts additionnels -->
+{% block scripts %}{% endblock %}
+
+</body>
+</html>

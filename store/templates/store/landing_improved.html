@@ -1,0 +1,609 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}YEE - Fashion Forward{% endblock %}
+
+{% block content %}
+<!-- Hero Section - Dynamique avec produits vedettes -->
+<section class="hero-fashion position-relative overflow-hidden">
+  <div class="hero-slider">
+    <div class="hero-slide active">
+      <div class="hero-image">
+        <img src="{% static 'images/Hero-Section.png' %}" 
+             alt="New Collection" 
+             class="w-100 h-100 object-fit-cover">
+      </div>
+      <div class="hero-content">
+        <div class="container">
+          <div class="row">
+            <div class="col-lg-6 offset-lg-1">
+              <div class="hero-text">
+                <h1 class="hero-title">NEW COLLECTION</h1>
+                <p class="hero-subtitle">{{ shop_stats.total_products }} produits • {{ shop_stats.total_categories }} catégories</p>
+                <a href="#categories" class="btn-hero">DÉCOUVRIR</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Navigation Catégories - Dynamique -->
+<section class="categories-nav py-5 bg-white" id="categories">
+  <div class="container">
+    <div class="row">
+      <div class="col-12 text-center">
+        <h2 class="collection-title mb-5">NOS COLLECTIONS</h2>
+        <div class="categories-grid">
+          {% for category in featured_categories %}
+            <div class="category-card" style="background: {{ category.background_gradient }}">
+              <a href="{{ category.get_absolute_url }}" class="category-link">
+                <div class="category-content">
+                  {% if category.icon_class %}
+                    <i class="{{ category.icon_class }} category-icon"></i>
+                  {% endif %}
+                  <h3 class="category-name">{{ category.name|upper }}</h3>
+                  <p class="category-description">{{ category.description|truncatewords:6 }}</p>
+                  <span class="category-count">{{ category.products_in_stock }} articles</span>
+                </div>
+                <div class="category-overlay">
+                  <span class="btn-category">EXPLORER</span>
+                </div>
+              </a>
+            </div>
+          {% empty %}
+            <!-- Fallback si pas de catégories vedettes -->
+            <div class="col-12 text-center">
+              <p class="text-muted">Aucune catégorie vedette configurée</p>
+              <a href="?catalog=1" class="btn btn-primary">Voir tous les produits</a>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Section Produits Vedettes -->
+{% if hero_products %}
+<section class="hero-products py-5 bg-light">
+  <div class="container">
+    <div class="row mb-4">
+      <div class="col-12 text-center">
+        <h2 class="section-title">COUPS DE CŒUR</h2>
+        <p class="text-muted">Nos produits les mieux notés</p>
+      </div>
+    </div>
+    
+    <div class="row">
+      {% for product in hero_products %}
+        <div class="col-lg-4 col-md-6 mb-4">
+          <div class="card product-hero-card h-100 border-0 shadow">
+            <div class="position-relative">
+              {% if product.thumbnail %}
+                <img src="{{ product.thumbnail.url }}" 
+                     alt="{{ product.name }}" 
+                     class="card-img-top product-hero-image">
+              {% else %}
+                <div class="product-placeholder-hero">
+                  <i class="fas fa-star fa-3x text-warning"></i>
+                </div>
+              {% endif %}
+              
+              <div class="product-badge-hero">
+                <span class="badge bg-warning text-dark">
+                  ★ {{ product.rating|default:"5.0" }}
+                </span>
+              </div>
+            </div>
+            
+            <div class="card-body text-center">
+              <h5 class="card-title">{{ product.name }}</h5>
+              <p class="text-muted small">{{ product.category.name|default:"Fashion" }}</p>
+              <div class="price-hero mb-3">
+                <span class="h4 text-primary">${{ product.price }}</span>
+              </div>
+              
+              <div class="d-grid gap-2">
+                <a href="{% url 'product' product.slug %}" 
+                   class="btn btn-outline-primary">
+                  Voir le produit
+                </a>
+                {% if product.stock > 0 %}
+                  <a href="{% url 'add_to_cart' product.slug %}" 
+                     class="btn btn-primary">
+                    Ajouter au panier
+                  </a>
+                {% else %}
+                  <button class="btn btn-secondary" disabled>
+                    Rupture de stock
+                  </button>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<!-- Section Nouveautés et Tendances -->
+<section class="featured-sections py-5">
+  <div class="container">
+    <div class="row">
+      <!-- Nouveautés -->
+      <div class="col-lg-6 mb-5">
+        <div class="section-header d-flex justify-content-between align-items-center mb-4">
+          <h3 class="section-subtitle">NOUVEAUTÉS</h3>
+          <a href="?category=new-arrivals" class="text-primary">Voir tout →</a>
+        </div>
+        
+        <div class="products-mini-grid">
+          {% for product in new_arrivals %}
+            <div class="product-mini-card">
+              <div class="row align-items-center">
+                <div class="col-4">
+                  {% if product.thumbnail %}
+                    <img src="{{ product.thumbnail.url }}" 
+                         alt="{{ product.name }}" 
+                         class="img-fluid rounded">
+                  {% else %}
+                    <div class="product-mini-placeholder">
+                      <i class="fas fa-image"></i>
+                    </div>
+                  {% endif %}
+                </div>
+                <div class="col-8">
+                  <h6 class="mb-1">{{ product.name|truncatechars:25 }}</h6>
+                  <p class="text-muted small mb-1">{{ product.category.name|default:"Fashion" }}</p>
+                  <div class="d-flex justify-content-between align-items-center">
+                    <span class="fw-bold text-primary">${{ product.price }}</span>
+                    <a href="{% url 'product' product.slug %}" 
+                       class="btn btn-sm btn-outline-primary">
+                      Voir
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+      
+      <!-- Tendances -->
+      <div class="col-lg-6 mb-5">
+        <div class="section-header d-flex justify-content-between align-items-center mb-4">
+          <h3 class="section-subtitle">TENDANCES</h3>
+          <a href="?catalog=1" class="text-primary">Voir tout →</a>
+        </div>
+        
+        <div class="products-mini-grid">
+          {% for product in trending_products %}
+            <div class="product-mini-card">
+              <div class="row align-items-center">
+                <div class="col-4">
+                  {% if product.thumbnail %}
+                    <img src="{{ product.thumbnail.url }}" 
+                         alt="{{ product.name }}" 
+                         class="img-fluid rounded">
+                  {% else %}
+                    <div class="product-mini-placeholder">
+                      <i class="fas fa-fire"></i>
+                    </div>
+                  {% endif %}
+                </div>
+                <div class="col-8">
+                  <h6 class="mb-1">{{ product.name|truncatechars:25 }}</h6>
+                  <p class="text-muted small mb-1">{{ product.category.name|default:"Fashion" }}</p>
+                  <div class="d-flex justify-content-between align-items-center">
+                    <span class="fw-bold text-primary">${{ product.price }}</span>
+                    <a href="{% url 'product' product.slug %}" 
+                       class="btn btn-sm btn-outline-primary">
+                      Voir
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Section Catalogue Complet (conditionnelle) -->
+{% if show_catalog %}
+<section class="catalog-section py-5 bg-light" id="catalog">
+  <div class="container">
+    <div class="row mb-4">
+      <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center">
+          <h2 class="section-title">CATALOGUE COMPLET</h2>
+          <a href="{% url 'index' %}" class="btn btn-outline-secondary">
+            ← Retour à l'accueil
+          </a>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Filtres améliorés -->
+    <form method="get" class="row g-3 mb-5 p-4 bg-white rounded shadow-sm">
+      <input type="hidden" name="catalog" value="1">
+      
+      <div class="col-md-4">
+        <label class="form-label small fw-bold text-muted">RECHERCHE</label>
+        <div class="input-group">
+          <span class="input-group-text">
+            <i class="fas fa-search"></i>
+          </span>
+          <input type="text" name="q" class="form-control" 
+                 placeholder="Rechercher..." 
+                 value="{{ current_filters.search_query }}">
+        </div>
+      </div>
+      
+      <div class="col-md-3">
+        <label class="form-label small fw-bold text-muted">CATÉGORIE</label>
+        <select name="category" class="form-select">
+          <option value="">Toutes les catégories</option>
+          {% for category in categories %}
+            <option value="{{ category.id }}" 
+                    {% if current_filters.category_filter == category.id|stringformat:"s" %}selected{% endif %}>
+              {{ category.name }} ({{ category.products_in_stock }})
+            </option>
+          {% endfor %}
+        </select>
+      </div>
+      
+      <div class="col-md-2">
+        <label class="form-label small fw-bold text-muted">STOCK</label>
+        <select name="stock" class="form-select">
+          <option value="">Tous</option>
+          <option value="in" {% if current_filters.stock_filter == 'in' %}selected{% endif %}>
+            En stock
+          </option>
+          <option value="out" {% if current_filters.stock_filter == 'out' %}selected{% endif %}>
+            Rupture
+          </option>
+        </select>
+      </div>
+      
+      <div class="col-md-3 d-flex align-items-end">
+        <div class="d-flex gap-2 w-100">
+          <button type="submit" class="btn btn-primary flex-fill">
+            <i class="fas fa-filter"></i> Filtrer
+          </button>
+          <a href="?catalog=1" class="btn btn-outline-secondary">
+            <i class="fas fa-redo"></i>
+          </a>
+        </div>
+      </div>
+    </form>
+
+    <!-- Grille de produits -->
+    {% if products %}
+      <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-xl-4 g-4">
+        {% for product in products %}
+          <div class="col">
+            <div class="card h-100 shadow-sm border-0 rounded">
+              <!-- Badge de stock -->
+              {% if product.stock <= 5 and product.stock > 0 %}
+                <div class="position-absolute top-0 end-0 m-2 z-3">
+                  <span class="badge bg-warning text-dark">
+                    Derniers {{ product.stock }}
+                  </span>
+                </div>
+              {% elif product.stock == 0 %}
+                <div class="position-absolute top-0 end-0 m-2 z-3">
+                  <span class="badge bg-danger">Rupture</span>
+                </div>
+              {% endif %}
+              
+              <div class="position-relative">
+                {% if product.thumbnail %}
+                  <img src="{{ product.thumbnail.url }}" 
+                       class="card-img-top" 
+                       alt="{{ product.name }}" 
+                       style="height: 200px; object-fit: cover;">
+                {% else %}
+                  <div class="d-flex align-items-center justify-content-center bg-light" 
+                       style="height: 200px;">
+                    <i class="fas fa-image text-muted fa-3x"></i>
+                  </div>
+                {% endif %}
+                
+                <div class="product-overlay position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center opacity-0">
+                  <a href="{% url 'product' product.slug %}" 
+                     class="btn btn-light btn-sm">
+                    Vue rapide
+                  </a>
+                </div>
+              </div>
+
+              <div class="card-body d-flex flex-column">
+                <h6 class="card-title">{{ product.name }}</h6>
+                <p class="card-text small text-muted flex-grow-1">
+                  {{ product.description|truncatewords:8 }}
+                </p>
+                
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                  <span class="fw-bold text-primary">${{ product.price }}</span>
+                  <small class="text-muted">
+                    {{ product.category.name|default:"Fashion" }}
+                  </small>
+                </div>
+
+                <div class="d-grid gap-2">
+                  <a href="{% url 'product' product.slug %}" 
+                     class="btn btn-outline-primary btn-sm">
+                    Voir détails
+                  </a>
+                  {% if product.stock > 0 %}
+                    <a href="{% url 'add_to_cart' product.slug %}" 
+                       class="btn btn-primary btn-sm">
+                      Ajouter au panier
+                    </a>
+                  {% else %}
+                    <button class="btn btn-secondary btn-sm" disabled>
+                      Rupture de stock
+                    </button>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+
+      <!-- Pagination -->
+      {% if products.has_other_pages %}
+        <nav class="mt-5">
+          <ul class="pagination justify-content-center">
+            {% if products.has_previous %}
+              <li class="page-item">
+                <a class="page-link" href="?catalog=1&page={{ products.previous_page_number }}">
+                  ← Précédent
+                </a>
+              </li>
+            {% endif %}
+
+            {% for num in products.paginator.page_range %}
+              {% if products.number == num %}
+                <li class="page-item active">
+                  <span class="page-link">{{ num }}</span>
+                </li>
+              {% elif num > products.number|add:'-3' and num < products.number|add:'3' %}
+                <li class="page-item">
+                  <a class="page-link" href="?catalog=1&page={{ num }}">{{ num }}</a>
+                </li>
+              {% endif %}
+            {% endfor %}
+
+            {% if products.has_next %}
+              <li class="page-item">
+                <a class="page-link" href="?catalog=1&page={{ products.next_page_number }}">
+                  Suivant →
+                </a>
+              </li>
+            {% endif %}
+          </ul>
+        </nav>
+      {% endif %}
+    {% else %}
+      <div class="text-center py-5">
+        <i class="fas fa-search fa-4x text-muted mb-3"></i>
+        <h4>Aucun produit trouvé</h4>
+        <p class="text-muted">Essayez de modifier vos critères de recherche</p>
+        <a href="?catalog=1" class="btn btn-primary">Réinitialiser les filtres</a>
+      </div>
+    {% endif %}
+  </div>
+</section>
+{% endif %}
+
+<!-- CTA Section -->
+<section class="cta-section py-5 bg-primary text-white">
+  <div class="container text-center">
+    <div class="row">
+      <div class="col-lg-8 mx-auto">
+        <h2 class="display-6 mb-3">Prêt à découvrir notre collection ?</h2>
+        <p class="lead mb-4">
+          {{ shop_stats.products_in_stock }} produits en stock • Livraison gratuite dès 50€
+        </p>
+        {% if not show_catalog %}
+          <a href="?catalog=1" class="btn btn-light btn-lg px-5">
+            Voir tous les produits
+          </a>
+        {% else %}
+          <a href="{% url 'index' %}" class="btn btn-light btn-lg px-5">
+            Retour à l'accueil
+          </a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CSS personnalisé pour la landing page améliorée -->
+<style>
+.categories-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 2rem;
+  margin-top: 2rem;
+}
+
+.category-card {
+  position: relative;
+  border-radius: 15px;
+  overflow: hidden;
+  min-height: 200px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.category-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+}
+
+.category-link {
+  display: block;
+  position: relative;
+  height: 100%;
+  text-decoration: none;
+  color: white;
+}
+
+.category-content {
+  position: relative;
+  z-index: 2;
+  padding: 2rem;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  text-align: center;
+}
+
+.category-icon {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+  opacity: 0.9;
+}
+
+.category-name {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  letter-spacing: 1px;
+}
+
+.category-description {
+  font-size: 0.9rem;
+  opacity: 0.9;
+  margin-bottom: 1rem;
+}
+
+.category-count {
+  font-size: 0.8rem;
+  opacity: 0.8;
+  font-weight: 500;
+}
+
+.category-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.category-card:hover .category-overlay {
+  opacity: 1;
+}
+
+.btn-category {
+  background: white;
+  color: #333;
+  padding: 0.75rem 1.5rem;
+  border-radius: 25px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-size: 0.9rem;
+}
+
+.product-hero-card {
+  border-radius: 15px;
+  overflow: hidden;
+  transition: transform 0.3s ease;
+}
+
+.product-hero-card:hover {
+  transform: translateY(-5px);
+}
+
+.product-hero-image {
+  height: 250px;
+  object-fit: cover;
+}
+
+.product-placeholder-hero {
+  height: 250px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+}
+
+.product-badge-hero {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+}
+
+.products-mini-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.product-mini-card {
+  background: white;
+  padding: 1rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  transition: transform 0.2s ease;
+}
+
+.product-mini-card:hover {
+  transform: translateX(5px);
+}
+
+.product-mini-placeholder {
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f8f9fa;
+  border-radius: 4px;
+  color: #6c757d;
+}
+
+.product-overlay {
+  background: rgba(0,0,0,0.7);
+  transition: opacity 0.3s ease;
+}
+
+.card:hover .product-overlay {
+  opacity: 1 !important;
+}
+
+@media (max-width: 768px) {
+  .categories-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  
+  .category-content {
+    padding: 1.5rem;
+  }
+  
+  .featured-sections .col-lg-6:first-child {
+    margin-bottom: 2rem;
+  }
+}
+</style>
+
+{% endblock %}

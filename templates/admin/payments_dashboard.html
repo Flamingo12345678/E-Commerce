@@ -1,0 +1,269 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+
+{% block title %}Dashboard Paiements - YEE E-Commerce{% endblock %}
+
+{% block extrahead %}
+    {{ block.super }}
+    <link rel="stylesheet" type="text/css" href="{% static 'admin/css/custom_admin.css' %}">
+    <style>
+        .dashboard-overview {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 10px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+        
+        .stat-card {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            text-align: center;
+            border-left: 5px solid;
+        }
+        
+        .stat-card.transactions { border-left-color: #28a745; }
+        .stat-card.webhooks { border-left-color: #007bff; }
+        .stat-card.orphans { border-left-color: #dc3545; }
+        .stat-card.methods { border-left-color: #17a2b8; }
+        
+        .stat-number {
+            font-size: 48px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #333;
+        }
+        
+        .stat-label {
+            font-size: 16px;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .quick-actions {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            margin: 20px 0;
+        }
+        
+        .action-button {
+            display: inline-block;
+            padding: 12px 24px;
+            margin: 8px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .action-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+        
+        .btn-primary { background: #007bff; color: white; }
+        .btn-success { background: #28a745; color: white; }
+        .btn-warning { background: #ffc107; color: black; }
+        .btn-danger { background: #dc3545; color: white; }
+        
+        .recent-activity {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            margin: 20px 0;
+        }
+        
+        .activity-item {
+            padding: 15px;
+            border-left: 4px solid #e9ecef;
+            margin: 10px 0;
+            border-radius: 0 4px 4px 0;
+        }
+        
+        .activity-item.success { border-left-color: #28a745; background: #f8fff9; }
+        .activity-item.warning { border-left-color: #ffc107; background: #fffdf7; }
+        .activity-item.danger { border-left-color: #dc3545; background: #fef8f8; }
+        
+        .system-status {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .status-item {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        
+        .status-icon {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+        
+        .status-online { color: #28a745; }
+        .status-warning { color: #ffc107; }
+        .status-offline { color: #dc3545; }
+    </style>
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-overview">
+    <h1>🎯 Dashboard Paiements YEE E-Commerce</h1>
+    <p>Monitoring en temps réel du système de paiements et webhooks</p>
+    <p><strong>Dernière mise à jour:</strong> {{ current_time|date:"d/m/Y H:i:s" }}</p>
+</div>
+
+<div class="stats-grid">
+    <div class="stat-card transactions">
+        <div class="stat-number">{{ stats.total_transactions|default:"0" }}</div>
+        <div class="stat-label">💳 Transactions</div>
+        <small style="color: #28a745;">
+            ↗️ {{ stats.successful_transactions|default:"0" }} réussies ce mois
+        </small>
+    </div>
+    
+    <div class="stat-card webhooks">
+        <div class="stat-number">{{ stats.total_webhooks|default:"0" }}</div>
+        <div class="stat-label">📡 Webhooks reçus</div>
+        <small style="color: #007bff;">
+            📊 {{ stats.webhook_success_rate|default:"0" }}% de succès
+        </small>
+    </div>
+    
+    <div class="stat-card orphans">
+        <div class="stat-number">{{ stats.orphan_transactions|default:"0" }}</div>
+        <div class="stat-label">⚠️ Transactions orphelines</div>
+        <small style="color: #dc3545;">
+            🔍 {{ stats.uninvestigated_orphans|default:"0" }} à enquêter
+        </small>
+    </div>
+    
+    <div class="stat-card methods">
+        <div class="stat-number">{{ stats.payment_methods|default:"0" }}</div>
+        <div class="stat-label">💳 Méthodes de paiement</div>
+        <small style="color: #17a2b8;">
+            ✅ {{ stats.active_methods|default:"0" }} actives
+        </small>
+    </div>
+</div>
+
+<div class="quick-actions">
+    <h2>🚀 Actions rapides</h2>
+    <a href="{% url 'admin:accounts_transaction_changelist' %}" class="action-button btn-primary">
+        💳 Voir toutes les transactions
+    </a>
+    <a href="{% url 'admin:accounts_webhooklog_changelist' %}" class="action-button btn-success">
+        📡 Logs des webhooks
+    </a>
+    <a href="{% url 'admin:accounts_orphantransaction_changelist' %}" class="action-button btn-warning">
+        ⚠️ Transactions orphelines
+    </a>
+    <a href="{% url 'admin:accounts_paymentmethod_changelist' %}" class="action-button btn-primary">
+        💳 Méthodes de paiement
+    </a>
+</div>
+
+<div class="system-status">
+    <div class="status-item">
+        <div class="status-icon status-online">✅</div>
+        <div><strong>Stripe</strong></div>
+        <div>Opérationnel</div>
+    </div>
+    
+    <div class="status-item">
+        <div class="status-icon status-online">✅</div>
+        <div><strong>PayPal</strong></div>
+        <div>Opérationnel</div>
+    </div>
+    
+    <div class="status-item">
+        <div class="status-icon status-{{ webhook_status|default:"warning" }}">
+            {% if webhook_status == "online" %}✅{% else %}⚠️{% endif %}
+        </div>
+        <div><strong>Webhooks</strong></div>
+        <div>{{ webhook_status_text|default:"En surveillance" }}</div>
+    </div>
+    
+    <div class="status-item">
+        <div class="status-icon status-online">✅</div>
+        <div><strong>Base de données</strong></div>
+        <div>Connectée</div>
+    </div>
+</div>
+
+<div class="recent-activity">
+    <h2>📊 Activité récente</h2>
+    
+    {% if recent_activities %}
+        {% for activity in recent_activities %}
+            <div class="activity-item {{ activity.type }}">
+                <strong>{{ activity.icon }} {{ activity.title }}</strong><br>
+                <small>{{ activity.description }}</small><br>
+                <small style="color: #666;">{{ activity.timestamp|timesince }} ago</small>
+            </div>
+        {% endfor %}
+    {% else %}
+        <div class="activity-item">
+            <strong>📋 Aucune activité récente</strong><br>
+            <small>Le système surveille les transactions et webhooks en temps réel.</small>
+        </div>
+    {% endif %}
+</div>
+
+<div class="quick-actions">
+    <h2>🔧 Administration</h2>
+    <a href="{% url 'admin:accounts_shopper_changelist' %}" class="action-button btn-primary">
+        👥 Gestion des utilisateurs
+    </a>
+    <a href="{% url 'admin:accounts_address_changelist' %}" class="action-button btn-primary">
+        📍 Adresses clients
+    </a>
+    <a href="{% url 'admin:index' %}" class="action-button btn-success">
+        🏠 Retour à l'admin
+    </a>
+</div>
+
+<script>
+// Auto-refresh toutes les 30 secondes
+setTimeout(function() {
+    location.reload();
+}, 30000);
+
+// Animation des statistiques
+document.addEventListener('DOMContentLoaded', function() {
+    const statNumbers = document.querySelectorAll('.stat-number');
+    statNumbers.forEach(function(statNumber) {
+        const finalValue = parseInt(statNumber.textContent);
+        let currentValue = 0;
+        const increment = finalValue / 20;
+        
+        const counter = setInterval(function() {
+            currentValue += increment;
+            if (currentValue >= finalValue) {
+                currentValue = finalValue;
+                clearInterval(counter);
+            }
+            statNumber.textContent = Math.floor(currentValue);
+        }, 50);
+    });
+});
+</script>
+{% endblock %}

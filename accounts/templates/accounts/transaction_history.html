@@ -1,0 +1,272 @@
+{% extends 'base.html' %}
+
+{% block title %}Historique des Transactions - YEE E-Commerce{% endblock %}
+
+{% block content %}
+<div class="container my-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1><i class="bi bi-receipt"></i> Historique des Transactions</h1>
+                <a href="{% url 'profile' %}" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left"></i> Retour au profil
+                </a>
+            </div>
+            
+            {% if transactions %}
+                <!-- Statistiques -->
+                <div class="row mb-4">
+                    <div class="col-md-3">
+                        <div class="card bg-success text-white">
+                            <div class="card-body text-center">
+                                <h5>{{ transactions|length }}</h5>
+                                <small>Total transactions</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card bg-primary text-white">
+                            <div class="card-body text-center">
+                                <h5>
+                                    {% with succeeded_transactions=transactions|filter_status:'succeeded' %}
+                                        {{ succeeded_transactions|length }}
+                                    {% endwith %}
+                                </h5>
+                                <small>Réussies</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card bg-danger text-white">
+                            <div class="card-body text-center">
+                                <h5>
+                                    {% with failed_transactions=transactions|filter_status:'failed' %}
+                                        {{ failed_transactions|length }}
+                                    {% endwith %}
+                                </h5>
+                                <small>Échouées</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card bg-info text-white">
+                            <div class="card-body text-center">
+                                <h5>
+                                    {% with total_amount=0 %}
+                                        {% for transaction in transactions %}
+                                            {% if transaction.status == 'succeeded' %}
+                                                {% with total_amount=total_amount|add:transaction.amount %}{% endwith %}
+                                            {% endif %}
+                                        {% endfor %}
+                                    {% endwith %}
+                                    -
+                                </h5>
+                                <small>Total dépensé</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Liste des transactions -->
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Toutes vos transactions</h5>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>ID Transaction</th>
+                                        <th>Montant</th>
+                                        <th>Méthode</th>
+                                        <th>Statut</th>
+                                        <th>Description</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for transaction in transactions %}
+                                        <tr>
+                                            <td>
+                                                <small>
+                                                    {{ transaction.created_at|date:"d/m/Y" }}<br>
+                                                    <span class="text-muted">{{ transaction.created_at|time:"H:i" }}</span>
+                                                </small>
+                                            </td>
+                                            <td>
+                                                <code class="small">{{ transaction.transaction_id|truncatechars:15 }}</code>
+                                            </td>
+                                            <td>
+                                                <strong>{{ transaction.amount }} {{ transaction.currency }}</strong>
+                                                {% if transaction.processing_fee > 0 %}
+                                                    <br><small class="text-muted">+ {{ transaction.processing_fee }} € frais</small>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                {% if transaction.provider == 'stripe' %}
+                                                    <span class="badge bg-primary">
+                                                        <i class="bi bi-credit-card"></i> Stripe
+                                                    </span>
+                                                {% elif transaction.provider == 'paypal' %}
+                                                    <span class="badge bg-info">
+                                                        <i class="bi bi-paypal"></i> PayPal
+                                                    </span>
+                                                {% else %}
+                                                    <span class="badge bg-secondary">{{ transaction.provider|capfirst }}</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                {% if transaction.status == 'succeeded' %}
+                                                    <span class="badge bg-success">
+                                                        <i class="bi bi-check-circle"></i> Réussie
+                                                    </span>
+                                                {% elif transaction.status == 'failed' %}
+                                                    <span class="badge bg-danger">
+                                                        <i class="bi bi-x-circle"></i> Échouée
+                                                    </span>
+                                                {% elif transaction.status == 'pending' %}
+                                                    <span class="badge bg-warning">
+                                                        <i class="bi bi-clock"></i> En attente
+                                                    </span>
+                                                {% elif transaction.status == 'processing' %}
+                                                    <span class="badge bg-info">
+                                                        <i class="bi bi-arrow-repeat"></i> En cours
+                                                    </span>
+                                                {% elif transaction.status == 'cancelled' %}
+                                                    <span class="badge bg-secondary">
+                                                        <i class="bi bi-slash-circle"></i> Annulée
+                                                    </span>
+                                                {% elif transaction.status == 'refunded' %}
+                                                    <span class="badge bg-dark">
+                                                        <i class="bi bi-arrow-counterclockwise"></i> Remboursée
+                                                    </span>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                <span class="small">{{ transaction.description|truncatechars:30 }}</span>
+                                                {% if transaction.order_id %}
+                                                    <br><small class="text-muted">Commande: {{ transaction.order_id }}</small>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                <div class="btn-group-vertical btn-group-sm">
+                                                    <button class="btn btn-outline-primary btn-sm" 
+                                                            onclick="showTransactionDetails('{{ transaction.transaction_id }}')">
+                                                        <i class="bi bi-eye"></i>
+                                                    </button>
+                                                    {% if transaction.can_be_refunded %}
+                                                        <button class="btn btn-outline-warning btn-sm"
+                                                                onclick="requestRefund('{{ transaction.transaction_id }}')">
+                                                            <i class="bi bi-arrow-counterclockwise"></i>
+                                                        </button>
+                                                    {% endif %}
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        
+                                        <!-- Détails de la transaction (cachés par défaut) -->
+                                        <tr id="details-{{ transaction.transaction_id }}" class="d-none">
+                                            <td colspan="7" class="bg-light">
+                                                <div class="p-3">
+                                                    <h6>Détails de la transaction</h6>
+                                                    <div class="row">
+                                                        <div class="col-md-6">
+                                                            <strong>ID Complet:</strong> {{ transaction.transaction_id }}<br>
+                                                            <strong>Fournisseur ID:</strong> {{ transaction.provider_transaction_id|default:"N/A" }}<br>
+                                                            <strong>Créée le:</strong> {{ transaction.created_at|date:"d/m/Y H:i:s" }}<br>
+                                                            <strong>Mise à jour:</strong> {{ transaction.updated_at|date:"d/m/Y H:i:s" }}
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            {% if transaction.error_message %}
+                                                                <strong>Erreur:</strong><br>
+                                                                <div class="alert alert-danger alert-sm">
+                                                                    {{ transaction.error_message }}
+                                                                </div>
+                                                            {% endif %}
+                                                            {% if transaction.metadata %}
+                                                                <strong>Métadonnées:</strong><br>
+                                                                <pre class="small">{{ transaction.metadata|pprint }}</pre>
+                                                            {% endif %}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                
+            {% else %}
+                <!-- Aucune transaction -->
+                <div class="text-center py-5">
+                    <div class="mb-4">
+                        <i class="bi bi-receipt text-muted" style="font-size: 4rem;"></i>
+                    </div>
+                    <h3 class="text-muted">Aucune transaction trouvée</h3>
+                    <p class="text-muted mb-4">
+                        Vous n'avez encore effectué aucun paiement sur notre boutique.
+                    </p>
+                    <a href="{% url 'index' %}" class="btn btn-primary">
+                        <i class="bi bi-shop"></i> Commencer vos achats
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Modal pour les détails de transaction -->
+<div class="modal fade" id="transactionModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Détails de la transaction</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="transactionModalBody">
+                <!-- Contenu chargé dynamiquement -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function showTransactionDetails(transactionId) {
+    const detailsRow = document.getElementById('details-' + transactionId);
+    if (detailsRow.classList.contains('d-none')) {
+        // Masquer tous les autres détails
+        document.querySelectorAll('[id^="details-"]').forEach(row => {
+            row.classList.add('d-none');
+        });
+        // Afficher les détails de cette transaction
+        detailsRow.classList.remove('d-none');
+    } else {
+        detailsRow.classList.add('d-none');
+    }
+}
+
+function requestRefund(transactionId) {
+    if (confirm('Êtes-vous sûr de vouloir demander un remboursement pour cette transaction ?')) {
+        // Ici, vous pourriez faire un appel AJAX pour demander le remboursement
+        alert('Demande de remboursement envoyée. Nous vous contacterons sous 24h.');
+    }
+}
+
+// Auto-actualisation toutes les 30 secondes pour les transactions en cours
+setInterval(function() {
+    const pendingTransactions = document.querySelectorAll('.badge.bg-warning, .badge.bg-info');
+    if (pendingTransactions.length > 0) {
+        // Ne recharger que s'il y a des transactions en cours
+        // location.reload();
+    }
+}, 30000);
+</script>
+{% endblock %}

@@ -1,0 +1,642 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ product.name }} - YEE Store{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+  <!-- Breadcrumb -->
+  <nav aria-label="breadcrumb" class="py-3">
+    <div class="container">
+      <ol class="breadcrumb mb-0">
+        <li class="breadcrumb-item"><a href="{% url 'index' %}" class="text-decoration-none">Accueil</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'index' %}" class="text-decoration-none">Produits</a></li>
+        {% if product.category %}
+        <li class="breadcrumb-item"><a href="{% url 'index' %}?category={{ product.category.id }}" class="text-decoration-none">{{ product.category.name }}</a></li>
+        {% endif %}
+        <li class="breadcrumb-item active" aria-current="page">{{ product.name|truncatechars:50 }}</li>
+      </ol>
+    </div>
+  </nav>
+
+  <!-- Product Detail Section -->
+  <section class="py-4">
+    <div class="container">
+      <div class="row g-5">
+        <!-- Product Images -->
+        <div class="col-lg-6">
+          <div class="product-gallery">
+            <!-- Main Image -->
+            <div class="main-image mb-3">
+              {% if product.thumbnail %}
+                <img src="{{ product.thumbnail.url }}" alt="{{ product.name }}" 
+                     class="img-fluid rounded-3 shadow-sm w-100" 
+                     style="height: 500px; object-fit: cover;" id="mainProductImage">
+              {% else %}
+                <div class="d-flex align-items-center justify-content-center bg-light rounded-3 shadow-sm" 
+                     style="height: 500px;">
+                  <div class="text-center text-muted">
+                    <i class="bi bi-image display-1"></i>
+                    <p class="mt-3">Aucune image disponible</p>
+                  </div>
+                </div>
+              {% endif %}
+            </div>
+
+            <!-- Thumbnail Gallery -->
+            {% if product.thumbnail %}
+            <div class="thumbnail-gallery">
+              <div class="row g-2">
+                <div class="col-3">
+                  <img src="{{ product.thumbnail.url }}" alt="{{ product.name }}" 
+                       class="img-fluid rounded-2 thumbnail-img active" 
+                       onclick="changeMainImage(this.src)"
+                       style="height: 80px; object-fit: cover; cursor: pointer;">
+                </div>
+                <!-- Placeholder thumbnails -->
+                <div class="col-3">
+                  <div class="bg-light rounded-2 d-flex align-items-center justify-content-center" 
+                       style="height: 80px;">
+                    <i class="bi bi-plus text-muted"></i>
+                  </div>
+                </div>
+                <div class="col-3">
+                  <div class="bg-light rounded-2 d-flex align-items-center justify-content-center" 
+                       style="height: 80px;">
+                    <i class="bi bi-plus text-muted"></i>
+                  </div>
+                </div>
+                <div class="col-3">
+                  <div class="bg-light rounded-2 d-flex align-items-center justify-content-center" 
+                       style="height: 80px;">
+                    <i class="bi bi-plus text-muted"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+            {% endif %}
+          </div>
+        </div>
+
+        <!-- Product Information -->
+        <div class="col-lg-6">
+          <div class="product-info">
+            <!-- Product Title -->
+            <h1 class="product-title fw-bold mb-3">{{ product.name }}</h1>
+
+            <!-- Rating -->
+            <div class="product-rating mb-3">
+              <div class="d-flex align-items-center gap-2">
+                <div class="stars">
+                  {% with product.rating|default:4 as rating %}
+                    {% for i in "12345" %}
+                      {% if forloop.counter <= rating %}
+                        <i class="bi bi-star-fill text-warning"></i>
+                      {% else %}
+                        <i class="bi bi-star text-muted"></i>
+                      {% endif %}
+                    {% endfor %}
+                  {% endwith %}
+                </div>
+                <span class="text-muted">{{ product.rating|default:4.5 }} sur 5 étoiles</span>
+              </div>
+            </div>
+
+            <!-- Price -->
+            <div class="product-price mb-4">
+              <div class="d-flex align-items-center gap-3">
+                <span class="h3 text-primary fw-bold mb-0">{{ product.price }} €</span>
+                <span class="text-muted text-decoration-line-through">{{ product.price|add:10 }} €</span>
+              </div>
+              <small class="text-success">✓ En stock</small>
+            </div>
+
+            <!-- Product Description -->
+            <div class="product-description mb-4">
+              <p class="text-muted">{{ product.description }}</p>
+            </div>
+
+            <!-- Product Options -->
+            <div class="product-options mb-4">
+              <!-- Size Selection (placeholder) -->
+              <div class="mb-3">
+                <label class="form-label fw-semibold">Taille:</label>
+                <div class="btn-group" role="group" aria-label="Size selection">
+                  <input type="radio" class="btn-check" name="size" id="size30ml" autocomplete="off" checked>
+                  <label class="btn btn-outline-secondary" for="size30ml">30ml</label>
+
+                  <input type="radio" class="btn-check" name="size" id="size60ml" autocomplete="off">
+                  <label class="btn btn-outline-secondary" for="size60ml">60ml</label>
+
+                  <input type="radio" class="btn-check" name="size" id="size100ml" autocomplete="off">
+                  <label class="btn btn-outline-secondary" for="size100ml">100ml</label>
+                </div>
+              </div>
+
+              <!-- Quantity -->
+              <div class="mb-4">
+                <label class="form-label fw-semibold">Quantité:</label>
+                <div class="input-group" style="max-width: 150px;">
+                  <button class="btn btn-outline-secondary" type="button" onclick="decreaseQuantity()">-</button>
+                  <input type="number" class="form-control text-center" value="1" min="1" max="{{ product.stock }}" id="quantity">
+                  <button class="btn btn-outline-secondary" type="button" onclick="increaseQuantity()">+</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="product-actions">
+              {% if user.is_authenticated %}
+                {% if product.stock > 0 %}
+                  <a href="{% url 'add_to_cart' product.slug %}" class="btn btn-primary btn-lg w-100 mb-3">
+                    <i class="bi bi-cart-plus me-2"></i>Ajouter au panier
+                  </a>
+                {% else %}
+                  <button class="btn btn-secondary btn-lg w-100 mb-3" disabled>
+                    <i class="bi bi-x-circle me-2"></i>Rupture de stock
+                  </button>
+                {% endif %}
+              {% else %}
+                <div class="alert alert-info text-center mb-3">
+                  <a href="{% url 'login' %}" class="btn btn-primary">
+                    Connectez-vous pour acheter
+                  </a>
+                </div>
+              {% endif %}
+
+              <button class="btn btn-outline-primary w-100">
+                <i class="bi bi-heart me-2"></i>Voir plus de détails
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Product Details Tabs -->
+  <section class="py-5">
+    <div class="container">
+      <!-- Tab Navigation -->
+      <ul class="nav nav-pills justify-content-center mb-4" id="productTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+          <button class="nav-link active" id="description-tab" data-bs-toggle="pill" data-bs-target="#description" type="button" role="tab">
+            Description
+          </button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" id="advantages-tab" data-bs-toggle="pill" data-bs-target="#advantages" type="button" role="tab">
+            Avantages
+          </button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" id="ingredients-tab" data-bs-toggle="pill" data-bs-target="#ingredients" type="button" role="tab">
+            Ingrédients
+          </button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" id="usage-tab" data-bs-toggle="pill" data-bs-target="#usage" type="button" role="tab">
+            Comment utiliser
+          </button>
+        </li>
+      </ul>
+
+      <!-- Tab Content -->
+      <div class="tab-content" id="productTabsContent">
+        <!-- Description Tab -->
+        <div class="tab-pane fade show active" id="description" role="tabpanel">
+          <div class="row justify-content-center">
+            <div class="col-lg-8">
+              <div class="content-section">
+                <h4 class="mb-3">Description du Produit</h4>
+                <p>{{ product.description }}</p>
+                <p>Ce produit révolutionnaire est conçu pour transformer votre routine quotidienne. Formulé avec des ingrédients de la plus haute qualité et une technologie de pointe, il offre une expérience utilisateur exceptionnelle et des résultats visibles dès les premières utilisations.</p>
+                <p>Parfait pour tous les types de peau sèche. Il est doux mais puissant, assurant une expérience agréable à chaque utilisation. Intégrez-le dès aujourd'hui à votre vie et découvrez la différence qu'il peut faire!</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Advantages Tab -->
+        <div class="tab-pane fade" id="advantages" role="tabpanel">
+          <div class="row justify-content-center">
+            <div class="col-lg-8">
+              <div class="content-section">
+                <h4 class="mb-4">Avantages du Produit</h4>
+                <div class="row g-4">
+                  <div class="col-md-6">
+                    <div class="advantage-item">
+                      <div class="d-flex align-items-start">
+                        <i class="bi bi-check-circle-fill text-success me-3 mt-1"></i>
+                        <div>
+                          <h6>Efficacité prouvée</h6>
+                          <p class="text-muted small">Résultats visibles dès la première utilisation</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="advantage-item">
+                      <div class="d-flex align-items-start">
+                        <i class="bi bi-shield-check text-success me-3 mt-1"></i>
+                        <div>
+                          <h6>Formule naturelle</h6>
+                          <p class="text-muted small">Ingrédients 100% naturels et sans additifs</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="advantage-item">
+                      <div class="d-flex align-items-start">
+                        <i class="bi bi-heart-fill text-danger me-3 mt-1"></i>
+                        <div>
+                          <h6>Convient à tous</h6>
+                          <p class="text-muted small">Adapté à tous les types de peau</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="advantage-item">
+                      <div class="d-flex align-items-start">
+                        <i class="bi bi-clock text-primary me-3 mt-1"></i>
+                        <div>
+                          <h6>Action longue durée</h6>
+                          <p class="text-muted small">Effet hydratant qui dure toute la journée</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Ingredients Tab -->
+        <div class="tab-pane fade" id="ingredients" role="tabpanel">
+          <div class="row justify-content-center">
+            <div class="col-lg-8">
+              <div class="content-section">
+                <h4 class="mb-4">Liste des Ingrédients</h4>
+                <div class="ingredients-list">
+                  <div class="row g-3">
+                    <div class="col-md-6">
+                      <div class="ingredient-item p-3 bg-light rounded">
+                        <h6 class="text-primary">Acide Hyaluronique</h6>
+                        <p class="small text-muted mb-0">Agent hydratant puissant qui retient l'humidité</p>
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <div class="ingredient-item p-3 bg-light rounded">
+                        <h6 class="text-primary">Vitamine E</h6>
+                        <p class="small text-muted mb-0">Antioxydant naturel pour protéger la peau</p>
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <div class="ingredient-item p-3 bg-light rounded">
+                        <h6 class="text-primary">Aloe Vera</h6>
+                        <p class="small text-muted mb-0">Apaisant et hydratant naturel</p>
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <div class="ingredient-item p-3 bg-light rounded">
+                        <h6 class="text-primary">Peptides</h6>
+                        <p class="small text-muted mb-0">Stimulent la production de collagène</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Usage Tab -->
+        <div class="tab-pane fade" id="usage" role="tabpanel">
+          <div class="row justify-content-center">
+            <div class="col-lg-8">
+              <div class="content-section">
+                <h4 class="mb-4">Mode d'Emploi</h4>
+                <div class="usage-steps">
+                  <div class="step-item d-flex mb-4">
+                    <div class="step-number bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                      1
+                    </div>
+                    <div>
+                      <h6>Nettoyage</h6>
+                      <p class="text-muted">Nettoyez votre visage avec un nettoyant doux et séchez délicatement.</p>
+                    </div>
+                  </div>
+                  <div class="step-item d-flex mb-4">
+                    <div class="step-number bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                      2
+                    </div>
+                    <div>
+                      <h6>Application</h6>
+                      <p class="text-muted">Appliquez 2-3 gouttes sur le visage et le cou en effectuant des mouvements circulaires.</p>
+                    </div>
+                  </div>
+                  <div class="step-item d-flex mb-4">
+                    <div class="step-number bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                      3
+                    </div>
+                    <div>
+                      <h6>Massage</h6>
+                      <p class="text-muted">Massez délicatement jusqu'à absorption complète.</p>
+                    </div>
+                  </div>
+                  <div class="step-item d-flex">
+                    <div class="step-number bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                      4
+                    </div>
+                    <div>
+                      <h6>Fréquence</h6>
+                      <p class="text-muted">Utilisez matin et soir pour des résultats optimaux.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Customer Reviews -->
+  <section class="py-5 bg-light">
+    <div class="container">
+      <h3 class="text-center mb-5">Avis des Clients</h3>
+      <div class="row g-4">
+        <!-- Review 1 -->
+        <div class="col-lg-6">
+          <div class="review-card bg-white p-4 rounded-3 shadow-sm">
+            <div class="d-flex align-items-center mb-3">
+              <div class="avatar bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px;">
+                SD
+              </div>
+              <div>
+                <h6 class="mb-1">Sophie Dubois</h6>
+                <div class="stars mb-1">
+                  <i class="bi bi-star-fill text-warning"></i>
+                  <i class="bi bi-star-fill text-warning"></i>
+                  <i class="bi bi-star-fill text-warning"></i>
+                  <i class="bi bi-star-fill text-warning"></i>
+                  <i class="bi bi-star-fill text-warning"></i>
+                </div>
+                <small class="text-muted">Il y a 3 semaines</small>
+              </div>
+            </div>
+            <p class="text-muted mb-0">
+              Produit vraiment efficace ! Ma peau est beaucoup plus hydratée et lumineuse. 
+              Je le recommande vivement à tous ceux qui cherchent un sérum de qualité.
+            </p>
+          </div>
+        </div>
+
+        <!-- Review 2 -->
+        <div class="col-lg-6">
+          <div class="review-card bg-primary text-white p-4 rounded-3">
+            <div class="d-flex align-items-center mb-3">
+              <div class="avatar bg-white text-primary rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px;">
+                ML
+              </div>
+              <div>
+                <h6 class="mb-1">Marc Lefèvre</h6>
+                <div class="stars mb-1">
+                  <i class="bi bi-star-fill text-warning"></i>
+                  <i class="bi bi-star-fill text-warning"></i>
+                  <i class="bi bi-star-fill text-warning"></i>
+                  <i class="bi bi-star-fill text-warning"></i>
+                  <i class="bi bi-star text-warning"></i>
+                </div>
+                <small class="text-white-50">Il y a 5 jours</small>
+              </div>
+            </div>
+            <p class="mb-0">
+              Excellent produit ! J'utilise ce sérum depuis 3 mois et ma peau n'a jamais été aussi belle. 
+              La texture est agréable et il s'absorbe rapidement.
+            </p>
+          </div>
+        </div>
+
+        <!-- Review 3 -->
+        <div class="col-lg-6">
+          <div class="review-card bg-white p-4 rounded-3 shadow-sm">
+            <div class="d-flex align-items-center mb-3">
+              <div class="avatar bg-success text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px;">
+                CD
+              </div>
+              <div>
+                <h6 class="mb-1">Chloé Dupont</h6>
+                <div class="stars mb-1">
+                  <i class="bi bi-star-fill text-warning"></i>
+                  <i class="bi bi-star-fill text-warning"></i>
+                  <i class="bi bi-star-fill text-warning"></i>
+                  <i class="bi bi-star-fill text-warning"></i>
+                  <i class="bi bi-star-fill text-warning"></i>
+                </div>
+                <small class="text-muted">Il y a 1 semaine</small>
+              </div>
+            </div>
+            <p class="text-muted mb-0">
+              Fantastique ! Ma peau semble rajeunie et les rides se sont atténuées. 
+              Un petit miracle dans un flacon !
+            </p>
+          </div>
+        </div>
+
+        <!-- Review 4 -->
+        <div class="col-lg-6">
+          <div class="review-card bg-white p-4 rounded-3 shadow-sm">
+            <div class="d-flex align-items-center mb-3">
+              <div class="avatar bg-info text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px;">
+                TL
+              </div>
+              <div>
+                <h6 class="mb-1">Thomas Leroy</h6>
+                <div class="stars mb-1">
+                  <i class="bi bi-star-fill text-warning"></i>
+                  <i class="bi bi-star-fill text-warning"></i>
+                  <i class="bi bi-star-fill text-warning"></i>
+                  <i class="bi bi-star-fill text-warning"></i>
+                  <i class="bi bi-star text-warning"></i>
+                </div>
+                <small class="text-muted">Il y a 6 jours</small>
+              </div>
+            </div>
+            <p class="text-muted mb-0">
+              Le sérum est agréable à appliquer et laisse une sensation de fraîcheur. 
+              Ma peau est plus douce après seulement quelques utilisations.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Similar Products -->
+  <section class="py-5">
+    <div class="container">
+      <h3 class="text-center mb-5">Produits Similaires</h3>
+      <div class="row g-4">
+        {% for similar_product in similar_products|slice:":5" %}
+        <div class="col-lg col-md-6">
+          <div class="product-card bg-white rounded-3 overflow-hidden shadow-sm h-100">
+            {% if similar_product.thumbnail %}
+              <img src="{{ similar_product.thumbnail.url }}" class="card-img-top" alt="{{ similar_product.name }}" style="height: 200px; object-fit: cover;">
+            {% else %}
+              <div class="bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
+                <i class="bi bi-image text-muted" style="font-size: 2rem;"></i>
+              </div>
+            {% endif %}
+            <div class="card-body d-flex flex-direction-column">
+              <h6 class="card-title">{{ similar_product.name|truncatechars:25 }}</h6>
+              <p class="text-primary fw-bold">{{ similar_product.price }} €</p>
+              <a href="{% url 'product' similar_product.slug %}" class="btn btn-outline-primary btn-sm">Voir</a>
+            </div>
+          </div>
+        </div>
+        {% empty %}
+        <!-- Produits de démonstration si aucun produit similaire -->
+        <div class="col-lg col-md-6">
+          <div class="product-card bg-white rounded-3 overflow-hidden shadow-sm h-100">
+            <div class="bg-secondary" style="height: 200px;"></div>
+            <div class="card-body">
+              <h6 class="card-title">Crème Hydratante Visage</h6>
+              <p class="text-primary fw-bold">34,50 €</p>
+              <button class="btn btn-outline-primary btn-sm">Voir</button>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg col-md-6">
+          <div class="product-card bg-white rounded-3 overflow-hidden shadow-sm h-100">
+            <div class="bg-info" style="height: 200px;"></div>
+            <div class="card-body">
+              <h6 class="card-title">Nettoyant Douceur Purifiant</h6>
+              <p class="text-primary fw-bold">22,00 €</p>
+              <button class="btn btn-outline-primary btn-sm">Voir</button>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg col-md-6">
+          <div class="product-card bg-white rounded-3 overflow-hidden shadow-sm h-100">
+            <div class="bg-success" style="height: 200px;"></div>
+            <div class="card-body">
+              <h6 class="card-title">Masque Détox Argile</h6>
+              <p class="text-primary fw-bold">28,99 €</p>
+              <button class="btn btn-outline-primary btn-sm">Voir</button>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg col-md-6">
+          <div class="product-card bg-white rounded-3 overflow-hidden shadow-sm h-100">
+            <div class="bg-warning" style="height: 200px;"></div>
+            <div class="card-body">
+              <h6 class="card-title">Huile Sèche Multi-Usages</h6>
+              <p class="text-primary fw-bold">39,00 €</p>
+              <button class="btn btn-outline-primary btn-sm">Voir</button>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg col-md-6">
+          <div class="product-card bg-white rounded-3 overflow-hidden shadow-sm h-100">
+            <div class="bg-primary" style="height: 200px;"></div>
+            <div class="card-body">
+              <h6 class="card-title">Soin Contour des Yeux</h6>
+              <p class="text-primary fw-bold">45,00 €</p>
+              <button class="btn btn-outline-primary btn-sm">Voir</button>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+</div>
+
+<script>
+// Image gallery functionality
+function changeMainImage(src) {
+  document.getElementById('mainProductImage').src = src;
+  
+  // Update active thumbnail
+  document.querySelectorAll('.thumbnail-img').forEach(img => {
+    img.classList.remove('active');
+  });
+  event.target.classList.add('active');
+}
+
+// Quantity controls
+function increaseQuantity() {
+  const input = document.getElementById('quantity');
+  const max = parseInt(input.getAttribute('max'));
+  const current = parseInt(input.value);
+  if (current < max) {
+    input.value = current + 1;
+  }
+}
+
+function decreaseQuantity() {
+  const input = document.getElementById('quantity');
+  const current = parseInt(input.value);
+  if (current > 1) {
+    input.value = current - 1;
+  }
+}
+</script>
+
+<style>
+.thumbnail-img {
+  border: 2px solid transparent;
+  transition: all 0.3s ease;
+}
+
+.thumbnail-img.active {
+  border-color: var(--color-primary);
+}
+
+.thumbnail-img:hover {
+  border-color: var(--color-primary);
+  opacity: 0.8;
+}
+
+.review-card {
+  transition: transform 0.2s ease;
+}
+
+.review-card:hover {
+  transform: translateY(-2px);
+}
+
+.step-number {
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.nav-pills .nav-link {
+  color: var(--color-muted);
+  border-radius: 25px;
+  padding: 0.75rem 1.5rem;
+  margin: 0 0.5rem;
+}
+
+.nav-pills .nav-link.active {
+  background-color: var(--color-primary);
+}
+
+.advantage-item i {
+  font-size: 1.2rem;
+}
+
+.ingredient-item {
+  transition: transform 0.2s ease;
+}
+
+.ingredient-item:hover {
+  transform: translateY(-2px);
+}
+</style>
+{% endblock %}

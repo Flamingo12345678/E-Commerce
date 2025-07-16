@@ -64,7 +64,7 @@ Plateforme e-commerce complète développée avec Django, intégrant un système
 
 1. **Cloner le projet**
 ```bash
-git clone <votre-repo>
+git clone https://github.com/Flamingo12345678/E-Commerce
 cd E-Commerce
 ```
 
@@ -205,25 +205,138 @@ PAYPAL_MODE=live
 - [ ] Webhooks configurés avec les bonnes URLs
 - [ ] Backups automatiques configurés
 
-## 📚 Documentation Technique
+## 📚 Documentation Technique & Architecture
 
-### Guides disponibles
-- `SYSTEME_FACTURATION_GUIDE.md` - Système de facturation complet
-- `GUIDE_TEST_PAIEMENTS.md` - Tests et validation des paiements
-- `MISSION_2FA_ACCOMPLIE.md` - Implémentation 2FA
-- `RAPPORT_FINAL_IMPLEMENTATION_PAIEMENT.md` - Rapport technique paiements
+### 🏗️ Architecture du Projet
 
-### Architecture
 ```
 E-Commerce/
-├── accounts/          # Gestion utilisateurs, paiements, facturation
-├── store/            # Catalogue, panier, commandes
-├── shop/             # Configuration Django principale
-├── templates/        # Templates HTML
-├── static/          # Fichiers CSS, JS, images
-├── media/           # Uploads utilisateurs
-└── requirements.txt # Dépendances Python
+├── accounts/                    # 👤 Gestion utilisateurs, paiements, facturation
+│   ├── models.py               # Modèles User, PaymentMethod, Transaction
+│   ├── payment_services.py     # Services Stripe/PayPal
+│   ├── invoice_services.py     # Système de facturation native
+│   ├── webhook_services.py     # Gestion webhooks
+│   └── admin_views.py          # Interface d'administration
+├── store/                      # 🛍️ Catalogue, panier, commandes
+│   ├── models.py               # Modèles Product, Order, Cart
+│   ├── views.py                # Vues e-commerce
+│   └── catalog_views.py        # Gestion catalogue
+├── shop/                       # ⚙️ Configuration Django principale
+│   ├── settings.py             # Configuration générale
+│   ├── urls.py                 # Routage principal
+│   └── wsgi.py                 # Déploiement WSGI
+├── templates/                  # 🎨 Templates HTML
+├── static/                     # 📁 Fichiers CSS, JS, images
+├── media/                      # 📸 Uploads utilisateurs
+├── docs/                       # 📚 Documentation complète (31 fichiers)
+│   ├── README.md               # Index de la documentation
+│   ├── SYSTEME_FACTURATION_*.md
+│   ├── RAPPORT_*.md
+│   ├── MISSION_*.md
+│   ├── CORRECTION_*.md
+│   └── GUIDE_*.md
+└── requirements.txt            # Dépendances Python
 ```
+
+### 📋 Documentation des Opérations Réalisées
+
+> 📁 **Toute la documentation technique est organisée dans le dossier [`docs/`](./docs/)** 
+> 
+> **Index complet** : [docs/README.md](./docs/README.md)
+
+#### 🔧 **Phase 1 : Configuration & Infrastructure**
+- **[RAPPORT_ADMIN_UPDATE_FINAL.md](./docs/RAPPORT_ADMIN_UPDATE_FINAL.md)** - Mise à jour interface administration
+- **[SYSTEME_FACTURATION_GUIDE.md](./docs/SYSTEME_FACTURATION_GUIDE.md)** - Guide complet système de facturation
+- **[SYSTEME_FACTURATION_NATIF.md](./docs/SYSTEME_FACTURATION_NATIF.md)** - Implémentation facturation native
+
+#### 💳 **Phase 2 : Système de Paiement**
+- **[RAPPORT_FINAL_IMPLEMENTATION_PAIEMENT.md](./docs/RAPPORT_FINAL_IMPLEMENTATION_PAIEMENT.md)** - Implémentation complète Stripe/PayPal
+- **[INTEGRATION_PAIEMENTS_COMPLETE.md](./docs/INTEGRATION_PAIEMENTS_COMPLETE.md)** - Intégration des systèmes de paiement
+- **[RAPPORT_VERIFICATION_SYSTEME_PAIEMENT.md](./docs/RAPPORT_VERIFICATION_SYSTEME_PAIEMENT.md)** - Vérification et validation
+- **[GUIDE_TEST_PAIEMENTS.md](./docs/GUIDE_TEST_PAIEMENTS.md)** - Guide de test des paiements
+
+#### 🔐 **Phase 3 : Sécurité & Authentification**
+- **[MISSION_2FA_ACCOMPLIE.md](./docs/MISSION_2FA_ACCOMPLIE.md)** - Implémentation authentification 2FA
+- **[RAPPORT_2FA_IMPLEMENTATION.md](./docs/RAPPORT_2FA_IMPLEMENTATION.md)** - Rapport technique 2FA
+- **[RAPPORT_WEBHOOKS_FINAL.md](./docs/RAPPORT_WEBHOOKS_FINAL.md)** - Sécurisation webhooks
+
+#### 🧾 **Phase 4 : Facturation & Gestion**
+- **[RAPPORT_IMPLEMENTATION_FACTURATION_FINAL.md](./docs/RAPPORT_IMPLEMENTATION_FACTURATION_FINAL.md)** - Système facturation final
+- **[RAPPORT_MIGRATION_FACTURATION_NATIVE_FINAL.md](./docs/RAPPORT_MIGRATION_FACTURATION_NATIVE_FINAL.md)** - Migration vers facturation native
+- **[RAPPORT_NETTOYAGE_PAIEMENTS.md](./docs/RAPPORT_NETTOYAGE_PAIEMENTS.md)** - Optimisation système paiements
+
+#### 🐛 **Phase 5 : Corrections & Optimisations**
+- **[CORRECTIONS_PRIORITAIRES.md](./docs/CORRECTIONS_PRIORITAIRES.md)** - Liste des corrections prioritaires
+- **[CORRECTION_1_COMPTEUR_PANIER.md](./docs/CORRECTION_1_COMPTEUR_PANIER.md)** - Fix compteur panier
+- **[CORRECTION_2_GESTION_STOCK.md](./docs/CORRECTION_2_GESTION_STOCK.md)** - Amélioration gestion stock
+- **[CORRECTION_3_REQUETES_OPTIMISEES.md](./docs/CORRECTION_3_REQUETES_OPTIMISEES.md)** - Optimisation requêtes base de données
+- **[CORRECTION_IMAGES_CARTES.md](./docs/CORRECTION_IMAGES_CARTES.md)** - Fix affichage images produits
+
+#### 🧪 **Phase 6 : Tests & Validation**
+- **[MISSION_TESTS_ACCOMPLIE.md](./docs/MISSION_TESTS_ACCOMPLIE.md)** - Implémentation tests complets
+- **[RAPPORT_TESTS_ADMIN_COMPLETS.md](./docs/RAPPORT_TESTS_ADMIN_COMPLETS.md)** - Tests interface administration
+- **[RAPPORT_TESTS_UNITAIRES.md](./docs/RAPPORT_TESTS_UNITAIRES.md)** - Tests unitaires du système
+- **[RAPPORT_VERIFICATION_LOGIQUE_METIER.md](./docs/RAPPORT_VERIFICATION_LOGIQUE_METIER.md)** - Validation logique métier
+
+#### 🎨 **Phase 7 : Interface & Templates**
+- **[VERIFICATION_TEMPLATE_CHECKOUT.md](./docs/VERIFICATION_TEMPLATE_CHECKOUT.md)** - Validation templates checkout
+- **[RAPPORT_VERIFICATION_TEMPLATES.md](./docs/RAPPORT_VERIFICATION_TEMPLATES.md)** - Vérification tous templates
+- **[HERO_SECTION_UPDATE.md](./docs/HERO_SECTION_UPDATE.md)** - Mise à jour section hero
+- **[HERO_FULLSCREEN_UPDATE.md](./docs/HERO_FULLSCREEN_UPDATE.md)** - Hero en plein écran
+- **[LANDING_PAGE_PROFESSIONNELLE.md](./docs/LANDING_PAGE_PROFESSIONNELLE.md)** - Page d'accueil professionnelle
+
+#### ✅ **Phase 8 : Vérification Finale & Audit**
+- **[RAPPORT_FINAL_VERIFICATION_COMPLETE.md](./docs/RAPPORT_FINAL_VERIFICATION_COMPLETE.md)** - Vérification complète du système
+- **[RAPPORT_AUDIT_LANDING_PAGE_LOGIQUE_METIER.md](./docs/RAPPORT_AUDIT_LANDING_PAGE_LOGIQUE_METIER.md)** - Audit final
+- **[RAPPORT_CORRECTION_ERREURS_PAIEMENT.md](./docs/RAPPORT_CORRECTION_ERREURS_PAIEMENT.md)** - Correction erreurs finales
+- **[RAPPORT_CORRECTION_ARTICLES_PAIEMENT.md](./docs/RAPPORT_CORRECTION_ARTICLES_PAIEMENT.md)** - Fix articles et paiement
+
+### 🔄 Workflow des Opérations
+
+```mermaid
+graph TD
+    A[Configuration Infrastructure] --> B[Système Paiement]
+    B --> C[Sécurité 2FA]
+    C --> D[Facturation Native]
+    D --> E[Corrections & Optimisations]
+    E --> F[Tests & Validation]
+    F --> G[Interface & Templates]
+    G --> H[Vérification Finale]
+    
+    style A fill:#e1f5fe
+    style B fill:#f3e5f5
+    style C fill:#e8f5e8
+    style D fill:#fff3e0
+    style E fill:#ffebee
+    style F fill:#f1f8e9
+    style G fill:#fce4ec
+    style H fill:#e0f2f1
+```
+
+### 📊 État des Fonctionnalités
+
+| Fonctionnalité | État | Documentation |
+|---|---|---|
+| 💳 Paiements Stripe | ✅ Complet | `docs/RAPPORT_FINAL_IMPLEMENTATION_PAIEMENT.md` |
+| 💰 Paiements PayPal | ✅ Complet | `docs/INTEGRATION_PAIEMENTS_COMPLETE.md` |
+| 🔐 Authentification 2FA | ✅ Complet | `docs/MISSION_2FA_ACCOMPLIE.md` |
+| 🧾 Facturation Native | ✅ Complet | `docs/SYSTEME_FACTURATION_NATIF.md` |
+| 🛒 Gestion Panier | ✅ Corrigé | `docs/CORRECTION_1_COMPTEUR_PANIER.md` |
+| 📦 Gestion Stock | ✅ Optimisé | `docs/CORRECTION_2_GESTION_STOCK.md` |
+| 🔍 Optimisation DB | ✅ Complet | `docs/CORRECTION_3_REQUETES_OPTIMISEES.md` |
+| 🧪 Tests Complets | ✅ Validé | `docs/MISSION_TESTS_ACCOMPLIE.md` |
+| 🎨 Interface UI | ✅ Finalisé | `docs/LANDING_PAGE_PROFESSIONNELLE.md` |
+| 🔒 Webhooks Sécurisés | ✅ Actif | `docs/RAPPORT_WEBHOOKS_FINAL.md` |
+
+### 🎯 Points Clés de l'Architecture
+
+1. **Séparation des responsabilités** : Modules distincts pour paiements, facturation, e-commerce
+2. **Sécurité multicouche** : 2FA, validation webhooks, protection CSRF
+3. **Intégration multi-fournisseurs** : Stripe ET PayPal pour maximum compatibilité
+4. **Facturation native** : Système interne complet avec templates personnalisables
+5. **Tests exhaustifs** : Couverture complète des fonctionnalités critiques
+6. **Interface responsive** : Design adaptatif desktop/mobile
+7. **Monitoring intégré** : Logs détaillés pour debug et suivi
 
 ## 🤝 Contribution
 

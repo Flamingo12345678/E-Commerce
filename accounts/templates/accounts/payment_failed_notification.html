@@ -1,0 +1,283 @@
+{% extends 'base.html' %}
+
+{% block title %}Paiement Refusé - YEE E-Commerce{% endblock %}
+
+{% block content %}
+<div class="container-fluid vh-100 d-flex align-items-center justify-content-center bg-light">
+    <div class="row justify-content-center w-100">
+        <div class="col-lg-6 col-md-8 col-sm-10">
+            <!-- Notification d'échec avec animation -->
+            <div id="failed-notification" class="card border-0 shadow-lg notification-card">
+                <div class="card-body text-center py-5">
+                    <!-- Animation d'échec -->
+                    <div class="failed-animation mb-4">
+                        <div class="error-circle">
+                            <div class="error-cross"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- Titre principal -->
+                    <h1 class="text-danger fw-bold mb-3">
+                        <i class="bi bi-x-circle-fill"></i>
+                        Paiement Refusé
+                    </h1>
+                    
+                    <!-- Message d'erreur -->
+                    <div class="alert alert-danger border-0 mx-auto" style="max-width: 400px;">
+                        <h5 class="mb-2">
+                            <i class="bi bi-exclamation-triangle"></i>
+                            Transaction échouée
+                        </h5>
+                        <p class="mb-1">
+                            <strong>Motif :</strong> {{ error_message }}
+                        </p>
+                        <p class="mb-1">
+                            <strong>Montant :</strong> {{ amount }} €
+                        </p>
+                        <p class="mb-0">
+                            <strong>Méthode :</strong> 
+                            {% if payment_method == 'stripe' %}
+                                <span class="badge bg-primary">Carte bancaire</span>
+                            {% elif payment_method == 'paypal' %}
+                                <span class="badge bg-info">PayPal</span>
+                            {% else %}
+                                <span class="badge bg-secondary">{{ payment_method|title }}</span>
+                            {% endif %}
+                        </p>
+                    </div>
+                    
+                    <!-- Suggestions pour résoudre le problème -->
+                    <div class="troubleshooting mb-4">
+                        <h6 class="text-muted mb-3">Que faire maintenant ?</h6>
+                        <div class="row text-start">
+                            <div class="col-md-6 mb-3">
+                                <div class="d-flex align-items-start">
+                                    <div class="bg-warning text-white rounded-circle d-flex align-items-center justify-content-center me-3 flex-shrink-0" style="width: 35px; height: 35px;">
+                                        <i class="bi bi-credit-card" style="font-size: 0.9rem;"></i>
+                                    </div>
+                                    <div>
+                                        <div class="fw-semibold">Vérifiez vos informations</div>
+                                        <small class="text-muted">Numéro de carte, date d'expiration, code CVV</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <div class="d-flex align-items-start">
+                                    <div class="bg-info text-white rounded-circle d-flex align-items-center justify-content-center me-3 flex-shrink-0" style="width: 35px; height: 35px;">
+                                        <i class="bi bi-bank" style="font-size: 0.9rem;"></i>
+                                    </div>
+                                    <div>
+                                        <div class="fw-semibold">Contactez votre banque</div>
+                                        <small class="text-muted">Vérifiez les limites et autorisations</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <div class="d-flex align-items-start">
+                                    <div class="bg-success text-white rounded-circle d-flex align-items-center justify-content-center me-3 flex-shrink-0" style="width: 35px; height: 35px;">
+                                        <i class="bi bi-arrow-repeat" style="font-size: 0.9rem;"></i>
+                                    </div>
+                                    <div>
+                                        <div class="fw-semibold">Réessayez</div>
+                                        <small class="text-muted">Tentez à nouveau le paiement</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <div class="d-flex align-items-start">
+                                    <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3 flex-shrink-0" style="width: 35px; height: 35px;">
+                                        <i class="bi bi-credit-card-2-front" style="font-size: 0.9rem;"></i>
+                                    </div>
+                                    <div>
+                                        <div class="fw-semibold">Autre méthode</div>
+                                        <small class="text-muted">Utilisez une autre carte ou PayPal</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Message de redirection avec compteur -->
+                    <div class="redirection-info">
+                        <div class="d-flex align-items-center justify-content-center mb-3">
+                            <div class="spinner-border text-danger me-3" role="status" style="width: 1.5rem; height: 1.5rem;">
+                                <span class="visually-hidden">Chargement...</span>
+                            </div>
+                            <div>
+                                <p class="mb-1 fw-semibold">Redirection automatique</p>
+                                <p class="mb-0 text-muted">
+                                    Retour aux options de paiement dans 
+                                    <span id="countdown" class="fw-bold text-danger">{{ redirect_delay }}</span> secondes
+                                </p>
+                            </div>
+                        </div>
+                        
+                        <!-- Actions immédiates -->
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-center">
+                            <a href="{{ redirect_url }}" class="btn btn-danger btn-lg">
+                                <i class="bi bi-arrow-repeat"></i>
+                                Réessayer le paiement
+                            </a>
+                            <a href="{% url 'cart' %}" class="btn btn-outline-secondary">
+                                <i class="bi bi-cart"></i>
+                                Retour au panier
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <!-- Support -->
+                    <div class="mt-4 pt-3 border-top">
+                        <p class="text-muted small mb-2">
+                            <i class="bi bi-shield-check"></i>
+                            Aucun montant n'a été débité de votre compte
+                        </p>
+                        <p class="text-muted small mb-0">
+                            <i class="bi bi-headset"></i>
+                            Besoin d'aide ? Contactez notre support client
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Styles CSS pour les animations -->
+<style>
+    .notification-card {
+        animation: slideInUp 0.6s ease-out;
+        border-radius: 15px !important;
+    }
+    
+    @keyframes slideInUp {
+        from {
+            transform: translateY(50px);
+            opacity: 0;
+        }
+        to {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    }
+    
+    .failed-animation {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    
+    .error-circle {
+        width: 80px;
+        height: 80px;
+        position: relative;
+        border-radius: 50%;
+        background: linear-gradient(45deg, #dc3545, #e85d75);
+        animation: shake 0.8s ease-in-out;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .error-cross {
+        width: 40px;
+        height: 40px;
+        position: relative;
+    }
+    
+    .error-cross:before,
+    .error-cross:after {
+        content: '';
+        position: absolute;
+        width: 3px;
+        height: 30px;
+        background: white;
+        left: 18px;
+        top: 5px;
+        animation: crossDraw 0.5s ease-in-out 0.3s forwards;
+        opacity: 0;
+    }
+    
+    .error-cross:before {
+        transform: rotate(45deg);
+    }
+    
+    .error-cross:after {
+        transform: rotate(-45deg);
+    }
+    
+    @keyframes shake {
+        0%, 100% {
+            transform: translateX(0);
+        }
+        10%, 30%, 50%, 70%, 90% {
+            transform: translateX(-5px);
+        }
+        20%, 40%, 60%, 80% {
+            transform: translateX(5px);
+        }
+    }
+    
+    @keyframes crossDraw {
+        0% {
+            opacity: 0;
+            transform: scale(0);
+        }
+        100% {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+    
+    .redirection-info {
+        animation: fadeIn 1s ease-in-out 1s forwards;
+        opacity: 0;
+    }
+    
+    .troubleshooting {
+        animation: fadeIn 1s ease-in-out 0.8s forwards;
+        opacity: 0;
+    }
+    
+    @keyframes fadeIn {
+        to {
+            opacity: 1;
+        }
+    }
+</style>
+
+<!-- JavaScript pour le compteur et la redirection -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    let countdown = {{ redirect_delay }};
+    const countdownElement = document.getElementById('countdown');
+    const redirectUrl = "{{ redirect_url }}";
+    
+    // Mettre à jour le compteur chaque seconde
+    const timer = setInterval(function() {
+        countdown--;
+        countdownElement.textContent = countdown;
+        
+        if (countdown <= 0) {
+            clearInterval(timer);
+            // Redirection automatique
+            window.location.href = redirectUrl;
+        }
+    }, 1000);
+    
+    // Animation d'entrée
+    setTimeout(() => {
+        document.getElementById('failed-notification').style.transform = 'scale(1.02)';
+        setTimeout(() => {
+            document.getElementById('failed-notification').style.transform = 'scale(1)';
+        }, 200);
+    }, 500);
+    
+    // Arrêter la redirection si l'utilisateur navigue manuellement
+    document.querySelectorAll('a').forEach(link => {
+        link.addEventListener('click', () => {
+            clearInterval(timer);
+        });
+    });
+});
+</script>
+{% endblock %}

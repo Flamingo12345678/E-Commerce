@@ -1,0 +1,95 @@
+{% extends 'base.html' %}
+{% load cart_tags %}
+
+{% block content %}
+<div class="container my-4">
+    <h1 class="mb-4">
+        Mon Panier 
+        {% if not is_empty %}
+            <span class="badge bg-primary">{{ total_items }}</span>
+        {% endif %}
+    </h1>
+
+    {% if not is_empty %}
+        {% for order in orders %}
+            <div class="card mb-4">
+                <div class="row g-0">
+                    <div class="col-md-4">
+                        {% if order.product.thumbnail %}
+                            <img src="{{ order.product.thumbnail.url }}" alt="{{ order.product.name }}" class="img-fluid rounded-start w-100" style="height: 200px; object-fit: cover;">
+                        {% else %}
+                            <div class="bg-light rounded-start d-flex align-items-center justify-content-center" style="height: 200px;">
+                                <i class="bi bi-image text-muted" style="font-size: 3rem;"></i>
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-8">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ order.product.name }}</h5>
+                            <p class="card-text">{{ order.product.description }}</p>
+                            <p class="card-text text-muted">{{ order.product.stock }} en stock</p>
+                            <p class="card-text fw-bold">Prix unitaire : {{ order.product.price }} €</p>
+
+                            <!-- Gestion des quantités -->
+                            <div class="d-flex align-items-center my-3 gap-2">
+                                <!-- Diminuer -->
+                                <form method="POST" action="{% url 'decrease_quantity' order.id %}">
+                                    {% csrf_token %}
+                                    <button class="btn btn-danger btn-sm" aria-label="Diminuer la quantité">-</button>
+                                </form>
+
+                                <span class="fw-bold">{{ order.quantity }}</span>
+
+                                <!-- Augmenter -->
+                                <form method="POST" action="{% url 'increase_quantity' order.id %}">
+                                    {% csrf_token %}
+                                    <button class="btn btn-success btn-sm" aria-label="Augmenter la quantité">+</button>
+                                </form>
+
+                                <!-- Supprimer -->
+                                <form method="POST" action="{% url 'remove_from_cart' order.id %}" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce produit ?')">
+                                    {% csrf_token %}
+                                    <button class="btn btn-secondary btn-sm ms-3" aria-label="Supprimer le produit">🗑️ Supprimer</button>
+                                </form>
+                            </div>
+
+                            <!-- Sous-total -->
+                            <p class="fw-semibold">
+                                Sous-total : {{ order.quantity }} × {{ order.product.price }} € = 
+                                {{ order.product.price|multiply:order.quantity }} €
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+
+        <!-- Résumé panier -->
+        <div class="border-top pt-3 mt-4 text-end">
+            <h4>Total du panier : <span class="text-primary">{{ total }} €</span></h4>
+            <p class="text-muted">Nombre total d'articles : {{ total_items }}</p>
+
+            <div class="d-flex justify-content-end gap-3 mt-3">
+                <a href="{% url 'index' %}" class="btn btn-outline-secondary">Continuer les achats</a>
+
+                <form method="POST" action="{% url 'delete_cart' %}" onsubmit="return confirm('Vider tout le panier ?')">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">Vider le panier</button>
+                </form>
+
+                <a href="{% url 'checkout' %}" class="btn btn-success">
+                    🛒 Valider la commande
+                </a>
+            </div>
+        </div>
+
+    {% else %}
+        <!-- Panier vide -->
+        <div class="text-center py-5">
+            <h2 class="mb-3">Votre panier est vide</h2>
+            <p>Commencez vos achats en ajoutant des produits !</p>
+            <a href="{% url 'index' %}" class="btn btn-primary">Continuer les achats</a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

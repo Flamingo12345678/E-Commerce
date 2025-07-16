@@ -1,0 +1,130 @@
+{% extends 'base.html' %}
+{% load cart_tags %}
+
+{% block content %}
+<div class="container my-4">
+    <div class="row">
+        <div class="col-lg-8">
+            <h1 class="mb-4">Finaliser ma commande</h1>
+            
+            <!-- Récapitulatif des produits -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Récapitulatif de votre commande</h5>
+                </div>
+                <div class="card-body">
+                    {% for order in orders %}
+                        <div class="row align-items-center border-bottom py-3">
+                            <div class="col-md-2">
+                                {% if order.product.thumbnail %}
+                                    <img src="{{ order.product.thumbnail.url }}" alt="{{ order.product.name }}" class="img-fluid rounded">
+                                {% else %}
+                                    <div class="bg-light rounded d-flex align-items-center justify-content-center" style="height: 60px;">
+                                        <i class="bi bi-image text-muted"></i>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-5">
+                                <h6 class="mb-1">{{ order.product.name }}</h6>
+                                <small class="text-muted">{{ order.product.price }} € l'unité</small>
+                            </div>
+                            <div class="col-md-2 text-center">
+                                <span class="fw-bold">× {{ order.quantity }}</span>
+                            </div>
+                            <div class="col-md-3 text-end">
+                                <span class="fw-bold">{{ order.product.price|multiply:order.quantity }} €</span>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Informations de livraison (simulation) -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Informations de livraison</h5>
+                </div>
+                <div class="card-body">
+                    <form id="checkout-form" method="POST">
+                        {% csrf_token %}
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="first_name" class="form-label">Prénom *</label>
+                                <input type="text" class="form-control" id="first_name" name="first_name" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="last_name" class="form-label">Nom *</label>
+                                <input type="text" class="form-control" id="last_name" name="last_name" required>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email *</label>
+                            <input type="email" class="form-control" id="email" name="email" value="{{ user.email }}" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="address" class="form-label">Adresse *</label>
+                            <input type="text" class="form-control" id="address" name="address" required>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label for="postal_code" class="form-label">Code postal *</label>
+                                <input type="text" class="form-control" id="postal_code" name="postal_code" required>
+                            </div>
+                            <div class="col-md-8 mb-3">
+                                <label for="city" class="form-label">Ville *</label>
+                                <input type="text" class="form-control" id="city" name="city" required>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <!-- Résumé de la commande -->
+            <div class="card position-sticky" style="top: 2rem;">
+                <div class="card-header">
+                    <h5 class="mb-0">Résumé</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Sous-total ({{ total_items }} articles)</span>
+                        <span>{{ total }} €</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Livraison</span>
+                        <span class="text-success">Gratuite</span>
+                    </div>
+                    <hr>
+                    <div class="d-flex justify-content-between mb-3">
+                        <strong>Total</strong>
+                        <strong class="text-primary">{{ total }} €</strong>
+                    </div>
+
+                    <!-- Note de redirection vers paiement -->
+                    <div class="alert alert-info">
+                        <small>
+                            <i class="bi bi-info-circle"></i>
+                            Après validation, vous serez redirigé vers notre page de paiement sécurisé
+                        </small>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button type="submit" form="checkout-form" class="btn btn-success btn-lg">
+                            🛒 Continuer vers le paiement
+                        </button>
+                        <a href="{% url 'cart' %}" class="btn btn-outline-secondary">
+                            ← Retour au panier
+                        </a>
+                    </div>
+
+                    <small class="text-muted mt-3 d-block">
+                        🔒 Paiement 100% sécurisé<br>
+                        En cliquant sur "Continuer vers le paiement", vous acceptez nos conditions de vente.
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

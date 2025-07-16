@@ -1,0 +1,292 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Options de Paiement - YEE E-Commerce{% endblock %}
+
+{% block content %}
+<div class="container my-4">
+    <div class="row">
+        <div class="col-lg-8">
+            <h1 class="mb-4">💳 Choisir votre mode de paiement</h1>
+            
+            <!-- Récapitulatif de la commande -->
+            <div class="card mb-4">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0"><i class="bi bi-cart-check"></i> Récapitulatif de votre commande</h5>
+                </div>
+                <div class="card-body">
+                    {% for item in order_items %}
+                        <div class="row align-items-center border-bottom py-2">
+                            <div class="col-md-6">
+                                <h6 class="mb-1">{{ item.product.name }}</h6>
+                                <small class="text-muted">{{ item.unit_price }} € × {{ item.quantity }}</small>
+                            </div>
+                            <div class="col-md-6 text-end">
+                                <strong>{{ item.item_total }} €</strong>
+                            </div>
+                        </div>
+                    {% endfor %}
+                    <div class="row mt-3">
+                        <div class="col-md-6">
+                            <strong>Total à payer :</strong>
+                        </div>
+                        <div class="col-md-6 text-end">
+                            <h4 class="text-primary"><strong>{{ total }} €</strong></h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Sélection du mode de paiement -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="bi bi-credit-card"></i> Mode de paiement</h5>
+                </div>
+                <div class="card-body">
+                    <!-- Onglets de paiement -->
+                    <ul class="nav nav-tabs" id="paymentTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="stripe-tab" data-bs-toggle="tab" data-bs-target="#stripe-pane" type="button" role="tab">
+                                <i class="bi bi-credit-card"></i> Carte Bancaire
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="paypal-tab" data-bs-toggle="tab" data-bs-target="#paypal-pane" type="button" role="tab">
+                                <i class="bi bi-paypal text-primary"></i> PayPal
+                            </button>
+                        </li>
+                    </ul>
+                    
+                    <div class="tab-content mt-3" id="paymentTabsContent">
+                        <!-- Onglet Stripe -->
+                        <div class="tab-pane fade show active" id="stripe-pane" role="tabpanel">
+                            <form id="stripe-payment-form" method="POST" action="{% url 'stripe_confirm_payment' %}">
+                                {% csrf_token %}
+                                <input type="hidden" name="amount" value="{{ total }}">
+                                
+                                <!-- Zone Stripe Elements -->
+                                <div class="mb-3">
+                                    <label class="form-label">Informations de la carte</label>
+                                    <div id="card-element" class="form-control" style="height: 40px; padding: 10px;">
+                                        <!-- Stripe Elements insérera le formulaire ici -->
+                                    </div>
+                                    <div id="card-errors" class="text-danger mt-2" role="alert"></div>
+                                </div>
+                                
+                                <!-- Bouton de paiement Stripe -->
+                                <button id="stripe-submit" class="btn btn-success btn-lg w-100" type="submit">
+                                    <span id="stripe-button-text">
+                                        <i class="bi bi-lock"></i> Payer {{ total }} € par carte
+                                    </span>
+                                    <div id="stripe-spinner" class="spinner-border spinner-border-sm ms-2 d-none" role="status">
+                                        <span class="visually-hidden">Traitement...</span>
+                                    </div>
+                                </button>
+                                
+                                <small class="text-muted d-block mt-2">
+                                    🔒 Paiement sécurisé par Stripe • Vos données sont protégées
+                                </small>
+                            </form>
+                        </div>
+                        
+                        <!-- Onglet PayPal -->
+                        <div class="tab-pane fade" id="paypal-pane" role="tabpanel">
+                            <div class="text-center py-4">
+                                <p class="mb-4">Payez en toute sécurité avec votre compte PayPal</p>
+                                
+                                <form method="POST" action="{% url 'process_paypal_payment' %}">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-primary btn-lg">
+                                        <i class="bi bi-paypal"></i> Payer avec PayPal ({{ total }} €)
+                                    </button>
+                                </form>
+                                
+                                <small class="text-muted d-block mt-3">
+                                    Vous serez redirigé vers PayPal pour finaliser le paiement
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Sidebar sécurité et aide -->
+        <div class="col-lg-4">
+            <div class="card mb-4">
+                <div class="card-header bg-success text-white">
+                    <h6 class="mb-0"><i class="bi bi-shield-check"></i> Paiement 100% Sécurisé</h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-2">
+                        <i class="bi bi-lock-fill text-success me-2"></i>
+                        <span>Chiffrement SSL 256 bits</span>
+                    </div>
+                    <div class="d-flex align-items-center mb-2">
+                        <i class="bi bi-shield-fill-check text-success me-2"></i>
+                        <span>Conformité PCI DSS</span>
+                    </div>
+                    <div class="d-flex align-items-center">
+                        <i class="bi bi-eye-slash-fill text-success me-2"></i>
+                        <span>Aucune donnée stockée</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="mb-0"><i class="bi bi-question-circle"></i> Besoin d'aide ?</h6>
+                </div>
+                <div class="card-body">
+                    <p class="small mb-2">Problème avec votre paiement ?</p>
+                    <a href="#" class="btn btn-outline-secondary btn-sm w-100 mb-2">
+                        <i class="bi bi-headset"></i> Contacter le support
+                    </a>
+                    <a href="{% url 'cart' %}" class="btn btn-outline-secondary btn-sm w-100">
+                        <i class="bi bi-arrow-left"></i> Retour au panier
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Scripts Stripe -->
+<script src="https://js.stripe.com/v3/"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Debug de la clé Stripe
+    const stripeKey = '{{ stripe_public_key }}';
+    console.log('Clé Stripe:', stripeKey);
+    
+    if (!stripeKey || stripeKey === 'None' || stripeKey.length < 10) {
+        console.error('Clé Stripe manquante ou invalide');
+        document.getElementById('card-element').innerHTML = '<div class="alert alert-danger">Erreur: Configuration Stripe manquante</div>';
+        return;
+    }
+    
+    // Initialiser Stripe
+    try {
+        const stripe = Stripe(stripeKey);
+        const elements = stripe.elements();
+    
+    // Créer l'élément carte
+    const cardElement = elements.create('card', {
+        style: {
+            base: {
+                fontSize: '16px',
+                color: '#424770',
+                '::placeholder': {
+                    color: '#aab7c4',
+                },
+            },
+        },
+    });
+    
+    cardElement.mount('#card-element');
+    
+    // Gérer les erreurs en temps réel
+    cardElement.on('change', function(event) {
+        const displayError = document.getElementById('card-errors');
+        if (event.error) {
+            displayError.textContent = event.error.message;
+        } else {
+            displayError.textContent = '';
+        }
+    });
+    
+    // Gérer la soumission du formulaire
+    const form = document.getElementById('stripe-payment-form');
+    const submitButton = document.getElementById('stripe-submit');
+    const buttonText = document.getElementById('stripe-button-text');
+    const spinner = document.getElementById('stripe-spinner');
+    
+    form.addEventListener('submit', async function(event) {
+        event.preventDefault();
+        // Désactiver le bouton et afficher le spinner
+        submitButton.disabled = true;
+        buttonText.style.display = 'none';
+        spinner.classList.remove('d-none');
+
+        // Créer le PaymentIntent
+        const formData = new FormData();
+        formData.append('amount', '{{ total }}');
+
+        const response = await fetch('/accounts/payment/stripe/create-intent/', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+            },
+            body: formData
+        });
+
+        const data = await response.json();
+        const client_secret = data.client_secret;
+        const backend_redirect_url = data.redirect_url;
+        const error = data.error;
+
+        if (error) {
+            showError(error);
+            resetButton();
+            return;
+        }
+
+        // Confirmer le paiement
+        const {error: stripeError, paymentIntent} = await stripe.confirmCardPayment(client_secret, {
+            payment_method: {
+                card: cardElement,
+            }
+        });
+
+        if (stripeError) {
+            showError(stripeError.message);
+            resetButton();
+        } else if (paymentIntent.status === 'succeeded') {
+            // Paiement réussi, appeler le backend pour finaliser la commande
+            fetch('/accounts/payment/stripe/confirm/', {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    payment_intent_id: paymentIntent.id
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success && data.redirect_url) {
+                    window.location.href = data.redirect_url;
+                } else if (data.error) {
+                    showError(data.error);
+                    resetButton();
+                } else {
+                    window.location.href = '{% url "payment_success" %}';
+                }
+            })
+            .catch(error => {
+                console.error('Erreur lors de la confirmation:', error);
+                showError('Erreur de connexion. Veuillez réessayer.');
+                resetButton();
+            });
+        }
+    });
+    
+    function showError(message) {
+        const errorElement = document.getElementById('card-errors');
+        errorElement.textContent = message;
+    }
+    
+    function resetButton() {
+        submitButton.disabled = false;
+        buttonText.style.display = 'inline';
+        spinner.classList.add('d-none');
+    }
+    
+    } catch (error) {
+        console.error('Erreur Stripe:', error);
+        document.getElementById('card-element').innerHTML = '<div class="alert alert-danger">Erreur: Impossible d\'initialiser Stripe</div>';
+    }
+});
+</script>
+{% endblock %}

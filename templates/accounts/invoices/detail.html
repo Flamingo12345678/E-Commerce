@@ -1,0 +1,259 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Facture {{ invoice.invoice_number }} - {{ block.super }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/invoices.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="max-w-4xl mx-auto">
+        <!-- Navigation -->
+        <div class="mb-6">
+            <nav class="flex items-center space-x-2 text-sm text-gray-500">
+                <a href="{% url 'invoice_list' %}" class="hover:text-gray-700">Mes factures</a>
+                <span>/</span>
+                <span class="text-gray-900">{{ invoice.invoice_number }}</span>
+            </nav>
+        </div>
+
+        <!-- Actions en haut -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
+            <div class="flex justify-between items-center">
+                <div>
+                    <h1 class="text-2xl font-bold text-gray-900">
+                        Facture {{ invoice.invoice_number }}
+                    </h1>
+                    <div class="flex items-center space-x-4 mt-2">
+                        {% if invoice.status == 'paid' %}
+                            <span class="px-3 py-1 text-sm font-semibold rounded-full bg-green-100 text-green-800">
+                                Payée
+                            </span>
+                        {% elif invoice.status == 'sent' %}
+                            <span class="px-3 py-1 text-sm font-semibold rounded-full bg-blue-100 text-blue-800">
+                                Envoyée
+                            </span>
+                        {% elif invoice.status == 'overdue' %}
+                            <span class="px-3 py-1 text-sm font-semibold rounded-full bg-red-100 text-red-800">
+                                En retard
+                            </span>
+                        {% else %}
+                            <span class="px-3 py-1 text-sm font-semibold rounded-full bg-gray-100 text-gray-800">
+                                {{ invoice.get_status_display }}
+                            </span>
+                        {% endif %}
+                        
+                        {% if invoice.is_overdue %}
+                            <span class="text-sm text-red-600">
+                                {{ invoice.days_until_due|add:"-1" }} jour{{ invoice.days_until_due|add:"-1"|pluralize }} de retard
+                            </span>
+                        {% elif invoice.days_until_due > 0 %}
+                            <span class="text-sm text-gray-600">
+                                {{ invoice.days_until_due }} jour{{ invoice.days_until_due|pluralize }} restant{{ invoice.days_until_due|pluralize }}
+                            </span>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="flex space-x-3">
+                    {% if can_pay %}
+                        <a href="{% url 'invoice_pay' invoice.uuid %}" 
+                           class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors">
+                            Payer maintenant
+                        </a>
+                    {% endif %}
+                    <button onclick="window.print()" 
+                            class="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors">
+                        Imprimer
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Détails de la facture -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200" id="invoice-content">
+            <div class="p-8">
+                <!-- En-tête de la facture -->
+                <div class="flex justify-between items-start mb-8">
+                    <div>
+                        {% if invoice.template and invoice.template.company_logo %}
+                            <img src="{{ invoice.template.company_logo.url }}" 
+                                 alt="Logo" class="h-16 w-auto mb-4">
+                        {% endif %}
+                        <h2 class="text-2xl font-bold text-gray-900">
+                            {% if invoice.template %}
+                                {{ invoice.template.company_name }}
+                            {% else %}
+                                YEE E-Commerce
+                            {% endif %}
+                        </h2>
+                        {% if invoice.template %}
+                            <div class="text-gray-600 mt-2">
+                                {{ invoice.template.company_address|linebreaksbr }}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="text-right">
+                        <h1 class="text-3xl font-bold text-gray-900 mb-2">FACTURE</h1>
+                        <div class="text-sm text-gray-600 space-y-1">
+                            <div><strong>N°:</strong> {{ invoice.invoice_number }}</div>
+                            <div><strong>Date:</strong> {{ invoice.issue_date|date:"d/m/Y" }}</div>
+                            <div><strong>Échéance:</strong> {{ invoice.due_date|date:"d/m/Y" }}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Informations client -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-900 mb-3">Facturé à:</h3>
+                        <div class="text-gray-700">
+                            <div class="font-medium">{{ invoice.customer.get_full_name }}</div>
+                            <div>{{ invoice.customer.email }}</div>
+                            {% if invoice.customer.phone_number %}
+                                <div>{{ invoice.customer.phone_number }}</div>
+                            {% endif %}
+                            {% if invoice.customer.address %}
+                                <div class="mt-2">
+                                    {{ invoice.customer.address|linebreaksbr }}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    {% if invoice.template %}
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-900 mb-3">Conditions de paiement:</h3>
+                            <div class="text-gray-700">
+                                {{ invoice.template.payment_terms|linebreaksbr }}
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Lignes de facture -->
+                <div class="mb-8">
+                    <table class="w-full border-collapse">
+                        <thead>
+                            <tr class="border-b-2 border-gray-300">
+                                <th class="text-left py-3 text-gray-900 font-semibold">Description</th>
+                                <th class="text-center py-3 text-gray-900 font-semibold w-20">Qté</th>
+                                <th class="text-right py-3 text-gray-900 font-semibold w-24">Prix unit.</th>
+                                <th class="text-right py-3 text-gray-900 font-semibold w-24">Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in invoice.items.all %}
+                                <tr class="border-b border-gray-200">
+                                    <td class="py-3 text-gray-800">{{ item.description }}</td>
+                                    <td class="py-3 text-center text-gray-800">{{ item.quantity|floatformat:0 }}</td>
+                                    <td class="py-3 text-right text-gray-800">{{ item.unit_price|floatformat:2 }} €</td>
+                                    <td class="py-3 text-right font-medium text-gray-900">{{ item.line_total|floatformat:2 }} €</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Totaux -->
+                <div class="flex justify-end mb-8">
+                    <div class="w-64">
+                        <div class="space-y-2">
+                            <div class="flex justify-between text-gray-700">
+                                <span>Sous-total HT:</span>
+                                <span>{{ invoice.subtotal|floatformat:2 }} €</span>
+                            </div>
+                            {% if invoice.discount_amount > 0 %}
+                                <div class="flex justify-between text-gray-700">
+                                    <span>Remise:</span>
+                                    <span>-{{ invoice.discount_amount|floatformat:2 }} €</span>
+                                </div>
+                            {% endif %}
+                            <div class="flex justify-between text-gray-700">
+                                <span>TVA ({% if invoice.template %}{{ invoice.template.tax_rate }}{% else %}20{% endif %}%):</span>
+                                <span>{{ invoice.tax_amount|floatformat:2 }} €</span>
+                            </div>
+                            <div class="border-t border-gray-300 pt-2">
+                                <div class="flex justify-between text-lg font-bold text-gray-900">
+                                    <span>Total TTC:</span>
+                                    <span>{{ invoice.total_amount|floatformat:2 }} €</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Notes -->
+                {% if invoice.notes %}
+                    <div class="mb-6">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-2">Notes:</h3>
+                        <div class="text-gray-700 bg-gray-50 p-4 rounded-lg">
+                            {{ invoice.notes|linebreaksbr }}
+                        </div>
+                    </div>
+                {% endif %}
+
+                <!-- Pied de page -->
+                {% if invoice.template and invoice.template.footer_text %}
+                    <div class="border-t border-gray-200 pt-6">
+                        <div class="text-sm text-gray-600 text-center">
+                            {{ invoice.template.footer_text|linebreaksbr }}
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Informations de paiement -->
+        {% if payment_links %}
+            <div class="bg-blue-50 rounded-lg border border-blue-200 p-6 mt-6">
+                <h3 class="text-lg font-semibold text-blue-900 mb-4">Options de paiement</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {% if payment_links.stripe %}
+                        <a href="{{ payment_links.stripe }}" 
+                           class="flex items-center justify-center px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                            <svg class="w-5 h-5 mr-2" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M13.976 9.15c-2.172-.806-3.596-1.191-3.596-2.647 0-1.138.895-1.91 2.357-1.91 1.301 0 2.402.61 2.402 1.463v.232h1.81V6.05c0-1.68-1.458-2.925-3.953-2.925-2.494 0-4.331 1.245-4.331 3.164 0 2.206 1.459 2.925 4.331 3.765 2.172.806 3.596 1.191 3.596 2.647 0 1.138-.895 1.91-2.357 1.91-1.301 0-2.402-.61-2.402-1.463v-.232H8.023v.232c0 1.68 1.458 2.925 3.953 2.925 2.494 0 4.331-1.245 4.331-3.164 0-2.206-1.459-2.925-4.331-3.765z"/>
+                            </svg>
+                            Payer avec Stripe
+                        </a>
+                    {% endif %}
+                    
+                    {% if payment_links.paypal %}
+                        <a href="{{ payment_links.paypal }}" 
+                           class="flex items-center justify-center px-4 py-3 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition-colors">
+                            <svg class="w-5 h-5 mr-2" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M7.076 21.337H2.47a.641.641 0 0 1-.633-.74L4.944.901C5.026.382 5.474 0 5.998 0h7.46c2.57 0 4.578.543 5.69 1.81 1.01 1.15 1.304 2.42 1.012 4.287-.023.143-.047.288-.077.437-.983 5.05-4.349 6.797-8.647 6.797h-2.19c-.524 0-.968.382-1.05.9l-1.12 7.106zm14.146-14.42a3.35 3.35 0 0 0-.607-.834c-.404-.422-.957-.715-1.68-.87a8.695 8.695 0 0 0-1.92-.184h-4.705c-.524 0-.968.382-1.05.9L9.647 9.184c-.082.518.333.934.852.934h2.86c3.706 0 6.584-1.295 7.51-5.543.082-.37.131-.748.131-1.126 0-.186-.014-.37-.043-.552h.265z"/>
+                            </svg>
+                            Payer avec PayPal
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+@media print {
+    body * {
+        visibility: hidden;
+    }
+    #invoice-content, #invoice-content * {
+        visibility: visible;
+    }
+    #invoice-content {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+    }
+    .no-print {
+        display: none !important;
+    }
+}
+</style>
+{% endblock %}
