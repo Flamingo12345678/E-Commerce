@@ -167,6 +167,12 @@ MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
 AUTH_USER_MODEL = "accounts.Shopper"  # Use the custom user model
 
+# Authentication backends
+AUTHENTICATION_BACKENDS = [
+    "django.contrib.auth.backends.ModelBackend",
+    "accounts.firebase_auth.FirebaseAuthenticationBackend",
+]
+
 # Configuration de l'interface admin
 ADMIN_SITE_HEADER = "YEE E-Commerce - Administration"
 ADMIN_SITE_TITLE = "YEE Admin"
@@ -205,6 +211,20 @@ EMAIL_PORT = env.int("EMAIL_PORT", default=587)
 EMAIL_USE_TLS = env.bool("EMAIL_USE_TLS", default=True)
 EMAIL_HOST_USER = env("EMAIL_HOST_USER", default="")
 EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD", default="")
+
+# =============================================================================
+# FIREBASE CONFIGURATION
+# =============================================================================
+FIREBASE_API_KEY = env("FIREBASE_API_KEY", default="")
+FIREBASE_AUTH_DOMAIN = env("FIREBASE_AUTH_DOMAIN", default="")
+FIREBASE_PROJECT_ID = env("FIREBASE_PROJECT_ID", default="")
+FIREBASE_STORAGE_BUCKET = env("FIREBASE_STORAGE_BUCKET", default="")
+FIREBASE_MESSAGING_SENDER_ID = env("FIREBASE_MESSAGING_SENDER_ID", default="")
+FIREBASE_APP_ID = env("FIREBASE_APP_ID", default="")
+
+# Firebase Admin SDK Configuration
+FIREBASE_CREDENTIALS_PATH = env("FIREBASE_CREDENTIALS_PATH", default="")
+FIREBASE_DATABASE_URL = env("FIREBASE_DATABASE_URL", default="")
 
 # =============================================================================
 # LOGGING CONFIGURATION

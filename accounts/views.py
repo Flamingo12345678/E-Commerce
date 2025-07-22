@@ -32,6 +32,7 @@ from .utils import (
     validate_cvv,
     mask_card_number,
 )
+from shop.firebase_config import get_firebase_config
 
 # Create your views here.
 
@@ -141,7 +142,12 @@ def signup(request):
         except Exception as e:
             messages.error(request, "Une erreur inattendue s'est produite.")
 
-    return render(request, "accounts/signup.html")
+    # Ajouter la configuration Firebase au contexte
+    context = {
+        'firebase_config': get_firebase_config()
+    }
+    
+    return render(request, "accounts/signup.html", context)
 
 
 def login_user(request):
@@ -228,7 +234,10 @@ def login_user(request):
 
         return render(request, "accounts/login.html", {"username": username})
 
-    return render(request, "accounts/login.html")
+    # Ajouter la configuration Firebase au contexte
+    context = {"firebase_config": get_firebase_config()}
+
+    return render(request, "accounts/login.html", context)
 
 
 def logout_user(request):
