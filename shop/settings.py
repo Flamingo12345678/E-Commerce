@@ -40,6 +40,20 @@ DEBUG = env("DEBUG")
 
 ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=["*"])
 
+# CSRF Trusted Origins for HTTPS (required for ngrok and external domains)
+CSRF_TRUSTED_ORIGINS = env.list(
+    "CSRF_TRUSTED_ORIGINS",
+    default=[
+        "https://*.ngrok-free.app",
+        "https://*.ngrok.app",
+        "https://*.ngrok.io",
+        "http://localhost:8000",
+        "http://127.0.0.1:8000",
+        "http://0.0.0.0:8000",
+        "https://d4fe2da5a95b.ngrok-free.app/",
+    ],
+)
+
 
 # Application definition
 
@@ -57,6 +71,7 @@ INSTALLED_APPS = [
     # Custom apps
     "store",  # Custom app for the shop
     "accounts",  # Custom app for user accounts
+    "pages",  # Custom app for static pages
 ]
 
 MIDDLEWARE = [
@@ -82,6 +97,8 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                "store.context_processors.global_categories",
+                "store.context_processors.cart_info",
             ],
         },
     },

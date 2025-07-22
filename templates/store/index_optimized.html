@@ -1,0 +1,99 @@
+{% extends 'base_optimized.html' %}
+{% load static %}
+
+{% block title %}YEE - Mode de Qualité pour TOUS{% endblock %}
+
+{% block meta_description %}Découvrez YEE, la marque de mode éthique et accessible. Collections durables, designs intemporels, qualité exceptionnelle pour tous.{% endblock %}
+
+{% block meta_keywords %}mode éthique, vêtements durables, fashion accessible, qualité, yee, collections durables{% endblock %}
+
+{% block structured_data %}
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "name": "YEE - Mode de Qualité pour TOUS",
+    "description": "{{ block.super }}",
+    "url": "{{ request.build_absolute_uri }}",
+    "mainEntity": {
+        "@type": "Organization",
+        "name": "YEE",
+        "description": "Marque de mode éthique et accessible"
+    }
+}
+</script>
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/home.css' %}">
+<link rel="preload" href="{% static 'images/hero-image.webp' %}" as="image">
+{% endblock %}
+
+{% block content %}
+<div class="homepage" itemscope itemtype="https://schema.org/Store">
+    
+    <!-- Hero Section -->
+    <section class="hero-section" 
+             role="banner"
+             aria-labelledby="hero-title">
+        {% include 'components/hero_section.html' %}
+    </section>
+    
+    <!-- Category Navigation -->
+    <section class="category-section" 
+             aria-labelledby="category-title">
+        {% include 'components/category_navigation.html' %}
+    </section>
+    
+    <!-- Featured Products -->
+    <section class="featured-products-section" 
+             aria-labelledby="featured-title">
+        {% include 'components/featured_products.html' %}
+    </section>
+    
+    <!-- Brand Values -->
+    <section class="values-section" 
+             aria-labelledby="values-title">
+        {% include 'components/brand_values.html' %}
+    </section>
+    
+    <!-- Collections Preview -->
+    <section class="collections-section" 
+             aria-labelledby="collections-title">
+        {% include 'components/collections_preview.html' %}
+    </section>
+    
+    <!-- Social Proof -->
+    <section class="social-proof-section" 
+             aria-labelledby="testimonials-title">
+        {% include 'components/social_proof.html' %}
+    </section>
+    
+    <!-- Newsletter Signup -->
+    <section class="newsletter-section" 
+             aria-labelledby="newsletter-title">
+        {% include 'components/newsletter_signup.html' %}
+    </section>
+    
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/home.js' %}" defer></script>
+<script src="{% static 'js/lazy-loading.js' %}" defer></script>
+
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+        {
+            "@type": "ListItem",
+            "position": 1,
+            "name": "Accueil",
+            "item": "{{ request.build_absolute_uri }}"
+        }
+    ]
+}
+</script>
+{% endblock %}

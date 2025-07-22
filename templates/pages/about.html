@@ -1,0 +1,278 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}notre histoire - yee{% endblock %}
+
+{% block content %}
+<div class="rhode-about-page">
+    <!-- Hero Section -->
+    <section class="about-hero">
+        <div class="container">
+            <div class="row align-items-center min-vh-50">
+                <div class="col-lg-6">
+                    <div class="about-hero-content">
+                        <h1 class="about-hero-title">notre histoire</h1>
+                        <p class="about-hero-subtitle">
+                            une nouvelle philosophie de la mode.
+                        </p>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="about-hero-image">
+                        <img src="{% static 'images/about-hero.jpg' %}" alt="Notre équipe" class="img-fluid">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Founder Note -->
+    <section class="founder-note">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <div class="founder-content text-center">
+                        <h2>un mot de notre fondateur</h2>
+                        <p class="founder-message">
+                            mon parcours vers une mode plus consciente m'a inspiré à développer des produits qui fonctionnent vraiment, 
+                            d'une manière accessible à tous. yee se consacre à créer des produits basés sur la qualité et 
+                            la durabilité, simplifiant bon nombre des mystères et des récits complexes derrière une mode efficace. 
+                            j'espère que ces pièces deviendront vos essentiels de tous les jours qui peuvent vivre dans votre garde-robe, 
+                            être votre compagnon de voyage préféré, améliorer votre style au fil du temps, et vous garder élégant et confiant.
+                        </p>
+                        <div class="founder-signature">
+                            <img src="{% static 'images/signature.png' %}" alt="Signature du fondateur" class="signature-img">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Mission Statement -->
+    <section class="mission-statement">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-6">
+                    <div class="mission-image">
+                        <img src="{% static 'images/mission.jpg' %}" alt="Notre mission" class="img-fluid">
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="mission-content">
+                        <h2>mode intentionnelle</h2>
+                        <p>
+                            yee est une ligne de vêtements essentiels soigneusement sélectionnés. 
+                            conçue pour une variété de styles et de besoins avec des matériaux haute performance, 
+                            c'est une garde-robe quotidienne qui nourrit votre style au fil du temps.
+                        </p>
+                        <h3>éditée, efficace et intentionnelle.</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Values Section -->
+    <section class="values-section">
+        <div class="container">
+            <div class="row">
+                <div class="col-12 text-center mb-5">
+                    <h2>nos valeurs</h2>
+                    <p>il était important pour nous de construire une entreprise axée sur les valeurs. chez yee, nous croyons en :</p>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <div class="value-card">
+                        <h3>simplicité</h3>
+                        <p>des designs épurés et intemporels qui transcendent les tendances.</p>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <div class="value-card">
+                        <h3>accessibilité</h3>
+                        <p>une mode de qualité accessible à tous, sans compromis sur l'éthique.</p>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <div class="value-card">
+                        <h3>authenticité</h3>
+                        <p>des produits honnêtes créés avec passion et transparence.</p>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <div class="value-card">
+                        <h3>qualité</h3>
+                        <p>des matériaux soigneusement sélectionnés pour leur durabilité et leur confort.</p>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <div class="value-card">
+                        <h3>transparence</h3>
+                        <p>une chaîne d'approvisionnement éthique et tracée à chaque étape.</p>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <div class="value-card">
+                        <h3>durabilité</h3>
+                        <p>un engagement envers l'environnement dans chaque décision que nous prenons.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Materials Section -->
+    <section class="materials-section">
+        <div class="container">
+            <div class="row">
+                <div class="col-12 text-center mb-5">
+                    <h2>matériaux recherchés et testés</h2>
+                    <p>chaque produit yee est fabriqué à partir de matériaux durables et performants à des niveaux efficaces.</p>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-3 col-md-6 mb-4">
+                    <div class="material-card">
+                        <div class="material-image">
+                            <img src="{% static 'images/cotton-organic.jpg' %}" alt="Coton biologique" class="img-fluid">
+                        </div>
+                        <h3>coton biologique</h3>
+                        <p>fibres naturelles cultivées sans pesticides pour un confort optimal et respectueux de l'environnement.</p>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 mb-4">
+                    <div class="material-card">
+                        <div class="material-image">
+                            <img src="{% static 'images/tencel.jpg' %}" alt="Tencel" class="img-fluid">
+                        </div>
+                        <h3>tencel</h3>
+                        <p>fibre de bois durable, respirante et antibactérienne pour un porter longue durée.</p>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 mb-4">
+                    <div class="material-card">
+                        <div class="material-image">
+                            <img src="{% static 'images/linen.jpg' %}" alt="Lin européen" class="img-fluid">
+                        </div>
+                        <h3>lin européen</h3>
+                        <p>fibre naturelle résistante et thermorégulatrice, parfaite pour toutes les saisons.</p>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 mb-4">
+                    <div class="material-card">
+                        <div class="material-image">
+                            <img src="{% static 'images/recycled-fibers.jpg' %}" alt="Fibres recyclées" class="img-fluid">
+                        </div>
+                        <h3>fibres recyclées</h3>
+                        <p>matériaux de seconde vie transformés en nouvelles pièces durables et stylées.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Team Section -->
+    <section class="team-section">
+        <div class="container">
+            <div class="row">
+                <div class="col-12 text-center mb-5">
+                    <h2>rencontrez l'équipe</h2>
+                    <p>notre équipe créative est composée d'experts reconnus en design et en durabilité.</p>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <div class="team-member">
+                        <div class="member-image">
+                            <img src="{% static 'images/team-member-1.jpg' %}" alt="Marie Dubois" class="img-fluid">
+                        </div>
+                        <div class="member-info">
+                            <h3>marie dubois</h3>
+                            <h4>directrice créative</h4>
+                            <p>
+                                une innovatrice dans le domaine, marie est une créatrice primée avec plus de 15 ans d'expérience 
+                                dans le développement de collections pour les grandes marques de mode. elle est la fondatrice de 
+                                plusieurs initiatives durables dans l'industrie textile.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <div class="team-member">
+                        <div class="member-image">
+                            <img src="{% static 'images/team-member-2.jpg' %}" alt="Antoine Martin" class="img-fluid">
+                        </div>
+                        <div class="member-info">
+                            <h3>antoine martin</h3>
+                            <h4>expert en matériaux</h4>
+                            <p>
+                                antoine est un expert reconnu en développement durable dans l'industrie textile. 
+                                il travaille directement avec les producteurs pour créer des produits innovants 
+                                qui sont accessibles et efficaces.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <div class="team-member">
+                        <div class="member-image">
+                            <img src="{% static 'images/team-member-3.jpg' %}" alt="Sophie Laurent" class="img-fluid">
+                        </div>
+                        <div class="member-info">
+                            <h3>sophie laurent</h3>
+                            <h4>responsable qualité</h4>
+                            <p>
+                                sophie veille à ce que chaque produit respecte nos standards élevés de qualité et de durabilité. 
+                                son expertise garantit que nos clients reçoivent toujours le meilleur.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Sustainability Section -->
+    <section class="sustainability-section">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-6">
+                    <div class="sustainability-content">
+                        <h2>notre empreinte minimale</h2>
+                        <p>
+                            des sorties limitées aux ingrédients consciemment sourcés, nous nous engageons 
+                            pour une mode réfléchie. végane. sans cruauté. éthique. durable.
+                        </p>
+                        <ul class="sustainability-list">
+                            <li>✓ production locale quand possible</li>
+                            <li>✓ emballages 100% recyclables</li>
+                            <li>✓ matériaux certifiés durables</li>
+                            <li>✓ neutralité carbone d'ici 2025</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="sustainability-image">
+                        <img src="{% static 'images/sustainability.jpg' %}" alt="Développement durable" class="img-fluid">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="about-cta">
+        <div class="container">
+            <div class="row justify-content-center text-center">
+                <div class="col-lg-8">
+                    <h2>rejoignez-nous sur la route vers un style sans effort.</h2>
+                    <p>découvrez notre collection et trouvez vos nouveaux essentiels.</p>
+                    <a href="{% url 'store:product_list' %}" class="btn btn-primary">découvrir la collection</a>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+{% endblock %}

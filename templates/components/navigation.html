@@ -1,0 +1,424 @@
+{% load static %}
+{% load cart_tags %}
+
+<!-- Navigation principale Rhode Skin Inspired -->
+<nav class="navbar-rhode" role="navigation" aria-label="Navigation principale">
+    <div class="container">
+        <div class="navbar-wrapper">
+            <!-- Navigation gauche -->
+            <div class="navbar-left">
+                <ul class="navbar-nav" role="menubar">
+                    <!-- Mega Menu SHOP -->
+                    <li class="nav-item mega-menu-item" role="none">
+                        <a class="nav-link-rhode" 
+                           href="{% url 'store:product_list' %}" 
+                           id="shopMegaMenu"
+                           role="menuitem"
+                           aria-haspopup="true"
+                           aria-expanded="false"
+                           data-mega-menu="shop">
+                            SHOP
+                        </a>
+                        <!-- Mega Menu Dropdown -->
+                        <div class="mega-menu-dropdown" 
+                             id="shopDropdown" 
+                             role="menu"
+                             aria-labelledby="shopMegaMenu"
+                             data-dropdown="shop">
+                            {% include 'components/mega_menu_shop.html' %}
+                        </div>
+                    </li>
+                    
+                    <!-- About -->
+                    <li class="nav-item mega-menu-item" role="none">
+                        <a class="nav-link-rhode" 
+                           href="{% url 'pages:about' %}" 
+                           id="aboutMegaMenu"
+                           role="menuitem"
+                           aria-haspopup="true"
+                           aria-expanded="false"
+                           data-mega-menu="about">
+                            ABOUT
+                        </a>
+                        <div class="mega-menu-dropdown" 
+                             id="aboutDropdown" 
+                             role="menu"
+                             aria-labelledby="aboutMegaMenu"
+                             data-dropdown="about">
+                            {% include 'components/mega_menu_about.html' %}
+                        </div>
+                    </li>
+                    
+                    <!-- Futures -->
+                    <li class="nav-item mega-menu-item" role="none">
+                        <a class="nav-link-rhode" 
+                           href="{% url 'pages:contact' %}" 
+                           id="futuresMegaMenu"
+                           role="menuitem"
+                           aria-haspopup="true"
+                           aria-expanded="false"
+                           data-mega-menu="futures">
+                            FUTURES
+                        </a>
+                        <div class="mega-menu-dropdown" 
+                             id="futuresDropdown" 
+                             role="menu"
+                             aria-labelledby="futuresMegaMenu"
+                             data-dropdown="futures">
+                            {% include 'components/mega_menu_futures.html' %}
+                        </div>
+                    </li>
+                </ul>
+            </div>
+            
+            <!-- Logo central -->
+            <div class="navbar-brand">
+                <a href="{% url 'index' %}" 
+                   class="navbar-brand-rhode"
+                   aria-label="Retour à l'accueil YEE">
+                    <span class="brand-text">yee</span>
+                </a>
+            </div>
+            
+            <!-- Navigation droite -->
+            <div class="navbar-right">
+                <ul class="navbar-nav" role="menubar">
+                    <!-- Recherche -->
+                    <li class="nav-item search-item" role="none">
+                        <button class="nav-button search-toggle" 
+                                type="button"
+                                role="menuitem"
+                                aria-label="Ouvrir la recherche"
+                                data-search-toggle>
+                            <span class="search-text">SEARCH</span>
+                            <i class="bi bi-search search-icon" aria-hidden="true"></i>
+                        </button>
+                        <!-- Panneau de recherche -->
+                        <div class="search-panel" id="searchPanel">
+                            {% include 'components/search_panel.html' %}
+                        </div>
+                    </li>
+                    
+                    <!-- Compte utilisateur -->
+                    {% if user.is_authenticated %}
+                        <li class="nav-item dropdown account-dropdown" role="none">
+                            <button class="nav-button dropdown-toggle" 
+                                    type="button" 
+                                    id="userDropdown" 
+                                    data-bs-toggle="dropdown" 
+                                    aria-expanded="false"
+                                    role="menuitem"
+                                    aria-haspopup="true">
+                                <span class="account-text">ACCOUNT</span>
+                                <i class="bi bi-person account-icon" aria-hidden="true"></i>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end" 
+                                aria-labelledby="userDropdown"
+                                role="menu">
+                                <li role="none">
+                                    <span class="dropdown-item-text user-greeting" role="menuitem">
+                                        Bonjour, {{ user.get_full_name|default:user.username }}
+                                    </span>
+                                </li>
+                                <li role="separator"><hr class="dropdown-divider"></li>
+                                <li role="none">
+                                    <a class="dropdown-item" 
+                                       href="{% url 'profile' %}"
+                                       role="menuitem">
+                                        <i class="bi bi-person me-2" aria-hidden="true"></i>
+                                        Mon profil
+                                    </a>
+                                </li>
+                                <li role="none">
+                                    <a class="dropdown-item" 
+                                       href="{% url 'accounts:order_history' %}"
+                                       role="menuitem">
+                                        <i class="bi bi-bag me-2" aria-hidden="true"></i>
+                                        Mes commandes
+                                    </a>
+                                </li>
+                                <li role="none">
+                                    <a class="dropdown-item" 
+                                       href="{% url 'store:wishlist' %}"
+                                       role="menuitem">
+                                        <i class="bi bi-heart me-2" aria-hidden="true"></i>
+                                        Ma wishlist
+                                    </a>
+                                </li>
+                                <li role="separator"><hr class="dropdown-divider"></li>
+                                <li role="none">
+                                    <a class="dropdown-item logout-link" 
+                                       href="{% url 'logout' %}"
+                                       role="menuitem">
+                                        <i class="bi bi-box-arrow-right me-2" aria-hidden="true"></i>
+                                        Se déconnecter
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                    {% else %}
+                        <li class="nav-item" role="none">
+                            <a href="{% url 'login' %}" 
+                               class="nav-button login-link"
+                               role="menuitem">
+                                <span class="account-text">ACCOUNT</span>
+                                <i class="bi bi-person account-icon" aria-hidden="true"></i>
+                            </a>
+                        </li>
+                    {% endif %}
+                    
+                    <!-- Panier -->
+                    <li class="nav-item cart-item" role="none">
+                        {% get_cart_info user as cart_info %}
+                        <a href="{% url 'store:cart' %}" 
+                           class="nav-button cart-link"
+                           role="menuitem"
+                           aria-label="Panier ({{ cart_info.total_items }} articles)">
+                            <span class="cart-text">CART</span>
+                            <span class="cart-count" 
+                                  data-cart-count="{{ cart_info.total_items }}"
+                                  {% if cart_info.total_items == 0 %}style="display: none;"{% endif %}>
+                                ({{ cart_info.total_items }})
+                            </span>
+                            <i class="bi bi-bag cart-icon" aria-hidden="true"></i>
+                        </a>
+                    </li>
+                    
+                    <!-- Menu mobile toggle -->
+                    <li class="nav-item mobile-toggle" role="none">
+                        <button class="navbar-toggler" 
+                                type="button" 
+                                data-bs-toggle="collapse" 
+                                data-bs-target="#navbarMobile" 
+                                aria-controls="navbarMobile"
+                                aria-expanded="false" 
+                                aria-label="Ouvrir le menu mobile">
+                            <span class="hamburger-line"></span>
+                            <span class="hamburger-line"></span>
+                            <span class="hamburger-line"></span>
+                        </button>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- Menu mobile -->
+        <div class="collapse navbar-collapse mobile-menu" id="navbarMobile">
+            {% include 'components/mobile_menu.html' %}
+        </div>
+    </div>
+</nav>
+
+<!-- Overlay pour les mega menus -->
+<div class="mega-menu-overlay" 
+     id="megaMenuOverlay" 
+     aria-hidden="true"
+     data-mega-overlay></div>
+
+<style>
+/* Navigation Styles */
+.navbar-rhode {
+    background: var(--rhode-white);
+    border-bottom: 1px solid var(--rhode-gray-light);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    transition: all 0.3s ease;
+}
+
+.navbar-wrapper {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    gap: 2rem;
+    padding: 1rem 0;
+}
+
+.navbar-left,
+.navbar-right {
+    display: flex;
+}
+
+.navbar-left {
+    justify-content: flex-start;
+}
+
+.navbar-right {
+    justify-content: flex-end;
+}
+
+.navbar-nav {
+    display: flex;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    gap: 2rem;
+}
+
+.nav-link-rhode,
+.nav-button {
+    font-size: 0.9rem;
+    font-weight: 400;
+    color: var(--rhode-black);
+    text-decoration: none;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 0.5rem 0;
+    border: none;
+    background: none;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.nav-link-rhode:hover,
+.nav-button:hover {
+    color: var(--rhode-accent);
+}
+
+.nav-link-rhode::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: var(--rhode-accent);
+    transition: width 0.3s ease;
+}
+
+.nav-link-rhode:hover::after {
+    width: 100%;
+}
+
+.navbar-brand-rhode {
+    font-size: 1.5rem;
+    font-weight: 400;
+    color: var(--rhode-black);
+    text-decoration: none;
+    letter-spacing: -0.02em;
+    text-transform: lowercase;
+    transition: all 0.3s ease;
+}
+
+.navbar-brand-rhode:hover {
+    color: var(--rhode-accent);
+    transform: scale(1.05);
+}
+
+/* Mega Menu Styles */
+.mega-menu-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100vw;
+    max-width: 1200px;
+    background: var(--rhode-white);
+    border: 1px solid var(--rhode-gray-light);
+    border-radius: 0 0 12px 12px;
+    box-shadow: var(--shadow-strong);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateX(-50%) translateY(-10px);
+    transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    z-index: 1001;
+}
+
+.mega-menu-item:hover .mega-menu-dropdown {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(-50%) translateY(0);
+}
+
+.mega-menu-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.1);
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    z-index: 999;
+}
+
+.mega-menu-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Cart Counter */
+.cart-count {
+    font-weight: 600;
+    color: var(--rhode-accent);
+}
+
+/* Mobile Styles */
+@media (max-width: 991.98px) {
+    .navbar-wrapper {
+        grid-template-columns: auto 1fr auto;
+        gap: 1rem;
+    }
+    
+    .navbar-left,
+    .navbar-right .search-item,
+    .navbar-right .account-dropdown,
+    .navbar-right .cart-item {
+        display: none;
+    }
+    
+    .mobile-toggle {
+        display: block !important;
+    }
+}
+
+@media (min-width: 992px) {
+    .mobile-toggle {
+        display: none;
+    }
+}
+
+/* Hamburger Animation */
+.hamburger-line {
+    display: block;
+    width: 25px;
+    height: 2px;
+    background: var(--rhode-black);
+    margin: 5px 0;
+    transition: 0.3s;
+}
+
+.navbar-toggler[aria-expanded="true"] .hamburger-line:nth-child(1) {
+    transform: rotate(-45deg) translate(-5px, 6px);
+}
+
+.navbar-toggler[aria-expanded="true"] .hamburger-line:nth-child(2) {
+    opacity: 0;
+}
+
+.navbar-toggler[aria-expanded="true"] .hamburger-line:nth-child(3) {
+    transform: rotate(45deg) translate(-5px, -6px);
+}
+
+/* Accessibility */
+@media (prefers-reduced-motion: reduce) {
+    .nav-link-rhode,
+    .nav-button,
+    .mega-menu-dropdown,
+    .hamburger-line {
+        transition: none;
+    }
+}
+
+/* Focus states */
+.nav-link-rhode:focus,
+.nav-button:focus {
+    outline: 2px solid var(--rhode-accent);
+    outline-offset: 2px;
+}
+</style>

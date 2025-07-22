@@ -54,7 +54,7 @@ class ProductModelTest(TestCase):
 
     def test_product_get_absolute_url(self):
         """Test de l'URL absolue du produit"""
-        expected_url = reverse("product", kwargs={"slug": "test-product"})
+        expected_url = reverse("store:product_detail", kwargs={"slug": "test-product"})
         self.assertEqual(self.product.get_absolute_url(), expected_url)
 
 
@@ -284,7 +284,9 @@ class ViewsIntegrationTest(TestCase):
 
     def test_product_detail_view(self):
         """Test de la page détail produit"""
-        response = self.client.get(reverse("product", kwargs={"slug": "test-product"}))
+        response = self.client.get(
+            reverse("store:product_detail", kwargs={"slug": "test-product"})
+        )
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Test Product")
@@ -326,7 +328,7 @@ class ViewsIntegrationTest(TestCase):
         )
         cart.orders.add(order)
 
-        response = self.client.get(reverse("cart"))
+        response = self.client.get(reverse("store:cart"))
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Test Product")

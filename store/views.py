@@ -4,7 +4,10 @@ from django.contrib import messages
 from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.utils import timezone
-from store.models import Cart, Order, Product
+from django.core.paginator import Paginator
+from django.http import JsonResponse
+from django.views.decorators.http import require_http_methods
+from store.models import Cart, Order, Product, Wishlist
 from .performance_utils import measure_performance
 import logging
 
@@ -12,6 +15,120 @@ import logging
 logger = logging.getLogger(__name__)
 
 # Create your views here.
+
+
+@measure_performance
+def product_list(request):
+    """
+    Vue principale de la boutique - tous les produits avec filtres avancés.
+    Remplace les pages de catégories séparées pour une navigation unifiée.
+    """
+    from django.db.models import Q, Min, Max
+    from store.models import Category
+
+    # Récupérer tous les filtres depuis les paramètres GET
+    search_query = request.GET.get("q", "")
+    category_slug = request.GET.get("category", "")
+    price_min = request.GET.get("price_min", "")
+    price_max = request.GET.get("price_max", "")
+    stock_filter = request.GET.get("stock", "")
+    sort_by = request.GET.get("sort", "-created_at")
+
+    # Base queryset optimisée
+    products_queryset = Product.objects.select_related("category")
+
+    # Filtrage par catégorie si spécifié
+    selected_category = None
+    if category_slug:
+        try:
+            selected_category = Category.objects.get(slug=category_slug)
+            products_queryset = products_queryset.filter(category=selected_category)
+        except Category.DoesNotExist:
+            pass
+
+    # Appliquer les filtres de recherche
+    if search_query:
+        products_queryset = products_queryset.filter(
+            Q(name__icontains=search_query) | Q(description__icontains=search_query)
+        )
+
+    # Filtres de prix
+    if price_min:
+        try:
+            products_queryset = products_queryset.filter(price__gte=float(price_min))
+        except ValueError:
+            pass
+
+    if price_max:
+        try:
+            products_queryset = products_queryset.filter(price__lte=float(price_max))
+        except ValueError:
+            pass
+
+    # Filtre de stock
+    if stock_filter == "in":
+        products_queryset = products_queryset.filter(variants__stock__gt=0).distinct()
+    elif stock_filter == "out":
+        products_queryset = products_queryset.exclude(variants__stock__gt=0)
+
+    # Tri
+    valid_sorts = {
+        "name": "name",
+        "-name": "-name",
+        "price": "price",
+        "-price": "-price",
+        "created_at": "created_at",
+        "-created_at": "-created_at",
+        "stock": "variants__stock",
+        "-stock": "-variants__stock",
+    }
+
+    if sort_by in valid_sorts:
+        products_queryset = products_queryset.order_by(valid_sorts[sort_by])
+    else:
+        products_queryset = products_queryset.order_by("-created_at")
+
+    # Pagination
+    paginator = Paginator(products_queryset, 12)
+    page_number = request.GET.get("page")
+    products = paginator.get_page(page_number)
+
+    # Statistiques pour les filtres
+    total_products = products_queryset.count()
+    in_stock_count = products_queryset.filter(variants__stock__gt=0).distinct().count()
+
+    # Prix min/max pour les curseurs de prix
+    price_range = products_queryset.aggregate(
+        min_price=Min("price"), max_price=Max("price")
+    )
+
+    # Récupérer toutes les catégories pour le menu de filtres
+    all_categories = Category.objects.filter(is_active=True).order_by("name")
+
+    context = {
+        "products": products,
+        "search_query": search_query,
+        "selected_category": selected_category,
+        "category_slug": category_slug,
+        "all_categories": all_categories,
+        "total_products": total_products,
+        "in_stock_count": in_stock_count,
+        "out_of_stock_count": total_products - in_stock_count,
+        "price_range": price_range,
+        "current_filters": {
+            "price_min": price_min,
+            "price_max": price_max,
+            "stock": stock_filter,
+            "sort": sort_by,
+        },
+        "page_title": (
+            f"Catégorie : {selected_category.name}"
+            if selected_category
+            else "Tous les produits"
+        ),
+    }
+
+    return render(request, "store/product_list.html", context)
 
 
 @measure_performance
@@ -31,7 +148,8 @@ def index(request):
         featured_categories_qs = (
             Category.objects.filter(is_featured=True, is_active=True)
             .annotate(
-                products_in_stock=Count("product", filter=Q(product__stock__gt=0))
+                # Temporairement : compter tous les produits
+                products_in_stock=Count("product")
             )
             .order_by("display_order", "name")[:6]
         )
@@ -42,23 +160,25 @@ def index(request):
     # 2. Produits vedettes par section
     hero_products = cache.get("hero_products")
     if hero_products is None:
+        # Temporairement sans filtre de variantes
         hero_products = (
             Product.objects.select_related("category")
-            .filter(stock__gt=0, category__is_active=True)
+            .filter(category__is_active=True)
             .annotate(rating_avg=Avg("rating"))
             .order_by("-rating_avg", "-created_at")[:3]
         )
         cache.set("hero_products", hero_products, 1800)  # 30min
 
+    # Temporairement sans filtre de variantes
     new_arrivals = (
         Product.objects.select_related("category")
-        .filter(stock__gt=0, category__is_active=True)
+        .filter(category__is_active=True)
         .order_by("-created_at")[:5]
     )
 
     trending_products = (
         Product.objects.select_related("category")
-        .filter(stock__gt=0, category__is_active=True)
+        .filter(category__is_active=True)
         .order_by("-id")[:5]
     )
 
@@ -69,8 +189,9 @@ def index(request):
         shop_stats = {
             "total_products": Product.objects.filter(category__is_active=True).count(),
             "total_categories": Category.objects.filter(is_active=True).count(),
+            # Temporairement : tous les produits considérés en stock
             "products_in_stock": Product.objects.filter(
-                stock__gt=0, category__is_active=True
+                category__is_active=True
             ).count(),
         }
         cache.set("shop_stats", shop_stats, 3600)  # 1h
@@ -90,8 +211,14 @@ def index(request):
 def product_detail(request, slug):
     product = get_object_or_404(Product, slug=slug)
 
+    # Récupérer toutes les variantes disponibles pour ce produit
+    variants = product.variants.all().order_by("size")
+    available_variants = product.variants.filter(stock__gt=0)
+
     # Récupérer des produits similaires (même catégorie ou produits récents)
-    similar_products = Product.objects.exclude(id=product.id).filter(stock__gt=0)
+    similar_products = (
+        Product.objects.exclude(id=product.id).filter(variants__stock__gt=0).distinct()
+    )
 
     # Prioriser les produits de la même catégorie
     if product.category:
@@ -99,8 +226,13 @@ def product_detail(request, slug):
     else:
         similar_products = similar_products.order_by("-created_at")[:5]
 
-    context = {"product": product, "similar_products": similar_products}
-    return render(request, "store/detail.html", context)
+    context = {
+        "product": product,
+        "variants": variants,
+        "available_variants": available_variants,
+        "similar_products": similar_products,
+    }
+    return render(request, "store/product_detail.html", context)
 
 
 # Fonction pour ajouter un produit au panier
@@ -117,59 +249,95 @@ def add_to_cart(request, slug):
             user = request.user
             product = get_object_or_404(Product, slug=slug)
 
-            # Vérifier le stock disponible avec la fonction utilitaire
-            stock_check = check_stock_availability(product, 1)
-            if not stock_check["available"]:
-                messages.error(request, stock_check["message"])
-                return redirect(reverse("product", kwargs={"slug": slug}))
+            # Récupérer la taille depuis le formulaire si elle existe
+            selected_size = (
+                request.POST.get("size")
+                if request.method == "POST"
+                else request.GET.get("size")
+            )
+            quantity_requested = int(
+                request.POST.get("quantity", 1)
+                if request.method == "POST"
+                else request.GET.get("quantity", 1)
+            )
 
-            # Vérifier la quantité déjà dans le panier
-            current_cart_quantity = get_user_cart_quantity(user, product)
-            total_quantity = current_cart_quantity + 1
+            # Vérifier qu'une taille a été sélectionnée si le produit a des variants
+            if product.variants.exists() and not selected_size:
+                messages.error(request, "Veuillez sélectionner une taille.")
+                return redirect(reverse("store:product_detail", kwargs={"slug": slug}))
 
-            if total_quantity > product.stock:
-                messages.warning(
-                    request,
-                    f"Impossible d'ajouter plus de '{product.name}'. "
-                    f"Vous avez déjà {current_cart_quantity} dans votre panier "
-                    f"et le stock total est de {product.stock}.",
-                )
-                return redirect(reverse("product", kwargs={"slug": slug}))
+            # Vérifier le stock de la variante si une taille est sélectionnée
+            if selected_size and product.variants.exists():
+                try:
+                    from store.models import ProductVariant
+
+                    variant = product.variants.get(size=selected_size)
+                    if variant.stock < quantity_requested:
+                        messages.error(
+                            request,
+                            f"Stock insuffisant pour la taille {selected_size}. "
+                            f"Seulement {variant.stock} disponible(s).",
+                        )
+                        return redirect(
+                            reverse("store:product_detail", kwargs={"slug": slug})
+                        )
+                except ProductVariant.DoesNotExist:
+                    messages.error(request, f"Taille {selected_size} non disponible.")
+                    return redirect(
+                        reverse("store:product_detail", kwargs={"slug": slug})
+                    )
+
+            # Vérifier que le produit a des variantes en stock
+            if not product.is_available:
+                messages.error(request, f"'{product.name}' n'est plus disponible.")
+                return redirect(reverse("store:product_detail", kwargs={"slug": slug}))
 
             # Créer ou récupérer le panier
             cart_obj, _ = Cart.objects.get_or_create(user=user)
 
-            # Chercher une commande existante pour ce produit
+            # Chercher une commande existante pour ce produit ET cette taille
             existing_order = cart_obj.orders.filter(
-                product=product, ordered=False
+                product=product, ordered=False, size=selected_size or ""
             ).first()
 
             if existing_order:
-                # Le produit est déjà dans le panier
-                if existing_order.quantity >= product.stock:
-                    messages.warning(
-                        request,
-                        f"Vous avez déjà le maximum disponible de "
-                        f"'{product.name}' dans votre panier "
-                        f"(stock: {product.stock}).",
-                    )
-                else:
-                    # Augmenter la quantité si possible
-                    existing_order.quantity += 1
-                    existing_order.save()
-                    messages.success(
-                        request,
-                        f"Quantité de '{product.name}' augmentée à "
-                        f"{existing_order.quantity}.",
-                    )
+                # Le produit est déjà dans le panier - augmenter la quantité
+                # Vérifier d'abord que nous ne dépassons pas le stock
+                new_quantity = existing_order.quantity + quantity_requested
+
+                if selected_size and product.variants.exists():
+                    variant = product.variants.get(size=selected_size)
+                    if new_quantity > variant.stock:
+                        messages.warning(
+                            request,
+                            f"Impossible d'ajouter {quantity_requested} article(s). "
+                            f"Stock maximum pour la taille {selected_size}: {variant.stock}. "
+                            f"Vous en avez déjà {existing_order.quantity} dans votre panier.",
+                        )
+                        return redirect(
+                            reverse("store:product_detail", kwargs={"slug": slug})
+                        )
+
+                existing_order.quantity = new_quantity
+                existing_order.save()
+                messages.success(
+                    request,
+                    f"Quantité de '{product.name}' (taille {selected_size or 'standard'}) "
+                    f"augmentée à {existing_order.quantity}.",
+                )
             else:
-                # Créer une nouvelle commande
+                # Créer une nouvelle commande avec la taille
                 order = Order.objects.create(
-                    user=user, product=product, quantity=1, ordered=False
+                    user=user,
+                    product=product,
+                    quantity=quantity_requested,
+                    size=selected_size or "",
+                    ordered=False,
                 )
                 cart_obj.orders.add(order)
+                size_msg = f" (taille {selected_size})" if selected_size else ""
                 messages.success(
-                    request, f"'{product.name}' a été ajouté à votre panier !"
+                    request, f"'{product.name}'{size_msg} a été ajouté à votre panier !"
                 )
 
     except Product.DoesNotExist:
@@ -182,9 +350,9 @@ def add_to_cart(request, slug):
 
         logger = logging.getLogger(__name__)
         logger.error("Erreur add_to_cart: %s", str(e))
-        return redirect(reverse("product", kwargs={"slug": slug}))
+        return redirect(reverse("store:product_detail", kwargs={"slug": slug}))
 
-    return redirect(reverse("product", kwargs={"slug": slug}))
+    return redirect(reverse("store:product_detail", kwargs={"slug": slug}))
 
 
 # Fonction pour afficher le panier
@@ -611,7 +779,7 @@ def download_invoice(request, order_id):
     except Exception as e:
         messages.error(request, "Erreur lors de la génération de la facture.")
         logger.error(f"Erreur download_invoice: {e}")
-        return redirect("order_history")
+        return redirect("accounts:order_history")
 
 
 # Vue pour repasser commande (reorder)
@@ -641,7 +809,7 @@ def reorder(request, order_id):
                     f"Stock insuffisant pour '{product.name}'. "
                     f"Stock disponible: {stock_check['max_quantity']}",
                 )
-                return redirect("order_history")
+                return redirect("accounts:order_history")
 
             # Vérifier si déjà dans le panier
             current_cart_quantity = get_user_cart_quantity(request.user, product)
@@ -654,7 +822,7 @@ def reorder(request, order_id):
                     f"Vous avez déjà {current_cart_quantity} dans votre panier "
                     f"et le stock total est de {product.stock}.",
                 )
-                return redirect("order_history")
+                return redirect("accounts:order_history")
 
             # Créer ou récupérer le panier
             cart_obj, _ = Cart.objects.get_or_create(user=request.user)
@@ -714,7 +882,7 @@ def cancel_order(request, order_id):
                         request,
                         "Cette commande ne peut plus être annulée " "(délai dépassé).",
                     )
-                    return redirect("order_history")
+                    return redirect("accounts:order_history")
 
                 # Remettre le stock
                 product = order.product
@@ -734,105 +902,158 @@ def cancel_order(request, order_id):
             messages.error(request, "Erreur lors de l'annulation de la commande.")
             logger.error(f"Erreur cancel_order: {e}")
 
-    return redirect("order_history")
+    return redirect("accounts:order_history")
 
 
-# Vue pour les catégories
-@measure_performance
+# Vue pour les catégories - redirection vers la boutique principale
 def category_view(request, category_slug):
     """
-    Page de catégorie avec filtres et pagination.
+    Redirection vers la page boutique principale avec filtre de catégorie.
+    Simplifie la navigation en évitant les pages séparées.
     """
-    from django.db.models import Q, Min, Max
-    from django.core.paginator import Paginator
-    from store.models import Category
+    from urllib.parse import urlencode
 
-    # Récupérer la catégorie ou 404
-    category = get_object_or_404(Category, slug=category_slug)
+    # Conserver tous les paramètres existants et ajouter la catégorie
+    query_params = request.GET.copy()
+    query_params["category"] = category_slug
 
-    # Récupérer les filtres depuis les paramètres GET
-    search_query = request.GET.get("q", "")
-    price_min = request.GET.get("price_min", "")
-    price_max = request.GET.get("price_max", "")
-    stock_filter = request.GET.get("stock", "")
-    sort_by = request.GET.get("sort", "-created_at")
+    # Rediriger vers la boutique principale avec les paramètres
+    redirect_url = f"/store/?{urlencode(query_params)}"
+    return redirect(redirect_url)
 
-    # Base queryset optimisée pour cette catégorie
-    products_queryset = Product.objects.select_related("category").filter(
-        category=category
-    )
 
-    # Appliquer les filtres de recherche
-    if search_query:
-        products_queryset = products_queryset.filter(
-            Q(name__icontains=search_query) | Q(description__icontains=search_query)
+# Vues pour la gestion de la wishlist
+@require_http_methods(["POST"])
+def add_to_wishlist(request):
+    """Ajouter un produit à la liste de souhaits"""
+    if not request.user.is_authenticated:
+        return JsonResponse(
+            {
+                "success": False,
+                "message": "Vous devez être connecté pour ajouter à votre liste de souhaits",
+            }
         )
 
-    # Filtres de prix
-    if price_min:
-        try:
-            products_queryset = products_queryset.filter(price__gte=float(price_min))
-        except ValueError:
-            pass
+    try:
+        product_id = request.POST.get("product_id")
+        product = get_object_or_404(Product, id=product_id)
 
-    if price_max:
-        try:
-            products_queryset = products_queryset.filter(price__lte=float(price_max))
-        except ValueError:
-            pass
+        # Vérifier si le produit est déjà dans la wishlist
+        wishlist_item, created = Wishlist.objects.get_or_create(
+            user=request.user, product=product
+        )
 
-    # Filtre de stock
-    if stock_filter == "in":
-        products_queryset = products_queryset.filter(stock__gt=0)
-    elif stock_filter == "out":
-        products_queryset = products_queryset.filter(stock=0)
+        if created:
+            return JsonResponse(
+                {
+                    "success": True,
+                    "message": f"{product.name} ajouté à votre liste de souhaits",
+                    "in_wishlist": True,
+                }
+            )
+        else:
+            return JsonResponse(
+                {
+                    "success": False,
+                    "message": f"{product.name} est déjà dans votre liste de souhaits",
+                    "in_wishlist": True,
+                }
+            )
 
-    # Tri
-    valid_sorts = {
-        "name": "name",
-        "-name": "-name",
-        "price": "price",
-        "-price": "-price",
-        "created_at": "created_at",
-        "-created_at": "-created_at",
-        "stock": "stock",
-        "-stock": "-stock",
-    }
+    except Exception as e:
+        logger.error(f"Erreur add_to_wishlist: {e}")
+        return JsonResponse(
+            {
+                "success": False,
+                "message": "Erreur lors de l'ajout à la liste de souhaits",
+            }
+        )
 
-    if sort_by in valid_sorts:
-        products_queryset = products_queryset.order_by(valid_sorts[sort_by])
-    else:
-        products_queryset = products_queryset.order_by("-created_at")
 
-    # Pagination
-    paginator = Paginator(products_queryset, 12)
-    page_number = request.GET.get("page")
-    products = paginator.get_page(page_number)
+@require_http_methods(["POST"])
+def remove_from_wishlist(request):
+    """Retirer un produit de la liste de souhaits"""
+    if not request.user.is_authenticated:
+        return JsonResponse({"success": False, "message": "Vous devez être connecté"})
 
-    # Statistiques pour la catégorie
-    total_products = products_queryset.count()
-    in_stock_count = products_queryset.filter(stock__gt=0).count()
+    try:
+        product_id = request.POST.get("product_id")
+        product = get_object_or_404(Product, id=product_id)
 
-    # Prix min/max pour les filtres
-    price_range = products_queryset.aggregate(
-        min_price=Min("price"), max_price=Max("price")
-    )
+        # Supprimer de la wishlist
+        deleted_count, _ = Wishlist.objects.filter(
+            user=request.user, product=product
+        ).delete()
 
-    context = {
-        "category": category,
-        "products": products,
-        "total_products": total_products,
-        "in_stock_count": in_stock_count,
-        "out_of_stock_count": total_products - in_stock_count,
-        "price_range": price_range,
-        "search_query": search_query,
-        "current_filters": {
-            "price_min": price_min,
-            "price_max": price_max,
-            "stock": stock_filter,
-            "sort": sort_by,
-        },
-        "page_title": f"Catégorie : {category.name}",
-    }
+        if deleted_count > 0:
+            return JsonResponse(
+                {
+                    "success": True,
+                    "message": f"{product.name} retiré de votre liste de souhaits",
+                    "in_wishlist": False,
+                }
+            )
+        else:
+            return JsonResponse(
+                {
+                    "success": False,
+                    "message": f"{product.name} n'était pas dans votre liste de souhaits",
+                    "in_wishlist": False,
+                }
+            )
 
-    return render(request, "store/category.html", context)
+    except Exception as e:
+        logger.error(f"Erreur remove_from_wishlist: {e}")
+        return JsonResponse(
+            {
+                "success": False,
+                "message": "Erreur lors de la suppression de la liste de souhaits",
+            }
+        )
+
+
+def wishlist_view(request):
+    """Afficher la liste de souhaits de l'utilisateur"""
+    if not request.user.is_authenticated:
+        messages.error(
+            request, "Vous devez être connecté pour voir votre liste de souhaits"
+        )
+        return redirect("login")
+
+    try:
+        wishlist_items = Wishlist.objects.filter(user=request.user).select_related(
+            "product"
+        )
+
+        context = {
+            "wishlist_items": wishlist_items,
+            "wishlist_count": wishlist_items.count(),
+        }
+
+        return render(request, "store/wishlist.html", context)
+
+    except Exception as e:
+        logger.error(f"Erreur wishlist_view: {e}")
+        messages.error(request, "Erreur lors du chargement de votre liste de souhaits")
+        return redirect("store")
+
+
+def check_wishlist_status(request):
+    """Vérifier si un produit est dans la wishlist (pour AJAX)"""
+    if not request.user.is_authenticated:
+        return JsonResponse({"in_wishlist": False})
+
+    try:
+        product_id = request.GET.get("product_id")
+        if not product_id:
+            return JsonResponse({"in_wishlist": False})
+
+        in_wishlist = Wishlist.objects.filter(
+            user=request.user, product_id=product_id
+        ).exists()
+
+        return JsonResponse({"in_wishlist": in_wishlist})
+
+    except Exception as e:
+        logger.error(f"Erreur check_wishlist_status: {e}")
+        return JsonResponse({"in_wishlist": False})

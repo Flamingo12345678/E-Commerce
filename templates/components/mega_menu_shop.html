@@ -1,0 +1,571 @@
+{% load static %}
+
+<div class="mega-menu-content">
+    <!-- Category Navigation -->
+    <div class="category-navigation">
+        <div class="category-buttons">
+            <button class="category-btn active" 
+                    data-category="featured"
+                    aria-pressed="true"
+                    role="tab"
+                    aria-controls="featured-products">
+                <span>Featured</span>
+            </button>
+            <button class="category-btn" 
+                    data-category="men"
+                    aria-pressed="false"
+                    role="tab"
+                    aria-controls="men-products">
+                <span>Homme</span>
+            </button>
+            <button class="category-btn" 
+                    data-category="women"
+                    aria-pressed="false"
+                    role="tab"
+                    aria-controls="women-products">
+                <span>Femme</span>
+            </button>
+            <button class="category-btn" 
+                    data-category="kids"
+                    aria-pressed="false"
+                    role="tab"
+                    aria-controls="kids-products">
+                <span>Enfant</span>
+            </button>
+            <button class="category-btn" 
+                    data-category="shoes"
+                    aria-pressed="false"
+                    role="tab"
+                    aria-controls="shoes-products">
+                <span>Chaussures</span>
+            </button>
+            <button class="category-btn" 
+                    data-category="accessories"
+                    aria-pressed="false"
+                    role="tab"
+                    aria-controls="accessories-products">
+                <span>Accessoires</span>
+            </button>
+        </div>
+    </div>
+    
+    <!-- Product Showcase -->
+    <div class="product-showcase">
+        <!-- Featured Products -->
+        <div class="product-grid active" 
+             id="featured-products" 
+             role="tabpanel"
+             aria-labelledby="featured-tab">
+            <div class="product-card-mega">
+                <div class="product-badge new">Nouveau</div>
+                <div class="product-image">
+                    <div class="image-placeholder" style="background: linear-gradient(135deg, #2C3E50, #34495E);">
+                        <i class="bi bi-shirt" aria-hidden="true"></i>
+                    </div>
+                </div>
+                <div class="product-info">
+                    <h3 class="product-title">Collection Automne</h3>
+                    <p class="product-subtitle">Nouveaux looks tendance</p>
+                    <span class="product-price">€49.00</span>
+                </div>
+                <a href="{% url 'store:product_list' %}?featured=true" 
+                   class="product-link"
+                   aria-label="Voir la collection automne">
+                    <span class="sr-only">Voir la collection automne</span>
+                </a>
+            </div>
+            
+            <div class="product-card-mega">
+                <div class="product-badge bestseller">Best-seller</div>
+                <div class="product-image">
+                    <div class="image-placeholder" style="background: linear-gradient(135deg, #8E44AD, #9B59B6);">
+                        <i class="bi bi-bag" aria-hidden="true"></i>
+                    </div>
+                </div>
+                <div class="product-info">
+                    <h3 class="product-title">Sacs Tendance</h3>
+                    <p class="product-subtitle">Accessoires essentiels</p>
+                    <span class="product-price">€75.00</span>
+                </div>
+                <a href="{% url 'store:product_list' %}?category=bags" 
+                   class="product-link"
+                   aria-label="Voir les sacs tendance">
+                    <span class="sr-only">Voir les sacs tendance</span>
+                </a>
+            </div>
+            
+            <div class="product-card-mega">
+                <div class="product-badge limited">Édition limitée</div>
+                <div class="product-image">
+                    <div class="image-placeholder" style="background: linear-gradient(135deg, #E67E22, #D35400);">
+                        <i class="bi bi-gem" aria-hidden="true"></i>
+                    </div>
+                </div>
+                <div class="product-info">
+                    <h3 class="product-title">Pack Découverte</h3>
+                    <p class="product-subtitle">Trois essentiels mode</p>
+                    <span class="product-price">€97.00</span>
+                </div>
+                <a href="{% url 'store:product_list' %}?pack=discovery" 
+                   class="product-link"
+                   aria-label="Voir le pack découverte">
+                    <span class="sr-only">Voir le pack découverte</span>
+                </a>
+            </div>
+            
+            <div class="product-card-mega">
+                <div class="product-badge viral">Viral</div>
+                <div class="product-image">
+                    <div class="image-placeholder" style="background: linear-gradient(135deg, #C0392B, #A93226);">
+                        <i class="bi bi-star-fill" aria-hidden="true"></i>
+                    </div>
+                </div>
+                <div class="product-info">
+                    <h3 class="product-title">Bijoux Précieux</h3>
+                    <p class="product-subtitle">Collection dorée</p>
+                    <span class="product-price">€65.00</span>
+                </div>
+                <a href="{% url 'store:product_list' %}?category=jewelry" 
+                   class="product-link"
+                   aria-label="Voir les bijoux précieux">
+                    <span class="sr-only">Voir les bijoux précieux</span>
+                </a>
+            </div>
+        </div>
+        
+        <!-- Men Products -->
+        <div class="product-grid" 
+             id="men-products" 
+             role="tabpanel"
+             aria-labelledby="men-tab"
+             style="display: none;">
+            <div class="product-card-mega">
+                <div class="product-badge bestseller">Best-seller</div>
+                <div class="product-image">
+                    <div class="image-placeholder" style="background: linear-gradient(135deg, #2C3E50, #34495E);">
+                        <i class="bi bi-suit-club-fill" aria-hidden="true"></i>
+                    </div>
+                </div>
+                <div class="product-info">
+                    <h3 class="product-title">Chemises Business</h3>
+                    <p class="product-subtitle">Élégance au quotidien</p>
+                    <span class="product-price">€89.00</span>
+                </div>
+                <a href="{% url 'store:product_list' %}?category=men&type=shirts" 
+                   class="product-link"
+                   aria-label="Voir les chemises business">
+                    <span class="sr-only">Voir les chemises business</span>
+                </a>
+            </div>
+            
+            <div class="product-card-mega">
+                <div class="product-badge new">Nouveau</div>
+                <div class="product-image">
+                    <div class="image-placeholder" style="background: linear-gradient(135deg, #1ABC9C, #16A085);">
+                        <i class="bi bi-person-workspace" aria-hidden="true"></i>
+                    </div>
+                </div>
+                <div class="product-info">
+                    <h3 class="product-title">Casual Chic</h3>
+                    <p class="product-subtitle">Confort moderne</p>
+                    <span class="product-price">€65.00</span>
+                </div>
+                <a href="{% url 'store:product_list' %}?category=men&type=casual" 
+                   class="product-link"
+                   aria-label="Voir le casual chic">
+                    <span class="sr-only">Voir le casual chic</span>
+                </a>
+            </div>
+            
+            <div class="product-card-mega">
+                <div class="product-image">
+                    <div class="image-placeholder" style="background: linear-gradient(135deg, #34495E, #2C3E50);">
+                        <i class="bi bi-watch" aria-hidden="true"></i>
+                    </div>
+                </div>
+                <div class="product-info">
+                    <h3 class="product-title">Accessoires</h3>
+                    <p class="product-subtitle">Finition parfaite</p>
+                    <span class="product-price">€45.00</span>
+                </div>
+                <a href="{% url 'store:product_list' %}?category=men&type=accessories" 
+                   class="product-link"
+                   aria-label="Voir les accessoires homme">
+                    <span class="sr-only">Voir les accessoires homme</span>
+                </a>
+            </div>
+            
+            <div class="product-card-mega">
+                <div class="product-image">
+                    <div class="image-placeholder" style="background: linear-gradient(135deg, #8E44AD, #7D3C98);">
+                        <i class="bi bi-award" aria-hidden="true"></i>
+                    </div>
+                </div>
+                <div class="product-info">
+                    <h3 class="product-title">Collection Sport</h3>
+                    <p class="product-subtitle">Performance & style</p>
+                    <span class="product-price">€75.00</span>
+                </div>
+                <a href="{% url 'store:product_list' %}?category=men&type=sport" 
+                   class="product-link"
+                   aria-label="Voir la collection sport">
+                    <span class="sr-only">Voir la collection sport</span>
+                </a>
+            </div>
+        </div>
+        
+        <!-- Women Products -->
+        <div class="product-grid" 
+             id="women-products" 
+             role="tabpanel"
+             aria-labelledby="women-tab"
+             style="display: none;">
+            <div class="product-card-mega">
+                <div class="product-badge trending">Tendance</div>
+                <div class="product-image">
+                    <div class="image-placeholder" style="background: linear-gradient(135deg, #E74C3C, #C0392B);">
+                        <i class="bi bi-flower1" aria-hidden="true"></i>
+                    </div>
+                </div>
+                <div class="product-info">
+                    <h3 class="product-title">Robes Florales</h3>
+                    <p class="product-subtitle">6 modèles disponibles</p>
+                    <span class="product-price">€89.00</span>
+                </div>
+                <a href="{% url 'store:product_list' %}?category=women&type=dresses" 
+                   class="product-link"
+                   aria-label="Voir les robes florales">
+                    <span class="sr-only">Voir les robes florales</span>
+                </a>
+            </div>
+            
+            <!-- Ajoutez d'autres produits femme similaires -->
+        </div>
+        
+        <!-- Shop All CTA -->
+        <div class="shop-all-cta">
+            <a href="{% url 'store:product_list' %}" 
+               class="btn-shop-all"
+               aria-label="Voir tous les produits">
+                <span>SHOP YEE</span>
+                <i class="bi bi-arrow-right" aria-hidden="true"></i>
+            </a>
+        </div>
+    </div>
+    
+    <!-- Quick Links -->
+    <div class="quick-links">
+        <div class="quick-link-item">
+            <a href="{% url 'store:product_list' %}?new=true" class="quick-link">
+                <i class="bi bi-star" aria-hidden="true"></i>
+                <span>Nouveautés</span>
+            </a>
+        </div>
+        <div class="quick-link-item">
+            <a href="{% url 'store:product_list' %}?sale=true" class="quick-link">
+                <i class="bi bi-percent" aria-hidden="true"></i>
+                <span>Soldes</span>
+            </a>
+        </div>
+        <div class="quick-link-item">
+            <a href="{% url 'pages:size_guide' %}" class="quick-link">
+                <i class="bi bi-rulers" aria-hidden="true"></i>
+                <span>Guide des tailles</span>
+            </a>
+        </div>
+        <div class="quick-link-item">
+            <a href="{% url 'pages:sustainability' %}" class="quick-link">
+                <i class="bi bi-leaf" aria-hidden="true"></i>
+                <span>Durabilité</span>
+            </a>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Mega Menu Shop Styles */
+.mega-menu-content {
+    padding: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.category-navigation {
+    margin-bottom: 2rem;
+    border-bottom: 1px solid var(--rhode-gray-light);
+}
+
+.category-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 1rem;
+}
+
+.category-btn {
+    background: none;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--rhode-gray-medium);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    border-bottom: 2px solid transparent;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    position: relative;
+}
+
+.category-btn:hover,
+.category-btn.active {
+    color: var(--rhode-black);
+    border-bottom-color: var(--rhode-black);
+}
+
+.category-btn:focus {
+    outline: 2px solid var(--rhode-accent);
+    outline-offset: 2px;
+}
+
+.product-showcase {
+    position: relative;
+    min-height: 300px;
+    margin-bottom: 2rem;
+}
+
+.product-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.6s ease;
+}
+
+.product-grid.active {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.product-card-mega {
+    position: relative;
+    background: var(--rhode-white);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: var(--shadow-soft);
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.product-card-mega:hover {
+    transform: translateY(-8px);
+    box-shadow: var(--shadow-strong);
+}
+
+.product-badge {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    background: var(--rhode-black);
+    color: var(--rhode-white);
+    padding: 4px 8px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-radius: 4px;
+    z-index: 2;
+}
+
+.product-badge.new { background: var(--rhode-accent); }
+.product-badge.bestseller { background: #27AE60; }
+.product-badge.limited { background: #E74C3C; }
+.product-badge.trending { background: #9B59B6; }
+.product-badge.viral { background: #F39C12; }
+
+.product-image {
+    width: 100%;
+    aspect-ratio: 4/3;
+    overflow: hidden;
+    position: relative;
+}
+
+.image-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3rem;
+    color: white;
+    transition: all 0.3s ease;
+}
+
+.product-card-mega:hover .image-placeholder {
+    transform: scale(1.1);
+}
+
+.product-info {
+    padding: 1rem;
+    text-align: center;
+}
+
+.product-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--rhode-black);
+    margin: 0 0 0.5rem 0;
+    text-transform: lowercase;
+}
+
+.product-subtitle {
+    font-size: 0.85rem;
+    color: var(--rhode-gray-medium);
+    margin: 0 0 0.75rem 0;
+    line-height: 1.4;
+}
+
+.product-price {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--rhode-black);
+}
+
+.product-link {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+}
+
+.shop-all-cta {
+    text-align: center;
+    margin: 2rem 0;
+}
+
+.btn-shop-all {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1rem 2rem;
+    background: var(--rhode-black);
+    color: var(--rhode-white);
+    text-decoration: none;
+    border-radius: 50px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    transition: all 0.3s ease;
+}
+
+.btn-shop-all:hover {
+    background: var(--rhode-accent);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-medium);
+}
+
+.quick-links {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+    border-top: 1px solid var(--rhode-gray-light);
+    padding-top: 1.5rem;
+}
+
+.quick-link {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem;
+    color: var(--rhode-gray-medium);
+    text-decoration: none;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    font-size: 0.85rem;
+}
+
+.quick-link:hover {
+    background: var(--rhode-gray-light);
+    color: var(--rhode-black);
+    transform: translateX(4px);
+}
+
+.quick-link i {
+    font-size: 1.1rem;
+}
+
+/* Screen reader only */
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .mega-menu-content {
+        padding: 1rem;
+    }
+    
+    .category-buttons {
+        gap: 0.5rem;
+    }
+    
+    .category-btn {
+        padding: 0.5rem 1rem;
+        font-size: 0.8rem;
+    }
+    
+    .product-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+    }
+    
+    .quick-links {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* Animation pour le changement de catégorie */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.product-card-mega {
+    animation: fadeInUp 0.6s ease forwards;
+}
+
+.product-card-mega:nth-child(1) { animation-delay: 0.1s; }
+.product-card-mega:nth-child(2) { animation-delay: 0.2s; }
+.product-card-mega:nth-child(3) { animation-delay: 0.3s; }
+.product-card-mega:nth-child(4) { animation-delay: 0.4s; }
+
+/* Reduce motion pour accessibilité */
+@media (prefers-reduced-motion: reduce) {
+    .product-card-mega,
+    .product-grid,
+    .category-btn,
+    .btn-shop-all,
+    .quick-link {
+        animation: none;
+        transition: none;
+    }
+}
+</style>

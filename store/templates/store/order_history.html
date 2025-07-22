@@ -101,7 +101,7 @@
                       <i class="bi bi-three-dots"></i>
                     </button>
                     <ul class="dropdown-menu dropdown-menu-end">
-                      <li><a class="dropdown-item" href="{% url 'order_detail' order.id %}"><i class="bi bi-eye me-2"></i>View Details</a></li>
+                      <li><a class="dropdown-item" href="{% url 'store:order_detail' order.id %}"><i class="bi bi-eye me-2"></i>View Details</a></li>
                       <li><a class="dropdown-item" href="{% url 'download_invoice' order.id %}"><i class="bi bi-download me-2"></i>Download Invoice</a></li>
                       <li><a class="dropdown-item" href="{% url 'reorder' order.id %}"><i class="bi bi-arrow-repeat me-2"></i>Reorder</a></li>
                       <li><hr class="dropdown-divider"></li>

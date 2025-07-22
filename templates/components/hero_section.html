@@ -1,0 +1,511 @@
+{% load static %}
+
+<div class="hero-container" role="banner">
+    <!-- Hero Background -->
+    <div class="hero-background" aria-hidden="true">
+        <picture>
+            <source media="(min-width: 768px)" 
+                    srcset="{% static 'images/hero-desktop.webp' %} 1920w,
+                            {% static 'images/hero-desktop-lg.webp' %} 1440w,
+                            {% static 'images/hero-desktop-md.webp' %} 1024w"
+                    sizes="100vw">
+            <source media="(max-width: 767px)" 
+                    srcset="{% static 'images/hero-mobile.webp' %} 768w,
+                            {% static 'images/hero-mobile-sm.webp' %} 480w"
+                    sizes="100vw">
+            <img src="{% static 'images/hero-desktop.webp' %}" 
+                 alt=""
+                 class="hero-image"
+                 loading="eager"
+                 decoding="async"
+                 fetchpriority="high">
+        </picture>
+        <div class="hero-overlay" aria-hidden="true"></div>
+    </div>
+    
+    <!-- Hero Content -->
+    <div class="hero-content">
+        <div class="container">
+            <div class="hero-text-container">
+                <h1 id="hero-title" class="hero-title">
+                    <span class="hero-title-line">Mode de Qualité</span>
+                    <span class="hero-title-line hero-title-emphasis">pour TOUS.</span>
+                </h1>
+                
+                <p class="hero-subtitle">
+                    Découvrez notre collection de vêtements éthiques et durables, 
+                    conçue pour un style sans effort au quotidien.
+                </p>
+                
+                <div class="hero-actions">
+                    <a href="{% url 'store:product_list' %}" 
+                       class="btn-hero-primary"
+                       role="button"
+                       aria-label="Découvrir la collection complète">
+                        <span class="btn-text">Découvrir</span>
+                        <span class="btn-icon" aria-hidden="true">
+                            <i class="bi bi-arrow-right"></i>
+                        </span>
+                    </a>
+                    
+                    <a href="{% url 'pages:about' %}" 
+                       class="btn-hero-secondary"
+                       role="button"
+                       aria-label="En savoir plus sur YEE">
+                        <span class="btn-text">Notre Histoire</span>
+                    </a>
+                </div>
+                
+                <!-- Trust Indicators -->
+                <div class="hero-trust" aria-label="Garanties de qualité">
+                    <div class="trust-item">
+                        <i class="bi bi-truck" aria-hidden="true"></i>
+                        <span>Livraison gratuite dès 70€</span>
+                    </div>
+                    <div class="trust-item">
+                        <i class="bi bi-arrow-repeat" aria-hidden="true"></i>
+                        <span>Retours gratuits 30 jours</span>
+                    </div>
+                    <div class="trust-item">
+                        <i class="bi bi-leaf" aria-hidden="true"></i>
+                        <span>Matériaux durables</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Scroll Indicator -->
+    <div class="scroll-indicator" aria-hidden="true">
+        <button class="scroll-hint" 
+                type="button"
+                aria-label="Faire défiler vers le bas">
+            <span class="scroll-text">Découvrir</span>
+            <span class="scroll-arrow">
+                <i class="bi bi-chevron-down"></i>
+            </span>
+        </button>
+    </div>
+</div>
+
+<style>
+/* Hero Section Styles */
+.hero-container {
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    background: var(--rhode-black);
+}
+
+.hero-background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+}
+
+.hero-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    transition: transform 8s ease-out;
+}
+
+.hero-container:hover .hero-image {
+    transform: scale(1.05);
+}
+
+.hero-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        135deg,
+        rgba(0, 0, 0, 0.6) 0%,
+        rgba(0, 0, 0, 0.3) 50%,
+        rgba(0, 0, 0, 0.4) 100%
+    );
+    z-index: 2;
+}
+
+.hero-content {
+    position: relative;
+    z-index: 3;
+    width: 100%;
+    color: var(--rhode-white);
+    text-align: center;
+    animation: heroFadeInUp 1.2s ease-out;
+}
+
+.hero-text-container {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.hero-title {
+    font-size: clamp(2.5rem, 6vw, 4rem);
+    font-weight: 700;
+    line-height: 1.1;
+    margin-bottom: 1.5rem;
+    letter-spacing: -0.02em;
+}
+
+.hero-title-line {
+    display: block;
+    animation: heroSlideInLeft 0.8s ease-out;
+}
+
+.hero-title-line:nth-child(2) {
+    animation-delay: 0.2s;
+    animation-fill-mode: both;
+}
+
+.hero-title-emphasis {
+    background: linear-gradient(
+        135deg,
+        var(--rhode-accent) 0%,
+        #F4D03F 100%
+    );
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.hero-subtitle {
+    font-size: clamp(1.1rem, 2.5vw, 1.3rem);
+    line-height: 1.6;
+    margin-bottom: 2.5rem;
+    color: rgba(255, 255, 255, 0.9);
+    animation: heroFadeIn 1s ease-out 0.4s both;
+}
+
+.hero-actions {
+    display: flex;
+    gap: 1.5rem;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 3rem;
+    animation: heroFadeIn 1s ease-out 0.6s both;
+}
+
+.btn-hero-primary,
+.btn-hero-secondary {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1rem 2rem;
+    font-size: 1rem;
+    font-weight: 600;
+    text-decoration: none;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-radius: 50px;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-hero-primary {
+    background: var(--rhode-accent);
+    color: var(--rhode-black);
+    border: 2px solid var(--rhode-accent);
+}
+
+.btn-hero-primary:hover {
+    background: transparent;
+    color: var(--rhode-accent);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(212, 175, 55, 0.3);
+}
+
+.btn-hero-secondary {
+    background: transparent;
+    color: var(--rhode-white);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+.btn-hero-secondary:hover {
+    background: var(--rhode-white);
+    color: var(--rhode-black);
+    border-color: var(--rhode-white);
+    transform: translateY(-2px);
+}
+
+.btn-icon {
+    transition: transform 0.3s ease;
+}
+
+.btn-hero-primary:hover .btn-icon {
+    transform: translateX(4px);
+}
+
+.hero-trust {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    margin-top: 2rem;
+    animation: heroFadeIn 1s ease-out 0.8s both;
+}
+
+.trust-item {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.trust-item i {
+    font-size: 1.2rem;
+    color: var(--rhode-accent);
+}
+
+.scroll-indicator {
+    position: absolute;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 3;
+    animation: heroFadeIn 1s ease-out 1s both;
+}
+
+.scroll-hint {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.8);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.scroll-hint:hover {
+    color: var(--rhode-accent);
+    transform: translateY(-4px);
+}
+
+.scroll-text {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.scroll-arrow {
+    animation: bounce 2s infinite;
+}
+
+/* Animations */
+@keyframes heroFadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes heroSlideInLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-50px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes heroFadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes bounce {
+    0%, 20%, 50%, 80%, 100% {
+        transform: translateY(0);
+    }
+    40% {
+        transform: translateY(-10px);
+    }
+    60% {
+        transform: translateY(-5px);
+    }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .hero-container {
+        min-height: 80vh;
+    }
+    
+    .hero-text-container {
+        padding: 1.5rem;
+    }
+    
+    .hero-actions {
+        flex-direction: column;
+        align-items: center;
+        gap: 1rem;
+    }
+    
+    .btn-hero-primary,
+    .btn-hero-secondary {
+        width: 100%;
+        max-width: 280px;
+        justify-content: center;
+    }
+    
+    .hero-trust {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+        text-align: center;
+    }
+    
+    .trust-item {
+        font-size: 0.8rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .hero-container {
+        min-height: 70vh;
+    }
+    
+    .hero-text-container {
+        padding: 1rem;
+    }
+    
+    .hero-trust {
+        margin-top: 1.5rem;
+    }
+    
+    .scroll-indicator {
+        bottom: 1rem;
+    }
+}
+
+/* Accessibility */
+@media (prefers-reduced-motion: reduce) {
+    .hero-image,
+    .hero-content,
+    .hero-title-line,
+    .hero-subtitle,
+    .hero-actions,
+    .hero-trust,
+    .scroll-indicator,
+    .scroll-arrow,
+    .btn-hero-primary,
+    .btn-hero-secondary {
+        animation: none;
+        transition: none;
+    }
+    
+    .hero-container:hover .hero-image {
+        transform: none;
+    }
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+    .hero-overlay {
+        background: rgba(0, 0, 0, 0.8);
+    }
+    
+    .btn-hero-secondary {
+        border-color: var(--rhode-white);
+    }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+    .hero-title-emphasis {
+        background: linear-gradient(
+            135deg,
+            #F4D03F 0%,
+            var(--rhode-accent) 100%
+        );
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+}
+
+/* Focus states */
+.btn-hero-primary:focus,
+.btn-hero-secondary:focus,
+.scroll-hint:focus {
+    outline: 2px solid var(--rhode-accent);
+    outline-offset: 2px;
+}
+
+/* Print styles */
+@media print {
+    .hero-container {
+        min-height: auto;
+        background: var(--rhode-white);
+        color: var(--rhode-black);
+    }
+    
+    .hero-background,
+    .scroll-indicator {
+        display: none;
+    }
+    
+    .hero-title-emphasis {
+        -webkit-text-fill-color: initial;
+        background: none;
+        color: var(--rhode-black);
+    }
+}
+</style>
+
+<script>
+// Hero interactions
+document.addEventListener('DOMContentLoaded', function() {
+    const scrollHint = document.querySelector('.scroll-hint');
+    const heroContainer = document.querySelector('.hero-container');
+    
+    if (scrollHint) {
+        scrollHint.addEventListener('click', function() {
+            const nextSection = heroContainer.nextElementSibling;
+            if (nextSection) {
+                nextSection.scrollIntoView({ 
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }
+        });
+    }
+    
+    // Parallax effect pour les écrans compatibles
+    if (window.innerWidth > 768 && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        window.addEventListener('scroll', function() {
+            const scrolled = window.pageYOffset;
+            const heroImage = document.querySelector('.hero-image');
+            
+            if (heroImage && scrolled < window.innerHeight) {
+                const parallaxSpeed = scrolled * 0.5;
+                heroImage.style.transform = `translateY(${parallaxSpeed}px) scale(1.05)`;
+            }
+        });
+    }
+});
+</script>

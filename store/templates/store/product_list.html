@@ -1,0 +1,177 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{% if selected_category %}{{ selected_category.name }} - {% endif %}Shop - yee{% endblock %}
+
+{% block content %}
+<div class="shop-page">
+    <!-- Shop Header -->
+    <section class="shop-header">
+        <div class="container">
+            <h1 class="shop-title">
+                {% if selected_category %}{{ selected_category.name }}{% else %}mode de qualité pour tous.{% endif %}
+            </h1>
+            <p class="shop-subtitle">
+                {% if selected_category %}
+                    {{ selected_category.description|default:"découvrez notre sélection" }}
+                {% else %}
+                    découvrez notre collection complète de pièces essentielles
+                {% endif %}
+            </p>
+            
+            <!-- Categories Navigation -->
+            <nav class="categories-nav">
+                <a href="{% url 'store:product_list' %}" class="category-link {% if not category_slug %}active{% endif %}">
+                    tout voir
+                </a>
+                {% for category in all_categories %}
+                <a href="{% url 'store:product_list' %}?category={{ category.slug }}" 
+                   class="category-link {% if category_slug == category.slug %}active{% endif %}">
+                    {{ category.name|lower }}
+                </a>
+                {% endfor %}
+            </nav>
+        </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section class="stats-section">
+        <div class="container">
+            <div class="stats-content">
+                <h4>{{ total_products }} produit{{ total_products|pluralize }} trouvé{{ total_products|pluralize }}</h4>
+                {% if selected_category %}
+                <small>dans {{ selected_category.name }}</small>
+                {% endif %}
+                
+                <form method="GET" class="sort-form">
+                    {% if category_slug %}<input type="hidden" name="category" value="{{ category_slug }}">{% endif %}
+                    <select name="sort" onchange="this.form.submit()" class="sort-select">
+                        <option value="-created_at" {% if current_filters.sort == '-created_at' %}selected{% endif %}>Plus récents</option>
+                        <option value="created_at" {% if current_filters.sort == 'created_at' %}selected{% endif %}>Plus anciens</option>
+                        <option value="name" {% if current_filters.sort == 'name' %}selected{% endif %}>Nom A-Z</option>
+                        <option value="-name" {% if current_filters.sort == '-name' %}selected{% endif %}>Nom Z-A</option>
+                        <option value="price" {% if current_filters.sort == 'price' %}selected{% endif %}>Prix croissant</option>
+                        <option value="-price" {% if current_filters.sort == '-price' %}selected{% endif %}>Prix décroissant</option>
+                    </select>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Products Grid -->
+    <section class="products-section">
+        <div class="container">
+            <div class="products-grid">
+                {% for product in products %}
+                <div class="product-card">
+                    <div class="product-image">
+                        {% if product.thumbnail %}
+                            <img src="{{ product.thumbnail.url }}" 
+                                 alt="{{ product.name }}"
+                                 loading="lazy"
+                                 decoding="async"
+                                 style="display: block; width: 100%; height: 100%; object-fit: cover;"
+                                 onerror="console.log('Erreur chargement image:', this.src); this.parentElement.querySelector('.image-placeholder').style.display='flex'; this.style.display='none';">
+                            <div class="image-placeholder" style="display: none;">
+                                <i class="bi bi-image"></i>
+                            </div>
+                        {% else %}
+                            <div class="image-placeholder">
+                                <i class="bi bi-image"></i>
+                            </div>
+                        {% endif %}
+                        
+                        {% if product.is_on_sale %}
+                            <span class="badge sale">promotion</span>
+                        {% endif %}
+                        
+                        {% if product.is_new %}
+                            <span class="badge new">nouveau</span>
+                        {% endif %}
+                        
+                        <a href="{% url 'store:product_detail' product.slug %}" class="quick-buy">
+                            {% if product.sale_price %}
+                                Acheter - €{{ product.sale_price }}
+                            {% else %}
+                                Acheter - €{{ product.price }}
+                            {% endif %}
+                        </a>
+                    </div>
+                    
+                    <div class="product-info">
+                        <div class="product-rating">
+                            <div class="stars">★★★★★</div>
+                            <span class="reviews-count">({{ product.id|add:50 }})</span>
+                        </div>
+                        
+                        <div class="product-category">{{ product.category.name|lower }}</div>
+                        <h3 class="product-title">{{ product.name|lower }}</h3>
+                        <p class="product-description">{{ product.description|truncatewords:8 }}</p>
+                        
+                        <div class="product-price">
+                            {% if product.sale_price %}
+                                €{{ product.sale_price }}
+                                <span class="original-price">€{{ product.price }}</span>
+                            {% else %}
+                                €{{ product.price }}
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="no-products">
+                    <h3>aucun produit trouvé</h3>
+                    <p>nous n'avons trouvé aucun produit correspondant à vos critères.</p>
+                    <a href="{% url 'store:product_list' %}" class="btn-primary">
+                        voir tous les produits
+                    </a>
+                </div>
+                {% endfor %}
+            </div>
+            
+            <!-- Pagination -->
+            {% if products.has_other_pages %}
+            <nav class="pagination">
+                <ul class="pagination-list">
+                    {% if products.has_previous %}
+                        <li>
+                            <a href="?page={{ products.previous_page_number }}{% if category_slug %}&category={{ category_slug }}{% endif %}{% if current_filters.sort %}&sort={{ current_filters.sort }}{% endif %}">
+                                ← précédent
+                            </a>
+                        </li>
+                    {% endif %}
+                    
+                    {% for page_num in products.paginator.page_range %}
+                        {% if page_num == products.number %}
+                            <li><span class="active">{{ page_num }}</span></li>
+                        {% else %}
+                            <li>
+                                <a href="?page={{ page_num }}{% if category_slug %}&category={{ category_slug }}{% endif %}{% if current_filters.sort %}&sort={{ current_filters.sort }}{% endif %}">
+                                    {{ page_num }}
+                                </a>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+                    
+                    {% if products.has_next %}
+                        <li>
+                            <a href="?page={{ products.next_page_number }}{% if category_slug %}&category={{ category_slug }}{% endif %}{% if current_filters.sort %}&sort={{ current_filters.sort }}{% endif %}">
+                                suivant →
+                            </a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+        </div>
+    </section>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/product_list.css' %}">
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/image-debug.js' %}"></script>
+{% endblock %}

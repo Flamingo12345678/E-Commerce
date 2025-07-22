@@ -1,0 +1,254 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}faq - yee{% endblock %}
+
+{% block content %}
+<div class="rhode-faq-page">
+    <!-- Hero Section -->
+    <section class="faq-hero">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-8 text-center">
+                    <h1 class="faq-title">questions fréquentes</h1>
+                    <p class="faq-subtitle">
+                        trouvez rapidement les réponses à vos questions sur yee, nos produits et nos services.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ Content -->
+    <section class="faq-content">
+        <div class="container">
+            {% for category in faq_data %}
+            <div class="faq-category">
+                <h2 class="category-title">{{ category.category }}</h2>
+                <div class="accordion accordion-flush" id="faqAccordion{{ forloop.counter }}">
+                    {% for item in category.questions %}
+                    <div class="accordion-item">
+                        <h3 class="accordion-header" id="heading{{ forloop.parentloop.counter }}{{ forloop.counter }}">
+                            <button class="accordion-button collapsed" type="button" 
+                                data-bs-toggle="collapse" 
+                                data-bs-target="#collapse{{ forloop.parentloop.counter }}{{ forloop.counter }}" 
+                                aria-expanded="false" 
+                                aria-controls="collapse{{ forloop.parentloop.counter }}{{ forloop.counter }}">
+                                {{ item.question }}
+                            </button>
+                        </h3>
+                        <div id="collapse{{ forloop.parentloop.counter }}{{ forloop.counter }}" 
+                             class="accordion-collapse collapse" 
+                             aria-labelledby="heading{{ forloop.parentloop.counter }}{{ forloop.counter }}" 
+                             data-bs-parent="#faqAccordion{{ forloop.parentloop.counter }}">
+                            <div class="accordion-body">
+                                {{ item.answer }}
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <!-- Contact CTA -->
+    <section class="faq-contact-cta">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-8 text-center">
+                    <div class="contact-cta-card">
+                        <h2>vous ne trouvez pas la réponse ?</h2>
+                        <p>notre équipe de support est là pour vous aider</p>
+                        <div class="cta-buttons">
+                            <a href="{% url 'pages:contact' %}" class="btn btn-primary">contactez-nous</a>
+                            <a href="mailto:hello@yee-fashion.com" class="btn btn-outline-primary">hello@yee-fashion.com</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+<style>
+/* FAQ Page Styles */
+.rhode-faq-page {
+    color: var(--rhode-black);
+}
+
+.faq-hero {
+    padding: 60px 0;
+    background: linear-gradient(135deg, var(--rhode-cream) 0%, var(--rhode-neutral-light) 100%);
+}
+
+.faq-title {
+    font-size: 3.5rem;
+    font-weight: 300;
+    color: var(--rhode-black);
+    margin-bottom: 1.5rem;
+    letter-spacing: -0.02em;
+}
+
+.faq-subtitle {
+    font-size: 1.2rem;
+    color: var(--rhode-text-secondary);
+    line-height: 1.6;
+}
+
+.faq-content {
+    padding: 80px 0;
+    background: white;
+}
+
+.faq-category {
+    margin-bottom: 4rem;
+}
+
+.category-title {
+    font-size: 2rem;
+    font-weight: 500;
+    color: var(--rhode-black);
+    margin-bottom: 2rem;
+    text-align: center;
+    position: relative;
+}
+
+.category-title::after {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 2px;
+    background: var(--rhode-sage);
+}
+
+.accordion-item {
+    border: none;
+    border-bottom: 1px solid var(--rhode-border);
+    background: none;
+}
+
+.accordion-button {
+    background: none;
+    border: none;
+    padding: 1.5rem 0;
+    font-size: 1.1rem;
+    font-weight: 500;
+    color: var(--rhode-black);
+    text-align: left;
+    box-shadow: none;
+    border-radius: 0;
+}
+
+.accordion-button:not(.collapsed) {
+    background: none;
+    color: var(--rhode-sage);
+    box-shadow: none;
+}
+
+.accordion-button::after {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23000'%3e%3cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3e%3c/svg%3e");
+    transform: rotate(-90deg);
+    transition: transform 0.3s ease;
+}
+
+.accordion-button:not(.collapsed)::after {
+    transform: rotate(0);
+}
+
+.accordion-body {
+    padding: 0 0 1.5rem 0;
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--rhode-text-secondary);
+}
+
+.faq-contact-cta {
+    padding: 80px 0;
+    background: var(--rhode-neutral-light);
+}
+
+.contact-cta-card {
+    background: white;
+    padding: 3rem;
+    border-radius: 16px;
+    box-shadow: var(--rhode-shadow);
+}
+
+.contact-cta-card h2 {
+    font-size: 2rem;
+    font-weight: 300;
+    margin-bottom: 1rem;
+    color: var(--rhode-black);
+}
+
+.contact-cta-card p {
+    font-size: 1.1rem;
+    color: var(--rhode-text-secondary);
+    margin-bottom: 2rem;
+}
+
+.cta-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.cta-buttons .btn {
+    padding: 12px 24px;
+    font-weight: 500;
+    border-radius: 8px;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.cta-buttons .btn-primary {
+    background: var(--rhode-black);
+    border: 2px solid var(--rhode-black);
+    color: white;
+}
+
+.cta-buttons .btn-primary:hover {
+    background: var(--rhode-sage);
+    border-color: var(--rhode-sage);
+    transform: translateY(-2px);
+}
+
+.cta-buttons .btn-outline-primary {
+    background: transparent;
+    border: 2px solid var(--rhode-black);
+    color: var(--rhode-black);
+}
+
+.cta-buttons .btn-outline-primary:hover {
+    background: var(--rhode-black);
+    color: white;
+    transform: translateY(-2px);
+}
+
+@media (max-width: 768px) {
+    .faq-title {
+        font-size: 2.5rem;
+    }
+    
+    .contact-cta-card {
+        padding: 2rem;
+    }
+    
+    .cta-buttons {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .cta-buttons .btn {
+        width: 100%;
+        max-width: 300px;
+    }
+}
+</style>
+{% endblock %}

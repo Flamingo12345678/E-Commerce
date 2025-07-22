@@ -1,5 +1,5 @@
 {% if not cart_info.is_empty %}
-<a href="{% url 'cart' %}" class="btn btn-outline-primary position-relative">
+<a href="{% url 'store:cart' %}" class="btn btn-outline-primary position-relative">
     <i class="bi bi-cart3"></i>
     <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
         {{ cart_info.total_items }}
@@ -7,7 +7,7 @@
     </span>
 </a>
 {% else %}
-<a href="{% url 'cart' %}" class="btn btn-outline-primary">
+<a href="{% url 'store:cart' %}" class="btn btn-outline-primary">
     <i class="bi bi-cart3"></i>
 </a>
 {% endif %}

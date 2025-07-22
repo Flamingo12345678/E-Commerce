@@ -33,7 +33,7 @@
                             <!-- Gestion des quantités -->
                             <div class="d-flex align-items-center my-3 gap-2">
                                 <!-- Diminuer -->
-                                <form method="POST" action="{% url 'decrease_quantity' order.id %}">
+                                <form method="POST" action="{% url 'store:decrease_quantity' order.id %}">
                                     {% csrf_token %}
                                     <button class="btn btn-danger btn-sm" aria-label="Diminuer la quantité">-</button>
                                 </form>
@@ -41,13 +41,13 @@
                                 <span class="fw-bold">{{ order.quantity }}</span>
 
                                 <!-- Augmenter -->
-                                <form method="POST" action="{% url 'increase_quantity' order.id %}">
+                                <form method="POST" action="{% url 'store:increase_quantity' order.id %}">
                                     {% csrf_token %}
                                     <button class="btn btn-success btn-sm" aria-label="Augmenter la quantité">+</button>
                                 </form>
 
                                 <!-- Supprimer -->
-                                <form method="POST" action="{% url 'remove_from_cart' order.id %}" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce produit ?')">
+                                <form method="POST" action="{% url 'store:remove_from_cart' order.id %}" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce produit ?')">
                                     {% csrf_token %}
                                     <button class="btn btn-secondary btn-sm ms-3" aria-label="Supprimer le produit">🗑️ Supprimer</button>
                                 </form>
@@ -72,12 +72,12 @@
             <div class="d-flex justify-content-end gap-3 mt-3">
                 <a href="{% url 'index' %}" class="btn btn-outline-secondary">Continuer les achats</a>
 
-                <form method="POST" action="{% url 'delete_cart' %}" onsubmit="return confirm('Vider tout le panier ?')">
+                <form method="POST" action="{% url 'store:delete_cart' %}" onsubmit="return confirm('Vider tout le panier ?')">
                     {% csrf_token %}
                     <button type="submit" class="btn btn-danger">Vider le panier</button>
                 </form>
 
-                <a href="{% url 'checkout' %}" class="btn btn-success">
+                <a href="{% url 'store:checkout' %}" class="btn btn-success">
                     🛒 Valider la commande
                 </a>
             </div>

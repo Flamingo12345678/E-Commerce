@@ -1,0 +1,76 @@
+# Robots.txt pour E-Commerce Django
+# Dernière mise à jour : juillet 2025
+
+# Directives pour tous les robots
+User-agent: *
+
+# Autoriser l'accès aux pages publiques
+Allow: /
+Allow: /shop/
+Allow: /store/
+Allow: /pages/
+Allow: /static/
+Allow: /media/products/
+
+# Interdire l'accès aux zones sensibles
+Disallow: /admin/
+Disallow: /accounts/
+Disallow: /account/
+Disallow: /user/
+Disallow: /users/
+Disallow: /profile/
+Disallow: /login/
+Disallow: /logout/
+Disallow: /register/
+Disallow: /signup/
+Disallow: /checkout/
+Disallow: /cart/
+Disallow: /panier/
+Disallow: /payment/
+Disallow: /paiement/
+Disallow: /webhook/
+Disallow: /webhooks/
+Disallow: /api/
+Disallow: /private/
+Disallow: /media/invoice_templates/
+
+# Interdire l'accès aux fichiers système
+Disallow: /*.log$
+Disallow: /*.py$
+Disallow: /*.pyc$
+Disallow: /*.db$
+Disallow: /*.sqlite3$
+Disallow: /manage.py
+Disallow: /requirements.txt
+Disallow: /env/
+Disallow: /__pycache__/
+Disallow: /.git/
+Disallow: /.gitignore
+Disallow: /db.sqlite3
+
+# Optimisations pour les moteurs de recherche
+User-agent: Googlebot
+Allow: /static/
+Allow: /media/products/
+Crawl-delay: 1
+
+User-agent: Bingbot
+Allow: /static/
+Allow: /media/products/
+Crawl-delay: 2
+
+# Interdire les robots malveillants
+User-agent: AhrefsBot
+Disallow: /
+
+User-agent: MJ12bot
+Disallow: /
+
+User-agent: DotBot
+Disallow: /
+
+# Fréquence de crawl pour éviter la surcharge
+Crawl-delay: 10
+
+# Référence au sitemap (à adapter selon votre configuration)
+# Sitemap: https://votre-domaine.com/sitemap.xml

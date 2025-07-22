@@ -4,12 +4,21 @@ from . import payment_views
 from . import admin_views
 from . import debug_webhook
 
+app_name = "accounts"
+
 urlpatterns = [
     path("signup/", views.signup, name="signup"),
     path("login/", views.login_user, name="login"),
     path("logout/", views.logout_user, name="logout"),
     path("profile/", views.profile, name="profile"),
     path("change-password/", views.change_password, name="change_password"),
+    # URLs pour la réinitialisation de mot de passe
+    path("password-reset/", views.password_reset_request, name="password_reset"),
+    path(
+        "password-reset-confirm/<uidb64>/<token>/",
+        views.password_reset_confirm,
+        name="password_reset_confirm",
+    ),
     # Nouvelles URLs pour les actions du profil
     path("export-data/", views.export_user_data, name="export_user_data"),
     path("delete-account/", views.delete_user_account, name="delete_user_account"),

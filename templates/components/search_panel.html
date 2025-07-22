@@ -1,0 +1,523 @@
+{% load static %}
+
+<div class="search-panel-content">
+    <!-- Formulaire de recherche principal -->
+    <form class="search-form" action="{% url 'store:product_list' %}" method="get" role="search">
+        <div class="search-input-group">
+            <label for="search-input" class="sr-only">Rechercher des produits</label>
+            <input type="search" 
+                   id="search-input"
+                   name="q" 
+                   class="search-input"
+                   placeholder="Rechercher des produits..."
+                   autocomplete="off"
+                   aria-describedby="search-suggestions"
+                   data-search-input>
+            <button type="submit" 
+                    class="search-submit"
+                    aria-label="Lancer la recherche">
+                <i class="bi bi-search" aria-hidden="true"></i>
+            </button>
+            <button type="button" 
+                    class="search-close"
+                    aria-label="Fermer la recherche"
+                    data-search-close>
+                <i class="bi bi-x" aria-hidden="true"></i>
+            </button>
+        </div>
+    </form>
+    
+    <!-- Suggestions de recherche -->
+    <div class="search-suggestions" 
+         id="search-suggestions" 
+         role="listbox"
+         aria-label="Suggestions de recherche"
+         style="display: none;">
+        <div class="suggestions-header">
+            <span class="suggestions-title">Suggestions</span>
+        </div>
+        <ul class="suggestions-list" role="group">
+            <!-- Les suggestions seront ajoutées dynamiquement ici -->
+        </ul>
+    </div>
+    
+    <!-- Recherches populaires -->
+    <div class="popular-searches">
+        <div class="popular-header">
+            <h3 class="popular-title">Recherches populaires</h3>
+        </div>
+        <div class="popular-tags">
+            <a href="{% url 'store:product_list' %}?q=chemise" 
+               class="popular-tag"
+               data-search-term="chemise">
+                Chemise
+            </a>
+            <a href="{% url 'store:product_list' %}?q=jean" 
+               class="popular-tag"
+               data-search-term="jean">
+                Jean
+            </a>
+            <a href="{% url 'store:product_list' %}?q=robe" 
+               class="popular-tag"
+               data-search-term="robe">
+                Robe
+            </a>
+            <a href="{% url 'store:product_list' %}?q=sneakers" 
+               class="popular-tag"
+               data-search-term="sneakers">
+                Sneakers
+            </a>
+            <a href="{% url 'store:product_list' %}?q=sac" 
+               class="popular-tag"
+               data-search-term="sac">
+                Sac
+            </a>
+            <a href="{% url 'store:product_list' %}?q=accessoires" 
+               class="popular-tag"
+               data-search-term="accessoires">
+                Accessoires
+            </a>
+        </div>
+    </div>
+    
+    <!-- Catégories -->
+    <div class="search-categories">
+        <div class="categories-header">
+            <h3 class="categories-title">Catégories</h3>
+        </div>
+        <div class="categories-grid">
+            <a href="{% url 'store:product_list' %}?category=men" 
+               class="category-card">
+                <div class="category-icon">
+                    <i class="bi bi-person" aria-hidden="true"></i>
+                </div>
+                <span class="category-name">Homme</span>
+            </a>
+            <a href="{% url 'store:product_list' %}?category=women" 
+               class="category-card">
+                <div class="category-icon">
+                    <i class="bi bi-person-dress" aria-hidden="true"></i>
+                </div>
+                <span class="category-name">Femme</span>
+            </a>
+            <a href="{% url 'store:product_list' %}?category=kids" 
+               class="category-card">
+                <div class="category-icon">
+                    <i class="bi bi-star" aria-hidden="true"></i>
+                </div>
+                <span class="category-name">Enfant</span>
+            </a>
+            <a href="{% url 'store:product_list' %}?category=shoes" 
+               class="category-card">
+                <div class="category-icon">
+                    <i class="bi bi-shoe" aria-hidden="true"></i>
+                </div>
+                <span class="category-name">Chaussures</span>
+            </a>
+            <a href="{% url 'store:product_list' %}?category=accessories" 
+               class="category-card">
+                <div class="category-icon">
+                    <i class="bi bi-handbag" aria-hidden="true"></i>
+                </div>
+                <span class="category-name">Accessoires</span>
+            </a>
+            <a href="{% url 'store:product_list' %}?featured=true" 
+               class="category-card">
+                <div class="category-icon">
+                    <i class="bi bi-award" aria-hidden="true"></i>
+                </div>
+                <span class="category-name">Nouveautés</span>
+            </a>
+        </div>
+    </div>
+    
+    <!-- Filtres rapides -->
+    <div class="quick-filters">
+        <div class="filters-header">
+            <h3 class="filters-title">Filtres rapides</h3>
+        </div>
+        <div class="filters-list">
+            <a href="{% url 'store:product_list' %}?price_range=0-50" 
+               class="filter-item">
+                <i class="bi bi-tag" aria-hidden="true"></i>
+                <span>Moins de 50€</span>
+            </a>
+            <a href="{% url 'store:product_list' %}?price_range=50-100" 
+               class="filter-item">
+                <i class="bi bi-tag" aria-hidden="true"></i>
+                <span>50€ - 100€</span>
+            </a>
+            <a href="{% url 'store:product_list' %}?sale=true" 
+               class="filter-item">
+                <i class="bi bi-percent" aria-hidden="true"></i>
+                <span>En solde</span>
+            </a>
+            <a href="{% url 'store:product_list' %}?sustainable=true" 
+               class="filter-item">
+                <i class="bi bi-leaf" aria-hidden="true"></i>
+                <span>Éco-responsable</span>
+            </a>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Search Panel Styles */
+.search-panel {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    z-index: 2000;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding-top: 5rem;
+}
+
+.search-panel.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.search-panel-content {
+    background: var(--rhode-white);
+    border-radius: 16px;
+    max-width: 600px;
+    width: 90%;
+    max-height: 80vh;
+    overflow-y: auto;
+    padding: 2rem;
+    transform: translateY(-50px);
+    transition: transform 0.3s ease;
+}
+
+.search-panel.active .search-panel-content {
+    transform: translateY(0);
+}
+
+/* Search Form */
+.search-form {
+    margin-bottom: 2rem;
+}
+
+.search-input-group {
+    position: relative;
+    display: flex;
+    align-items: center;
+    background: var(--rhode-gray-light);
+    border-radius: 50px;
+    padding: 0 1rem;
+    border: 2px solid transparent;
+    transition: all 0.3s ease;
+}
+
+.search-input-group:focus-within {
+    border-color: var(--rhode-accent);
+    box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.1);
+}
+
+.search-input {
+    flex: 1;
+    border: none;
+    background: none;
+    padding: 1rem;
+    font-size: 1.1rem;
+    color: var(--rhode-black);
+    outline: none;
+}
+
+.search-input::placeholder {
+    color: var(--rhode-gray-medium);
+}
+
+.search-submit,
+.search-close {
+    background: none;
+    border: none;
+    color: var(--rhode-gray-medium);
+    font-size: 1.2rem;
+    padding: 0.5rem;
+    cursor: pointer;
+    transition: color 0.3s ease;
+    border-radius: 50%;
+}
+
+.search-submit:hover,
+.search-close:hover {
+    color: var(--rhode-black);
+}
+
+.search-close {
+    margin-left: 0.5rem;
+}
+
+/* Search Suggestions */
+.search-suggestions {
+    background: var(--rhode-white);
+    border: 1px solid var(--rhode-gray-light);
+    border-radius: 12px;
+    margin-bottom: 1.5rem;
+    box-shadow: var(--shadow-soft);
+}
+
+.suggestions-header {
+    padding: 1rem;
+    border-bottom: 1px solid var(--rhode-gray-light);
+}
+
+.suggestions-title {
+    font-weight: 600;
+    color: var(--rhode-black);
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.suggestions-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.suggestion-item {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--rhode-gray-light);
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.suggestion-item:last-child {
+    border-bottom: none;
+}
+
+.suggestion-item:hover,
+.suggestion-item.highlighted {
+    background: var(--rhode-gray-light);
+}
+
+.suggestion-icon {
+    color: var(--rhode-gray-medium);
+    font-size: 1rem;
+}
+
+.suggestion-text {
+    color: var(--rhode-black);
+    font-size: 0.95rem;
+}
+
+.suggestion-category {
+    color: var(--rhode-gray-medium);
+    font-size: 0.8rem;
+    margin-left: auto;
+}
+
+/* Popular Searches */
+.popular-searches {
+    margin-bottom: 2rem;
+}
+
+.popular-header,
+.categories-header,
+.filters-header {
+    margin-bottom: 1rem;
+}
+
+.popular-title,
+.categories-title,
+.filters-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--rhode-black);
+    margin: 0;
+    text-transform: lowercase;
+}
+
+.popular-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+}
+
+.popular-tag {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    background: var(--rhode-gray-light);
+    color: var(--rhode-black);
+    text-decoration: none;
+    border-radius: 25px;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+    border: 1px solid transparent;
+}
+
+.popular-tag:hover {
+    background: var(--rhode-accent);
+    color: var(--rhode-white);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-soft);
+}
+
+/* Categories Grid */
+.categories-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.category-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 1.5rem 1rem;
+    background: var(--rhode-gray-light);
+    border-radius: 12px;
+    text-decoration: none;
+    color: var(--rhode-black);
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+}
+
+.category-card:hover {
+    background: var(--rhode-white);
+    border-color: var(--rhode-accent);
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-medium);
+}
+
+.category-icon {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+    color: var(--rhode-gray-medium);
+    transition: color 0.3s ease;
+}
+
+.category-card:hover .category-icon {
+    color: var(--rhode-accent);
+}
+
+.category-name {
+    font-size: 0.9rem;
+    font-weight: 500;
+    text-align: center;
+}
+
+/* Quick Filters */
+.filters-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.filter-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem;
+    background: var(--rhode-gray-light);
+    border-radius: 8px;
+    text-decoration: none;
+    color: var(--rhode-black);
+    transition: all 0.3s ease;
+    font-size: 0.9rem;
+}
+
+.filter-item:hover {
+    background: var(--rhode-accent);
+    color: var(--rhode-white);
+    transform: translateX(4px);
+}
+
+.filter-item i {
+    font-size: 1rem;
+    color: inherit;
+}
+
+/* Screen reader only */
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .search-panel-content {
+        padding: 1.5rem;
+        max-height: 90vh;
+    }
+    
+    .categories-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .popular-tags {
+        gap: 0.5rem;
+    }
+    
+    .popular-tag {
+        font-size: 0.8rem;
+        padding: 0.4rem 0.8rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .search-panel {
+        padding-top: 2rem;
+    }
+    
+    .search-panel-content {
+        width: 95%;
+        padding: 1rem;
+    }
+    
+    .search-input {
+        font-size: 1rem;
+        padding: 0.75rem;
+    }
+}
+
+/* Animation for search results */
+@keyframes fadeInSearch {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.suggestion-item {
+    animation: fadeInSearch 0.3s ease;
+}
+
+/* Reduce motion */
+@media (prefers-reduced-motion: reduce) {
+    .search-panel,
+    .search-panel-content,
+    .popular-tag,
+    .category-card,
+    .filter-item,
+    .suggestion-item {
+        transition: none;
+        animation: none;
+    }
+}
+</style>

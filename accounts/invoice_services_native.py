@@ -2,6 +2,7 @@
 Services de facturation optimisés utilisant les systèmes natifs de Stripe et PayPal
 """
 
+import os
 import stripe
 import logging
 from decimal import Decimal
@@ -362,7 +363,9 @@ class PayPalNativeInvoiceService:
                         settings, "COMPANY_NAME", "Mon Entreprise"
                     ),
                     "email_address": getattr(
-                        settings, "COMPANY_EMAIL", "noreply@example.com"
+                        settings,
+                        "COMPANY_EMAIL",
+                        os.environ.get("COMPANY_EMAIL", "noreply@example.com"),
                     ),
                 },
                 "primary_recipients": [

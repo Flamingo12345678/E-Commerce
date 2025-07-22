@@ -81,7 +81,7 @@
               <button type="submit" class="btn btn-dark flex-fill">
                 <i class="bi bi-funnel me-1"></i>Filtrer
               </button>
-              <a href="{% url 'category' category.slug %}" class="btn btn-outline-secondary">
+              <a href="{% url 'store:category' category.slug %}" class="btn btn-outline-secondary">
                 <i class="bi bi-arrow-clockwise"></i>
               </a>
             </div>
@@ -154,7 +154,7 @@
             <!-- Overlay au survol -->
             <div class="product-overlay position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" 
                  style="background: rgba(0,0,0,0.5); opacity: 0; transition: opacity 0.3s ease;">
-              <a href="{% url 'product' product.slug %}" class="btn btn-light rounded-pill px-4">
+              <a href="{% url 'store:product_detail' product.slug %}" class="btn btn-light rounded-pill px-4">
                 <i class="bi bi-eye me-2"></i>Voir le produit
               </a>
             </div>
@@ -207,11 +207,11 @@
             
             <!-- Boutons d'action -->
             <div class="mt-auto d-flex gap-2">
-              <a href="{% url 'product' product.slug %}" class="btn btn-outline-primary btn-sm flex-fill">
+              <a href="{% url 'store:product_detail' product.slug %}" class="btn btn-outline-primary btn-sm flex-fill">
                 <i class="bi bi-eye me-1"></i>Voir
               </a>
               {% if product.stock > 0 %}
-              <a href="{% url 'add_to_cart' product.slug %}" class="btn btn-primary btn-sm flex-fill">
+              <a href="{% url 'store:add_to_cart' product.slug %}" class="btn btn-primary btn-sm flex-fill">
                 <i class="bi bi-cart-plus me-1"></i>Ajouter
               </a>
               {% else %}
@@ -233,7 +233,7 @@
       </div>
       <h3 class="fw-bold mb-3">Aucun produit trouvé</h3>
       <p class="text-muted mb-4">Aucun produit ne correspond à vos critères dans cette catégorie.</p>
-      <a href="{% url 'category' category.slug %}" class="btn btn-primary px-4">Voir tous les produits</a>
+      <a href="{% url 'store:category' category.slug %}" class="btn btn-primary px-4">Voir tous les produits</a>
     </div>
     {% endif %}
   </div>

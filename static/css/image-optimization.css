@@ -1,0 +1,177 @@
+/* =============================================================================
+   OPTIMISATIONS D'IMAGES POUR LES CARTES PRODUITS
+   ============================================================================= */
+
+/* Amélioration des performances d'images */
+.product-image img {
+    /* Optimisation du rendu */
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+    
+    /* Gestion du chargement */
+    background-color: #f8f9fa; /* Couleur de fond pendant le chargement */
+    
+    /* Amélioration de la qualité */
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+}
+
+/* États de chargement */
+.product-image img[loading="lazy"] {
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+}
+
+.product-image img[loading="lazy"].loaded {
+    opacity: 1;
+}
+
+/* Placeholder amélioré */
+.image-placeholder {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    position: relative;
+    overflow: hidden;
+}
+
+.image-placeholder::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, 
+        transparent, 
+        rgba(255, 255, 255, 0.4), 
+        transparent
+    );
+    animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+    0% { left: -100%; }
+    100% { left: 100%; }
+}
+
+.image-placeholder i {
+    opacity: 0.3;
+    font-size: 3rem;
+    color: #6c757d;
+}
+
+.image-placeholder::after {
+    color: #6c757d;
+    opacity: 0.6;
+    font-size: 0.85rem;
+    margin-top: 0.75rem;
+}
+
+/* Optimisations spécifiques pour WebP */
+.product-image img[src$=".webp"] {
+    /* Optimisations spécifiques pour WebP */
+    image-rendering: auto;
+}
+
+/* Styles d'erreur d'image */
+.product-image img[data-error="true"] {
+    display: none;
+}
+
+/* Améliorations responsive pour les images */
+@media (max-width: 480px) {
+    .image-placeholder i {
+        font-size: 2rem;
+    }
+    
+    .image-placeholder::after {
+        font-size: 0.75rem;
+    }
+}
+
+/* Animation de fade-in pour les images chargées */
+@keyframes fadeInImage {
+    from {
+        opacity: 0;
+        transform: scale(1.02);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.product-image img.fade-in {
+    animation: fadeInImage 0.5s ease-out;
+}
+
+/* Aspect ratio container pour maintenir les proportions */
+.product-image {
+    aspect-ratio: 4/3; /* Ratio 4:3 pour un rendu cohérent */
+}
+
+/* Styles pour les images haute résolution */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+    .product-image img {
+        image-rendering: -webkit-optimize-contrast;
+    }
+}
+
+/* Préchargement des images au hover */
+.product-card:hover .product-image::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.02);
+    pointer-events: none;
+}
+
+/* Support pour les images en dark mode */
+@media (prefers-color-scheme: dark) {
+    .image-placeholder {
+        background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+    }
+    
+    .image-placeholder i,
+    .image-placeholder::after {
+        color: #bdc3c7;
+    }
+}
+
+/* ===== RESPONSIVE DESIGN MOBILE ===== */
+@media (max-width: 768px) {
+    .product-image {
+        height: 250px !important;
+        min-height: 250px !important;
+    }
+    
+    .product-image img {
+        min-height: 250px !important;
+        max-height: 250px !important;
+        width: 100% !important;
+        object-fit: cover !important;
+        display: block !important;
+        visibility: visible !important;
+    }
+    
+    .image-placeholder {
+        height: 250px !important;
+        min-height: 250px !important;
+    }
+    
+    /* Améliore la performance sur mobile */
+    .product-image img[loading="lazy"] {
+        content-visibility: auto;
+        contain-intrinsic-size: 250px;
+    }
+    
+    /* Force l'affichage des images sur mobile */
+    .product-image img[src] {
+        opacity: 1 !important;
+        transform: none !important;
+    }
+}

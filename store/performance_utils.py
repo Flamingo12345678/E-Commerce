@@ -24,8 +24,9 @@ def get_featured_products(limit=10):
 
     if products is None:
         products = (
-            Product.objects.only("id", "name", "slug", "price", "thumbnail", "stock")
-            .filter(stock__gt=0)  # Seulement les produits en stock
+            Product.objects.only("id", "name", "slug", "price", "thumbnail")
+            .filter(variants__stock__gt=0)  # Seulement les produits en stock
+            .distinct()
             .order_by("-created_at")[:limit]
         )
 

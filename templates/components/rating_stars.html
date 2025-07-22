@@ -1,0 +1,191 @@
+{% load i18n %}
+
+<div class="rating-stars" 
+     data-rating="{{ rating }}"
+     title="{% blocktrans with rating=rating %}Note: {{ rating }}/5{% endblocktrans %}"
+     {% if interactive %}onclick="setRating({{ rating }})"{% endif %}>
+  
+  {% for i in "12345"|make_list %}
+  <svg class="star {% if forloop.counter <= rating %}filled{% elif forloop.counter|add:'-0.5' <= rating %}half-filled{% endif %}" 
+       viewBox="0 0 24 24" 
+       {% if interactive %}onclick="setRating({{ forloop.counter }}, event)"{% endif %}>
+    
+    {% if forloop.counter <= rating %}
+    <!-- Filled star -->
+    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" 
+          fill="currentColor"/>
+    {% elif forloop.counter|add:'-0.5' <= rating %}
+    <!-- Half-filled star -->
+    <defs>
+      <linearGradient id="half-fill-{{ forloop.counter }}" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop offset="50%" style="stop-color:currentColor;stop-opacity:1" />
+        <stop offset="50%" style="stop-color:currentColor;stop-opacity:0.2" />
+      </linearGradient>
+    </defs>
+    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" 
+          fill="url(#half-fill-{{ forloop.counter }})"/>
+    {% else %}
+    <!-- Empty star -->
+    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" 
+          fill="none" 
+          stroke="currentColor" 
+          stroke-width="1"/>
+    {% endif %}
+  </svg>
+  {% endfor %}
+  
+  {% if show_rating_text %}
+  <span class="rating-text">{{ rating|floatformat:1 }}</span>
+  {% endif %}
+</div>
+
+<style>
+  .rating-stars {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.125rem;
+    {% if interactive %}cursor: pointer;{% endif %}
+  }
+  
+  .rating-stars.interactive .star {
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  
+  .rating-stars.interactive .star:hover {
+    transform: scale(1.1);
+  }
+  
+  .star {
+    width: var(--star-size, 16px);
+    height: var(--star-size, 16px);
+    color: var(--star-empty-color, #e5e5e5);
+    transition: color 0.2s ease;
+  }
+  
+  .star.filled,
+  .star.half-filled {
+    color: var(--star-filled-color, #fbbf24);
+  }
+  
+  .rating-text {
+    margin-left: 0.25rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--text-secondary, #6b7280);
+  }
+  
+  /* Size variations */
+  .rating-stars.size-sm {
+    --star-size: 12px;
+  }
+  
+  .rating-stars.size-md {
+    --star-size: 16px;
+  }
+  
+  .rating-stars.size-lg {
+    --star-size: 20px;
+  }
+  
+  .rating-stars.size-xl {
+    --star-size: 24px;
+  }
+  
+  /* Color variations */
+  .rating-stars.color-primary {
+    --star-filled-color: var(--primary, #3b82f6);
+  }
+  
+  .rating-stars.color-accent {
+    --star-filled-color: var(--accent, #f59e0b);
+  }
+  
+  .rating-stars.color-success {
+    --star-filled-color: #22c55e;
+  }
+  
+  /* Interactive states */
+  .rating-stars.interactive:hover .star {
+    color: var(--star-hover-color, #fcd34d);
+  }
+  
+  .rating-stars.interactive .star.hovered {
+    color: var(--star-filled-color, #fbbf24);
+  }
+  
+  /* Animation */
+  @keyframes starFill {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.2); }
+    100% { transform: scale(1); }
+  }
+  
+  .star.animate {
+    animation: starFill 0.3s ease;
+  }
+</style>
+
+{% if interactive %}
+<script>
+function setRating(rating, event) {
+  if (event) {
+    event.stopPropagation();
+  }
+  
+  const container = event ? event.target.closest('.rating-stars') : 
+                   document.querySelector(`.rating-stars[data-rating="${rating}"]`);
+  
+  if (!container) return;
+  
+  // Update visual state
+  const stars = container.querySelectorAll('.star');
+  stars.forEach((star, index) => {
+    star.classList.remove('filled', 'half-filled');
+    if (index < rating) {
+      star.classList.add('filled');
+      star.classList.add('animate');
+      setTimeout(() => star.classList.remove('animate'), 300);
+    }
+  });
+  
+  // Update data attribute
+  container.setAttribute('data-rating', rating);
+  
+  // Trigger custom event
+  const ratingChangeEvent = new CustomEvent('ratingChange', {
+    detail: { rating: rating },
+    bubbles: true
+  });
+  container.dispatchEvent(ratingChangeEvent);
+  
+  // Call callback if provided
+  if (typeof window.onRatingChange === 'function') {
+    window.onRatingChange(rating);
+  }
+}
+
+// Hover effects for interactive ratings
+document.addEventListener('DOMContentLoaded', function() {
+  const interactiveRatings = document.querySelectorAll('.rating-stars.interactive');
+  
+  interactiveRatings.forEach(rating => {
+    const stars = rating.querySelectorAll('.star');
+    
+    stars.forEach((star, index) => {
+      star.addEventListener('mouseenter', function() {
+        // Highlight stars up to this one
+        stars.forEach((s, i) => {
+          s.classList.toggle('hovered', i <= index);
+        });
+      });
+    });
+    
+    rating.addEventListener('mouseleave', function() {
+      // Remove hover state
+      stars.forEach(s => s.classList.remove('hovered'));
+    });
+  });
+});
+</script>
+{% endif %}

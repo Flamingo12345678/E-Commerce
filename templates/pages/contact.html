@@ -1,0 +1,241 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}contact - yee{% endblock %}
+
+{% block content %}
+<div class="rhode-contact-page">
+    <!-- Hero Section -->
+    <section class="contact-hero">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-8 text-center">
+                    <h1 class="contact-title">contactez-nous</h1>
+                    <p class="contact-subtitle">
+                        n'hésitez pas à nous contacter à tout moment. nous sommes là pour vous aider avec vos commandes, 
+                        vos questions sur les produits et tous les commentaires que vous pourriez avoir.
+                    </p>
+                    <p class="contact-hours">
+                        notre équipe de service client peut vous aider par email du lundi au vendredi, 
+                        de 9h à 17h (hors jours fériés). nous visons à vous répondre dans les 2 jours ouvrables.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Form -->
+    <section class="contact-form-section">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <form class="contact-form" method="post">
+                        {% csrf_token %}
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="first_name" class="form-label">prénom *</label>
+                                <input type="text" class="form-control" id="first_name" name="first_name" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="last_name" class="form-label">nom *</label>
+                                <input type="text" class="form-control" id="last_name" name="last_name" required>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="email" class="form-label">email *</label>
+                            <input type="email" class="form-control" id="email" name="email" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="order_number" class="form-label">numéro de commande (optionnel)</label>
+                            <input type="text" class="form-control" id="order_number" name="order_number">
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="contact_reason" class="form-label">raison du contact *</label>
+                            <select class="form-select" id="contact_reason" name="contact_reason" required>
+                                <option value="">sélectionnez une raison</option>
+                                <option value="order_status">statut de commande</option>
+                                <option value="cancel_modify">annuler ou modifier une commande</option>
+                                <option value="returns_exchanges">retours ou échanges</option>
+                                <option value="missing_order">ma commande est manquante</option>
+                                <option value="damaged_order">ma commande est arrivée endommagée</option>
+                                <option value="product_issue">problème avec mon produit</option>
+                                <option value="shipping_questions">questions sur l'expédition</option>
+                                <option value="product_questions">questions sur les produits</option>
+                                <option value="partnerships">partenariats / collaboration</option>
+                                <option value="wholesale">demandes de vente en gros</option>
+                                <option value="other">autre / demande générale</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="message" class="form-label">message *</label>
+                            <textarea class="form-control" id="message" name="message" rows="6" required 
+                                placeholder="décrivez votre demande en détail..."></textarea>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="attachments" class="form-label">pièces jointes (optionnel)</label>
+                            <input type="file" class="form-control" id="attachments" name="attachments" multiple 
+                                accept="image/*,.pdf,.doc,.docx">
+                            <div class="form-text">10 fichiers max, taille totale inférieure à 50MB</div>
+                        </div>
+
+                        <div class="text-center">
+                            <button type="submit" class="btn btn-primary btn-lg">envoyer</button>
+                        </div>
+
+                        <div class="form-text text-center mt-3">
+                            ce site est protégé par hCaptcha et les 
+                            <a href="#" target="_blank">conditions de service</a> et la 
+                            <a href="#" target="_blank">politique de confidentialité</a> hCaptcha s'appliquent.
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Info -->
+    <section class="contact-info-section">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <div class="contact-info-card">
+                        <div class="contact-icon">
+                            <i class="fas fa-envelope"></i>
+                        </div>
+                        <h3>email</h3>
+                        <p>hello@yee-fashion.com</p>
+                        <p class="text-muted">réponse sous 24-48h</p>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <div class="contact-info-card">
+                        <div class="contact-icon">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <h3>horaires</h3>
+                        <p>lundi - vendredi<br>9h00 - 17h00</p>
+                        <p class="text-muted">hors jours fériés</p>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <div class="contact-info-card">
+                        <div class="contact-icon">
+                            <i class="fas fa-shipping-fast"></i>
+                        </div>
+                        <h3>expédition</h3>
+                        <p>livraison gratuite<br>dès 70€ d'achat</p>
+                        <p class="text-muted">france métropolitaine</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ Quick Links -->
+    <section class="faq-quick-links">
+        <div class="container">
+            <div class="row">
+                <div class="col-12 text-center mb-4">
+                    <h2>questions fréquentes</h2>
+                    <p>trouvez rapidement les réponses à vos questions</p>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-3 col-md-6 mb-3">
+                    <div class="faq-link-card">
+                        <h4>expédition & livraison</h4>
+                        <p>délais, coûts et suivi de commande</p>
+                        <a href="#" class="btn btn-outline-primary btn-sm">en savoir plus</a>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 mb-3">
+                    <div class="faq-link-card">
+                        <h4>retours & échanges</h4>
+                        <p>politique de retour et procédure</p>
+                        <a href="#" class="btn btn-outline-primary btn-sm">en savoir plus</a>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 mb-3">
+                    <div class="faq-link-card">
+                        <h4>guide des tailles</h4>
+                        <p>trouvez votre taille parfaite</p>
+                        <a href="#" class="btn btn-outline-primary btn-sm">en savoir plus</a>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 mb-3">
+                    <div class="faq-link-card">
+                        <h4>entretien des produits</h4>
+                        <p>conseils pour prolonger la durée de vie</p>
+                        <a href="#" class="btn btn-outline-primary btn-sm">en savoir plus</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Animation pour les cartes de contact
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    };
+
+    const observer = new IntersectionObserver(function(entries) {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.opacity = '1';
+                entry.target.style.transform = 'translateY(0)';
+            }
+        });
+    }, observerOptions);
+
+    // Observer toutes les cartes
+    document.querySelectorAll('.contact-info-card, .faq-link-card').forEach(card => {
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(20px)';
+        card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+        observer.observe(card);
+    });
+
+    // Validation du formulaire
+    const form = document.querySelector('.contact-form');
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            const fileInput = document.getElementById('attachments');
+            const files = fileInput.files;
+            let totalSize = 0;
+
+            // Vérifier la taille des fichiers
+            for (let i = 0; i < files.length; i++) {
+                totalSize += files[i].size;
+            }
+
+            // 50MB en bytes
+            const maxSize = 50 * 1024 * 1024;
+            
+            if (files.length > 10) {
+                e.preventDefault();
+                alert('Vous ne pouvez télécharger que 10 fichiers maximum.');
+                return;
+            }
+
+            if (totalSize > maxSize) {
+                e.preventDefault();
+                alert('La taille totale des fichiers ne doit pas dépasser 50MB.');
+                return;
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

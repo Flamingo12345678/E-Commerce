@@ -1,64 +1,94 @@
 {% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Connexion - YEE{% endblock %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/auth-pages.css' %}">
+{% endblock %}
 
 {% block content %}
-    <div style="max-width: 400px; margin: 50px auto; padding: 20px; border: 1px solid #ddd; border-radius: 5px;">
-        <h1>Connexion</h1>
-        
-        <!-- Affichage des messages -->
-        {% if messages %}
-            {% for message in messages %}
-                <div style="padding: 10px; margin: 10px 0; border-radius: 3px; 
-                     {% if message.tags == 'error' %}background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb;
-                     {% elif message.tags == 'success' %}background: #d4edda; color: #155724; border: 1px solid #c3e6cb;
-                     {% elif message.tags == 'warning' %}background: #fff3cd; color: #856404; border: 1px solid #ffeaa7;
-                     {% else %}background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb;{% endif %}">
-                    {{ message }}
+
+<div class="auth-container">
+    <div class="auth-split">
+        <!-- Image Section -->
+        <div class="auth-image">
+            <img src="{% static 'images/Hero-Section.png' %}" alt="YEE Fashion">
+            <div class="auth-overlay">
+                <div class="overlay-content">
+                    <h2>Bienvenue</h2>
+                    <p>Découvrez la mode de qualité pour tous</p>
                 </div>
-            {% endfor %}
-        {% endif %}
-        
-        <form method="POST">
-            {% csrf_token %}
-            <p>
-                <label for="username">Nom d'utilisateur :</label><br>
-                <input type="text" name="username" id="username" required 
-                       value="{{ username|default:'' }}"
-                       {% if show_2fa %}readonly{% endif %}
-                       style="width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ccc; border-radius: 3px;">
-            </p>
-            
-            <p>
-                <label for="password">Mot de passe :</label><br>
-                <input type="password" name="password" id="password" required
-                       {% if show_2fa %}readonly{% endif %}
-                       style="width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ccc; border-radius: 3px;">
-            </p>
-            
-            {% if show_2fa %}
-            <div style="background: #d1ecf1; padding: 15px; margin: 15px 0; border-radius: 5px; border: 1px solid #bee5eb;">
-                <h4 style="margin: 0 0 10px 0; color: #0c5460;">🔐 Authentification à deux facteurs</h4>
-                <p style="margin: 0 0 10px 0; color: #0c5460; font-size: 14px;">
-                    Entrez le code à 6 chiffres généré par votre application d'authentification :
-                </p>
-                <label for="totp_code">Code d'authentification :</label><br>
-                <input type="text" name="totp_code" id="totp_code" required 
-                       maxlength="6" pattern="[0-9]{6}" placeholder="000000"
-                       style="width: 150px; padding: 8px; margin-top: 5px; border: 1px solid #bee5eb; border-radius: 3px; text-align: center; font-size: 18px; letter-spacing: 2px;">
-                <input type="hidden" name="user_id" value="{{ user_id }}">
             </div>
-            {% endif %}
-            
-            <p style="text-align: center; margin-top: 20px;">
-                <button type="submit" style="background: #28a745; color: white; padding: 10px 20px; border: none; border-radius: 3px; cursor: pointer;">
-                    {% if show_2fa %}Vérifier et se connecter{% else %}Se connecter{% endif %}
-                </button>
-            </p>
-        </form>
+        </div>
         
-        <p style="text-align: center; margin-top: 20px;">
-            <a href="{% url 'signup' %}" style="color: #007bff; text-decoration: none;">
-                Pas de compte ? S'inscrire
-            </a>
-        </p>
+        <!-- Form Section -->
+        <div class="auth-content">
+            <div class="auth-form">
+                <h1 class="auth-title">Connexion</h1>
+                <p class="auth-subtitle">Accédez à votre compte YEE</p>
+                
+                <!-- Messages -->
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="message-alert 
+                            {% if message.tags == 'error' %}message-error
+                            {% elif message.tags == 'success' %}message-success
+                            {% elif message.tags == 'warning' %}message-warning
+                            {% else %}message-info{% endif %}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+                
+                <form method="POST">
+                    {% csrf_token %}
+                    
+                    <div class="form-group">
+                        <label for="username" class="form-label">Email / Nom d'utilisateur</label>
+                        <input type="text" name="username" id="username" required 
+                               value="{{ username|default:'' }}"
+                               {% if show_2fa %}readonly{% endif %}
+                               class="form-input">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="password" class="form-label">Mot de passe</label>
+                        <input type="password" name="password" id="password" required
+                               {% if show_2fa %}readonly{% endif %}
+                               class="form-input">
+                    </div>
+                    
+                    {% if show_2fa %}
+                    <div class="totp-section">
+                        <h4 class="totp-title">🔐 Authentification à deux facteurs</h4>
+                        <p class="totp-description">
+                            Entrez le code à 6 chiffres généré par votre application d'authentification :
+                        </p>
+                        <div class="form-group">
+                            <label for="totp_code" class="form-label">Code d'authentification</label>
+                            <input type="text" name="totp_code" id="totp_code" required 
+                                   maxlength="6" pattern="[0-9]{6}" placeholder="000000"
+                                   class="form-input totp-input">
+                            <input type="hidden" name="user_id" value="{{ user_id }}">
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    <button type="submit" class="auth-button">
+                        {% if show_2fa %}Vérifier et se connecter{% else %}Se connecter{% endif %}
+                    </button>
+                </form>
+                
+                <div class="forgot-password">
+                    <a href="{% url 'password_reset' %}" class="forgot-link">Mot de passe oublié ?</a>
+                </div>
+                
+                <div class="auth-link">
+                    <a href="{% url 'signup' %}">Pas de compte ? Créer un compte</a>
+                </div>
+            </div>
+        </div>
     </div>
+</div>
 {% endblock %}

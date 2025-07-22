@@ -1,0 +1,118 @@
+/*
+=================================================
+CUSTOM OVERRIDES CSS
+Styles personnalisés qui écrasent les autres
+=================================================
+*/
+
+/* Règles d'override avec spécificité élevée mais sans !important quand possible */
+
+/* Containers - Override des règles strictes */
+.container,
+.container-fluid,
+.container-sm,
+.container-md,
+.container-lg,
+.container-xl,
+.container-xxl {
+  /* Vous pouvez personnaliser ici selon vos besoins */
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Mobile overrides */
+@media (max-width: 768px) {
+  .container,
+  .container-fluid,
+  .container-sm,
+  .container-md,
+  .container-lg,
+  .container-xl,
+  .container-xxl {
+    padding-left: 15px;
+    padding-right: 15px;
+  }
+}
+
+/* 
+===========================================
+EXEMPLES D'OVERRIDES ACTIFS - Modifiez selon vos besoins
+===========================================
+*/
+
+/* Exemple : Changer la couleur de fond de la navbar */
+.navbar-rhode {
+  background: #f8f9fa !important;
+  border-bottom: 1px solid #dee2e6 !important;
+}
+
+/* Exemple : Modifier le hero section */
+.hero-rhode-fullscreen {
+  height: 60vh !important;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+}
+
+/* Exemple : Personnaliser les cartes produits */
+.product-card-rhode-new {
+  border: 1px solid #e9ecef !important;
+  border-radius: 8px !important;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
+  transition: transform 0.3s ease !important;
+  min-height: auto !important;
+  height: 100% !important;
+}
+
+.product-card-rhode-new:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15) !important;
+}
+
+/* Fix pour l'affichage responsive des cartes */
+.product-image-wrapper-rhode-new {
+  flex-shrink: 0 !important;
+}
+
+/* Améliorer la grille responsive sur desktop */
+@media (min-width: 1200px) {
+  .col-xl-4 {
+    flex: 0 0 auto !important;
+    width: 33.33333333% !important;
+  }
+}
+
+@media (min-width: 992px) and (max-width: 1199.98px) {
+  .col-lg-6 {
+    flex: 0 0 auto !important;
+    width: 50% !important;
+  }
+}
+
+/* Espacement uniforme entre les cartes */
+.row.g-4 {
+  --bs-gutter-x: 1.5rem !important;
+  --bs-gutter-y: 1.5rem !important;
+}
+
+/* Exemple : Changer la couleur des boutons */
+.btn-rhode {
+  background: #28a745 !important;
+  border-color: #28a745 !important;
+  color: white !important;
+}
+
+.btn-rhode:hover {
+  background: #218838 !important;
+  border-color: #1e7e34 !important;
+}
+
+/* Exemple : Modifier les titres de produits */
+.product-title-rhode-new {
+  color: #495057 !important;
+  font-weight: 600 !important;
+  font-size: 16px !important;
+}
+
+/* Exemple : Personnaliser le padding global */
+.hero-content-center-rhode {
+  padding: 80px 20px !important;
+}

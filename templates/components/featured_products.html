@@ -1,0 +1,790 @@
+{% load static %}
+
+<div class="featured-products-container">
+    <div class="container">
+        <!-- Section Header -->
+        <div class="section-header">
+            <h2 id="featured-title" class="section-title">
+                <span class="title-accent">Nos</span> 
+                <span class="title-main">Coups de Cœur</span>
+            </h2>
+            <p class="section-subtitle">
+                Découvrez notre sélection de produits incontournables, 
+                choisis avec soin pour leur qualité exceptionnelle.
+            </p>
+        </div>
+        
+        <!-- Product Grid -->
+        <div class="products-grid" 
+             role="region" 
+             aria-labelledby="featured-title">
+            
+            <!-- Product Card 1 -->
+            <article class="product-card" 
+                     itemscope 
+                     itemtype="https://schema.org/Product"
+                     data-product-card>
+                <div class="product-badges">
+                    <span class="badge badge-new">Nouveau</span>
+                    <span class="badge badge-sustainable">Éco</span>
+                </div>
+                
+                <div class="product-image-container">
+                    <div class="product-image-wrapper">
+                        <!-- Image principale avec lazy loading -->
+                        <img src="{% static 'images/placeholder.svg' %}"
+                             data-src="{% static 'images/products/product-1.webp' %}"
+                             data-srcset="{% static 'images/products/product-1-sm.webp' %} 300w,
+                                         {% static 'images/products/product-1.webp' %} 600w"
+                             sizes="(max-width: 768px) 300px, 600px"
+                             alt="Chemise en coton biologique - Collection Automne"
+                             class="product-image main-image lazy-load"
+                             loading="lazy"
+                             itemprop="image">
+                        
+                        <!-- Image hover -->
+                        <img src="{% static 'images/placeholder.svg' %}"
+                             data-src="{% static 'images/products/product-1-hover.webp' %}"
+                             alt=""
+                             class="product-image hover-image lazy-load"
+                             loading="lazy">
+                    </div>
+                    
+                    <!-- Quick Actions -->
+                    <div class="product-actions">
+                        <button class="action-btn wishlist-btn" 
+                                type="button"
+                                aria-label="Ajouter à la wishlist"
+                                data-wishlist-toggle
+                                data-product-id="1">
+                            <i class="bi bi-heart" aria-hidden="true"></i>
+                        </button>
+                        <button class="action-btn quick-view-btn" 
+                                type="button"
+                                aria-label="Aperçu rapide"
+                                data-quick-view
+                                data-product-id="1">
+                            <i class="bi bi-eye" aria-hidden="true"></i>
+                        </button>
+                    </div>
+                    
+                    <!-- Quick Add to Cart -->
+                    <div class="quick-add-overlay">
+                        <button class="btn-quick-add" 
+                                type="button"
+                                data-quick-add
+                                data-product-id="1">
+                            <span class="btn-text">Ajouter au panier</span>
+                            <span class="btn-price">€89.00</span>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="product-info">
+                    <!-- Rating -->
+                    <div class="product-rating" 
+                         aria-label="Note: 4.8 sur 5 étoiles">
+                        <div class="stars" aria-hidden="true">
+                            <span class="star filled">★</span>
+                            <span class="star filled">★</span>
+                            <span class="star filled">★</span>
+                            <span class="star filled">★</span>
+                            <span class="star filled">★</span>
+                        </div>
+                        <span class="rating-text">(127 avis)</span>
+                    </div>
+                    
+                    <!-- Product Details -->
+                    <h3 class="product-title" itemprop="name">
+                        <a href="{% url 'store:product_detail' 'chemise-coton-bio' %}" 
+                           class="product-link">
+                            Chemise en Coton Biologique
+                        </a>
+                    </h3>
+                    
+                    <p class="product-description" itemprop="description">
+                        Confectionnée dans un coton 100% biologique, cette chemise allie confort et élégance.
+                    </p>
+                    
+                    <div class="product-pricing" itemprop="offers" itemscope itemtype="https://schema.org/Offer">
+                        <span class="current-price" itemprop="price" content="89.00">€89.00</span>
+                        <span class="original-price">€120.00</span>
+                        <span class="discount-badge">-26%</span>
+                        <meta itemprop="priceCurrency" content="EUR">
+                        <meta itemprop="availability" content="https://schema.org/InStock">
+                    </div>
+                    
+                    <!-- Color Variants -->
+                    <div class="color-variants" aria-label="Couleurs disponibles">
+                        <button class="color-option active" 
+                                data-color="noir"
+                                aria-label="Couleur noir"
+                                style="background-color: #000000;"></button>
+                        <button class="color-option" 
+                                data-color="blanc"
+                                aria-label="Couleur blanc"
+                                style="background-color: #ffffff;"></button>
+                        <button class="color-option" 
+                                data-color="beige"
+                                aria-label="Couleur beige"
+                                style="background-color: #f5f5dc;"></button>
+                    </div>
+                </div>
+            </article>
+            
+            <!-- Product Card 2 -->
+            <article class="product-card" 
+                     itemscope 
+                     itemtype="https://schema.org/Product"
+                     data-product-card>
+                <div class="product-badges">
+                    <span class="badge badge-bestseller">Best-seller</span>
+                </div>
+                
+                <div class="product-image-container">
+                    <div class="product-image-wrapper">
+                        <img src="{% static 'images/placeholder.svg' %}"
+                             data-src="{% static 'images/products/product-2.webp' %}"
+                             data-srcset="{% static 'images/products/product-2-sm.webp' %} 300w,
+                                         {% static 'images/products/product-2.webp' %} 600w"
+                             sizes="(max-width: 768px) 300px, 600px"
+                             alt="Jean droit en denim recyclé"
+                             class="product-image main-image lazy-load"
+                             loading="lazy"
+                             itemprop="image">
+                        
+                        <img src="{% static 'images/placeholder.svg' %}"
+                             data-src="{% static 'images/products/product-2-hover.webp' %}"
+                             alt=""
+                             class="product-image hover-image lazy-load"
+                             loading="lazy">
+                    </div>
+                    
+                    <div class="product-actions">
+                        <button class="action-btn wishlist-btn" 
+                                type="button"
+                                aria-label="Ajouter à la wishlist"
+                                data-wishlist-toggle
+                                data-product-id="2">
+                            <i class="bi bi-heart" aria-hidden="true"></i>
+                        </button>
+                        <button class="action-btn quick-view-btn" 
+                                type="button"
+                                aria-label="Aperçu rapide"
+                                data-quick-view
+                                data-product-id="2">
+                            <i class="bi bi-eye" aria-hidden="true"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="quick-add-overlay">
+                        <button class="btn-quick-add" 
+                                type="button"
+                                data-quick-add
+                                data-product-id="2">
+                            <span class="btn-text">Ajouter au panier</span>
+                            <span class="btn-price">€75.00</span>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="product-info">
+                    <div class="product-rating" 
+                         aria-label="Note: 4.6 sur 5 étoiles">
+                        <div class="stars" aria-hidden="true">
+                            <span class="star filled">★</span>
+                            <span class="star filled">★</span>
+                            <span class="star filled">★</span>
+                            <span class="star filled">★</span>
+                            <span class="star half">★</span>
+                        </div>
+                        <span class="rating-text">(89 avis)</span>
+                    </div>
+                    
+                    <h3 class="product-title" itemprop="name">
+                        <a href="{% url 'store:product_detail' 'jean-denim-recycle' %}" 
+                           class="product-link">
+                            Jean Droit en Denim Recyclé
+                        </a>
+                    </h3>
+                    
+                    <p class="product-description" itemprop="description">
+                        Un jean intemporel fabriqué à partir de denim 100% recyclé pour un style responsable.
+                    </p>
+                    
+                    <div class="product-pricing" itemprop="offers" itemscope itemtype="https://schema.org/Offer">
+                        <span class="current-price" itemprop="price" content="75.00">€75.00</span>
+                        <meta itemprop="priceCurrency" content="EUR">
+                        <meta itemprop="availability" content="https://schema.org/InStock">
+                    </div>
+                    
+                    <div class="color-variants" aria-label="Couleurs disponibles">
+                        <button class="color-option active" 
+                                data-color="bleu-fonce"
+                                aria-label="Couleur bleu foncé"
+                                style="background-color: #1e3a8a;"></button>
+                        <button class="color-option" 
+                                data-color="bleu-clair"
+                                aria-label="Couleur bleu clair"
+                                style="background-color: #60a5fa;"></button>
+                        <button class="color-option" 
+                                data-color="noir"
+                                aria-label="Couleur noir"
+                                style="background-color: #000000;"></button>
+                    </div>
+                </div>
+            </article>
+            
+            <!-- Product Card 3 -->
+            <article class="product-card" 
+                     itemscope 
+                     itemtype="https://schema.org/Product"
+                     data-product-card>
+                <div class="product-badges">
+                    <span class="badge badge-limited">Édition limitée</span>
+                </div>
+                
+                <div class="product-image-container">
+                    <div class="product-image-wrapper">
+                        <img src="{% static 'images/placeholder.svg' %}"
+                             data-src="{% static 'images/products/product-3.webp' %}"
+                             data-srcset="{% static 'images/products/product-3-sm.webp' %} 300w,
+                                         {% static 'images/products/product-3.webp' %} 600w"
+                             sizes="(max-width: 768px) 300px, 600px"
+                             alt="Sac cabas en cuir végan"
+                             class="product-image main-image lazy-load"
+                             loading="lazy"
+                             itemprop="image">
+                        
+                        <img src="{% static 'images/placeholder.svg' %}"
+                             data-src="{% static 'images/products/product-3-hover.webp' %}"
+                             alt=""
+                             class="product-image hover-image lazy-load"
+                             loading="lazy">
+                    </div>
+                    
+                    <div class="product-actions">
+                        <button class="action-btn wishlist-btn" 
+                                type="button"
+                                aria-label="Ajouter à la wishlist"
+                                data-wishlist-toggle
+                                data-product-id="3">
+                            <i class="bi bi-heart" aria-hidden="true"></i>
+                        </button>
+                        <button class="action-btn quick-view-btn" 
+                                type="button"
+                                aria-label="Aperçu rapide"
+                                data-quick-view
+                                data-product-id="3">
+                            <i class="bi bi-eye" aria-hidden="true"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="quick-add-overlay">
+                        <button class="btn-quick-add" 
+                                type="button"
+                                data-quick-add
+                                data-product-id="3">
+                            <span class="btn-text">Ajouter au panier</span>
+                            <span class="btn-price">€95.00</span>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="product-info">
+                    <div class="product-rating" 
+                         aria-label="Note: 5 sur 5 étoiles">
+                        <div class="stars" aria-hidden="true">
+                            <span class="star filled">★</span>
+                            <span class="star filled">★</span>
+                            <span class="star filled">★</span>
+                            <span class="star filled">★</span>
+                            <span class="star filled">★</span>
+                        </div>
+                        <span class="rating-text">(45 avis)</span>
+                    </div>
+                    
+                    <h3 class="product-title" itemprop="name">
+                        <a href="{% url 'store:product_detail' 'sac-cuir-vegan' %}" 
+                           class="product-link">
+                            Sac Cabas en Cuir Végan
+                        </a>
+                    </h3>
+                    
+                    <p class="product-description" itemprop="description">
+                        Un sac élégant et spacieux, fabriqué en cuir végan de haute qualité.
+                    </p>
+                    
+                    <div class="product-pricing" itemprop="offers" itemscope itemtype="https://schema.org/Offer">
+                        <span class="current-price" itemprop="price" content="95.00">€95.00</span>
+                        <meta itemprop="priceCurrency" content="EUR">
+                        <meta itemprop="availability" content="https://schema.org/InStock">
+                    </div>
+                    
+                    <div class="color-variants" aria-label="Couleurs disponibles">
+                        <button class="color-option active" 
+                                data-color="cognac"
+                                aria-label="Couleur cognac"
+                                style="background-color: #d2691e;"></button>
+                        <button class="color-option" 
+                                data-color="noir"
+                                aria-label="Couleur noir"
+                                style="background-color: #000000;"></button>
+                    </div>
+                </div>
+            </article>
+            
+        </div>
+        
+        <!-- Call to Action -->
+        <div class="section-cta">
+            <a href="{% url 'store:product_list' %}" 
+               class="btn-view-all"
+               role="button">
+                <span class="btn-text">Voir toute la collection</span>
+                <span class="btn-icon" aria-hidden="true">
+                    <i class="bi bi-arrow-right"></i>
+                </span>
+            </a>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Featured Products Section Styles */
+.featured-products-container {
+    padding: 5rem 0;
+    background: var(--rhode-white);
+}
+
+.section-header {
+    text-align: center;
+    margin-bottom: 4rem;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.section-title {
+    font-size: clamp(2rem, 5vw, 3rem);
+    font-weight: 700;
+    margin-bottom: 1rem;
+    line-height: 1.2;
+}
+
+.title-accent {
+    color: var(--rhode-gray-medium);
+    font-weight: 400;
+}
+
+.title-main {
+    color: var(--rhode-black);
+}
+
+.section-subtitle {
+    font-size: 1.1rem;
+    color: var(--rhode-gray-medium);
+    line-height: 1.6;
+    margin: 0;
+}
+
+.products-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+    margin-bottom: 4rem;
+}
+
+/* Product Card Styles */
+.product-card {
+    background: var(--rhode-white);
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: var(--shadow-subtle);
+    transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    position: relative;
+    cursor: pointer;
+}
+
+.product-card:hover {
+    transform: translateY(-8px);
+    box-shadow: var(--shadow-strong);
+}
+
+.product-badges {
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+    z-index: 5;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.badge {
+    padding: 0.25rem 0.75rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-radius: 20px;
+    color: var(--rhode-white);
+}
+
+.badge-new { background: var(--rhode-accent); }
+.badge-bestseller { background: #16a34a; }
+.badge-limited { background: #dc2626; }
+.badge-sustainable { background: #059669; }
+
+.product-image-container {
+    position: relative;
+    overflow: hidden;
+    aspect-ratio: 4/3;
+}
+
+.product-image-wrapper {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+.product-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: all 0.6s ease;
+}
+
+.hover-image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    opacity: 0;
+}
+
+.product-card:hover .main-image {
+    opacity: 0;
+    transform: scale(1.1);
+}
+
+.product-card:hover .hover-image {
+    opacity: 1;
+    transform: scale(1.1);
+}
+
+/* Lazy loading placeholder */
+.lazy-load {
+    background: var(--rhode-gray-light);
+    background-image: linear-gradient(
+        90deg,
+        var(--rhode-gray-light) 0%,
+        #f0f0f0 50%,
+        var(--rhode-gray-light) 100%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+}
+
+.lazy-load.loaded {
+    animation: none;
+    background: none;
+}
+
+@keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+}
+
+/* Product Actions */
+.product-actions {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    opacity: 0;
+    transform: translateX(20px);
+    transition: all 0.3s ease;
+    z-index: 4;
+}
+
+.product-card:hover .product-actions {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.action-btn {
+    width: 40px;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.9);
+    border: none;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+}
+
+.action-btn:hover {
+    background: var(--rhode-accent);
+    color: var(--rhode-white);
+    transform: scale(1.1);
+}
+
+.action-btn.active {
+    background: var(--rhode-accent);
+    color: var(--rhode-white);
+}
+
+/* Quick Add Overlay */
+.quick-add-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
+    padding: 2rem 1rem 1rem;
+    transform: translateY(100%);
+    transition: transform 0.3s ease;
+}
+
+.product-card:hover .quick-add-overlay {
+    transform: translateY(0);
+}
+
+.btn-quick-add {
+    width: 100%;
+    background: var(--rhode-white);
+    color: var(--rhode-black);
+    border: none;
+    border-radius: 50px;
+    padding: 0.75rem 1rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-quick-add:hover {
+    background: var(--rhode-accent);
+    transform: translateY(-2px);
+}
+
+/* Product Info */
+.product-info {
+    padding: 1.5rem;
+}
+
+.product-rating {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+}
+
+.stars {
+    color: #fbbf24;
+    font-size: 0.9rem;
+}
+
+.rating-text {
+    font-size: 0.8rem;
+    color: var(--rhode-gray-medium);
+}
+
+.product-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin: 0 0 0.5rem 0;
+    line-height: 1.3;
+}
+
+.product-link {
+    color: var(--rhode-black);
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.product-link:hover {
+    color: var(--rhode-accent);
+}
+
+.product-description {
+    font-size: 0.9rem;
+    color: var(--rhode-gray-medium);
+    line-height: 1.4;
+    margin-bottom: 1rem;
+}
+
+.product-pricing {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.current-price {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--rhode-black);
+}
+
+.original-price {
+    font-size: 1rem;
+    color: var(--rhode-gray-medium);
+    text-decoration: line-through;
+}
+
+.discount-badge {
+    background: #dc2626;
+    color: var(--rhode-white);
+    padding: 0.25rem 0.5rem;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+/* Color Variants */
+.color-variants {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.color-option {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    border: 2px solid var(--rhode-gray-light);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.color-option:hover,
+.color-option.active {
+    border-color: var(--rhode-black);
+    transform: scale(1.1);
+}
+
+.color-option.active::after {
+    content: '✓';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: var(--rhode-white);
+    font-size: 0.7rem;
+    font-weight: bold;
+    text-shadow: 0 0 2px rgba(0, 0, 0, 0.5);
+}
+
+/* Section CTA */
+.section-cta {
+    text-align: center;
+}
+
+.btn-view-all {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem 2rem;
+    background: var(--rhode-black);
+    color: var(--rhode-white);
+    text-decoration: none;
+    border-radius: 50px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    transition: all 0.3s ease;
+}
+
+.btn-view-all:hover {
+    background: var(--rhode-accent);
+    color: var(--rhode-black);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-medium);
+}
+
+.btn-view-all .btn-icon {
+    transition: transform 0.3s ease;
+}
+
+.btn-view-all:hover .btn-icon {
+    transform: translateX(4px);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .featured-products-container {
+        padding: 3rem 0;
+    }
+    
+    .section-header {
+        margin-bottom: 2.5rem;
+    }
+    
+    .products-grid {
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2.5rem;
+    }
+    
+    .product-info {
+        padding: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .products-grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+    
+    .btn-view-all {
+        width: 100%;
+        max-width: 280px;
+    }
+}
+
+/* Accessibility */
+@media (prefers-reduced-motion: reduce) {
+    .product-card,
+    .product-image,
+    .product-actions,
+    .quick-add-overlay,
+    .action-btn,
+    .btn-quick-add,
+    .color-option,
+    .btn-view-all {
+        transition: none;
+    }
+    
+    .lazy-load {
+        animation: none;
+    }
+}
+
+/* Focus states */
+.action-btn:focus,
+.btn-quick-add:focus,
+.color-option:focus,
+.btn-view-all:focus,
+.product-link:focus {
+    outline: 2px solid var(--rhode-accent);
+    outline-offset: 2px;
+}
+
+/* Print styles */
+@media print {
+    .product-actions,
+    .quick-add-overlay,
+    .btn-view-all {
+        display: none;
+    }
+}
+</style>

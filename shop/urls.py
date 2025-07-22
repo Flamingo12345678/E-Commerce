@@ -20,24 +20,7 @@ from django.urls import path, include
 from django.conf.urls.static import static
 from shop import settings
 from django.views.generic import RedirectView
-from store.views import (
-    index,
-    product_detail,
-    add_to_cart,
-    cart,
-    delete_cart,
-    increase_quantity,
-    decrease_quantity,
-    remove_from_cart,
-    checkout,
-    order_confirmation,
-    order_history,
-    order_detail,
-    download_invoice,
-    reorder,
-    cancel_order,
-    category_view,
-)
+from store.views import index
 from accounts.views import (
     signup,
     logout_user,
@@ -53,6 +36,8 @@ from accounts.views import (
     two_factor_qr,
     connect_social_account,
     profile_edit_modal,
+    password_reset_request,
+    password_reset_confirm,
 )
 
 
@@ -60,13 +45,24 @@ urlpatterns = [
     path("", index, name="index"),
     path("admin/", admin.site.urls),
     # Include URLs from accounts app (authentication + payment)
-    path("accounts/", include("accounts.urls")),
+    path("accounts/", include("accounts.urls", namespace="accounts")),
+    # Include URLs from pages app (static pages)
+    path("pages/", include("pages.urls")),
+    # Include URLs from store app
+    path("store/", include("store.urls")),
     # Authentication URLs (legacy - to maintain compatibility)
     path("login/", login_user, name="login"),
     path("signup/", signup, name="signup"),
     path("logout/", logout_user, name="logout"),
     path("profile/", profile, name="profile"),
     path("change-password/", change_password, name="change_password"),
+    # URLs pour la réinitialisation de mot de passe (legacy compatibility)
+    path("password-reset/", password_reset_request, name="password_reset"),
+    path(
+        "password-reset-confirm/<uidb64>/<token>/",
+        password_reset_confirm,
+        name="password_reset_confirm",
+    ),
     # Nouvelles URLs pour les actions du profil
     path("export-data/", export_user_data, name="export_user_data"),
     path("delete-account/", delete_user_account, name="delete_user_account"),
@@ -79,22 +75,6 @@ urlpatterns = [
     path("two-factor-qr/", two_factor_qr, name="two_factor_qr"),
     path("connect-social/", connect_social_account, name="connect_social_account"),
     path("profile-edit-modal/", profile_edit_modal, name="profile_edit_modal"),
-    # Store URLs
-    path("cart/", cart, name="cart"),
-    path("cart/delete/", delete_cart, name="delete_cart"),
-    path("cart/increase/<int:order_id>/", increase_quantity, name="increase_quantity"),
-    path("cart/decrease/<int:order_id>/", decrease_quantity, name="decrease_quantity"),
-    path("cart/remove/<int:order_id>/", remove_from_cart, name="remove_from_cart"),
-    path("checkout/", checkout, name="checkout"),
-    path("order-confirmation/", order_confirmation, name="order_confirmation"),
-    path("order-history/", order_history, name="order_history"),
-    path("order/<int:order_id>/", order_detail, name="order_detail"),
-    path("order/<int:order_id>/invoice/", download_invoice, name="download_invoice"),
-    path("order/<int:order_id>/reorder/", reorder, name="reorder"),
-    path("order/<int:order_id>/cancel/", cancel_order, name="cancel_order"),
-    path("category/<slug:category_slug>/", category_view, name="category"),
-    path("product/<str:slug>/", product_detail, name="product"),
-    path("product/<str:slug>/add-to-cart/", add_to_cart, name="add_to_cart"),
     # Redirection temporaire pour les anciennes URLs PayPal
     path(
         "payment/paypal/execute/",

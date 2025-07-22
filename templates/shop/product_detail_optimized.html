@@ -1,0 +1,1006 @@
+{% extends "base_optimized.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{{ product.name }} - {% trans "Rhodeskin" %}{% endblock %}
+
+{% block meta_description %}{{ product.description|truncatewords:30|striptags }}{% endblock %}
+
+{% block structured_data %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org/",
+  "@type": "Product",
+  "name": "{{ product.name }}",
+  "description": "{{ product.description|striptags }}",
+  "image": [
+    {% for image in product.images.all %}
+    "{{ request.scheme }}://{{ request.get_host }}{{ image.image.url }}"{% if not forloop.last %},{% endif %}
+    {% empty %}
+    "{{ request.scheme }}://{{ request.get_host }}{% if product.image %}{{ product.image.url }}{% else %}{% static 'images/no-image.webp' %}{% endif %}"
+    {% endfor %}
+  ],
+  "brand": {
+    "@type": "Brand",
+    "name": "Rhodeskin"
+  },
+  "offers": {
+    "@type": "Offer",
+    "url": "{{ request.build_absolute_uri }}",
+    "priceCurrency": "EUR",
+    "price": "{{ product.price }}",
+    "availability": "{% if product.stock > 0 %}https://schema.org/InStock{% else %}https://schema.org/OutOfStock{% endif %}",
+    "validFrom": "{{ product.created_at|date:'Y-m-d' }}"
+  }
+}
+</script>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+  .product-gallery {
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .product-main-image {
+    aspect-ratio: 1;
+    background: var(--bg-secondary);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    position: relative;
+  }
+  
+  .product-thumbnails {
+    display: flex;
+    gap: 0.75rem;
+    overflow-x: auto;
+    padding: 1rem 0;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  
+  .product-thumbnails::-webkit-scrollbar {
+    display: none;
+  }
+  
+  .thumbnail {
+    flex-shrink: 0;
+    width: 80px;
+    height: 80px;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: all 0.3s ease;
+  }
+  
+  .thumbnail.active,
+  .thumbnail:hover {
+    border-color: var(--primary);
+    transform: scale(1.05);
+  }
+  
+  .product-info {
+    position: sticky;
+    top: 2rem;
+  }
+  
+  .price-display {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin: 1.5rem 0;
+  }
+  
+  .current-price {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--primary);
+  }
+  
+  .original-price {
+    font-size: 1.25rem;
+    color: var(--text-muted);
+    text-decoration: line-through;
+  }
+  
+  .discount-badge {
+    background: var(--accent);
+    color: white;
+    padding: 0.25rem 0.75rem;
+    border-radius: var(--radius-full);
+    font-size: 0.875rem;
+    font-weight: 600;
+  }
+  
+  .size-selector {
+    margin: 2rem 0;
+  }
+  
+  .size-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 1rem;
+  }
+  
+  .size-option {
+    padding: 0.75rem 1.5rem;
+    border: 2px solid var(--border);
+    border-radius: var(--radius-md);
+    background: transparent;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 500;
+  }
+  
+  .size-option:hover,
+  .size-option.selected {
+    border-color: var(--primary);
+    background: var(--primary);
+    color: white;
+  }
+  
+  .size-option:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background: var(--bg-muted);
+  }
+  
+  .quantity-selector {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin: 2rem 0;
+  }
+  
+  .quantity-controls {
+    display: flex;
+    align-items: center;
+    border: 2px solid var(--border);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+  }
+  
+  .quantity-btn {
+    width: 44px;
+    height: 44px;
+    border: none;
+    background: var(--bg-secondary);
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .quantity-btn:hover {
+    background: var(--primary);
+    color: white;
+  }
+  
+  .quantity-input {
+    width: 60px;
+    height: 44px;
+    border: none;
+    text-align: center;
+    font-weight: 600;
+    background: transparent;
+  }
+  
+  .add-to-cart-section {
+    display: flex;
+    gap: 1rem;
+    margin: 2rem 0;
+  }
+  
+  .btn-add-cart {
+    flex: 1;
+    padding: 1rem 2rem;
+    background: var(--primary);
+    color: white;
+    border: none;
+    border-radius: var(--radius-md);
+    font-weight: 600;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .btn-add-cart:hover {
+    background: var(--primary-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(var(--primary-rgb), 0.3);
+  }
+  
+  .btn-add-cart:disabled {
+    background: var(--bg-muted);
+    color: var(--text-muted);
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+  }
+  
+  .btn-wishlist {
+    width: 60px;
+    height: 60px;
+    border: 2px solid var(--border);
+    background: transparent;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .btn-wishlist:hover,
+  .btn-wishlist.active {
+    border-color: var(--accent);
+    background: var(--accent);
+    color: white;
+  }
+  
+  .product-features {
+    margin: 2rem 0;
+    padding: 1.5rem;
+    background: var(--bg-secondary);
+    border-radius: var(--radius-lg);
+  }
+  
+  .feature-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  
+  .feature-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.5rem 0;
+  }
+  
+  .feature-icon {
+    width: 20px;
+    height: 20px;
+    color: var(--primary);
+  }
+  
+  .product-tabs {
+    margin: 4rem 0;
+  }
+  
+  .tab-buttons {
+    display: flex;
+    border-bottom: 2px solid var(--border);
+    margin-bottom: 2rem;
+  }
+  
+  .tab-button {
+    padding: 1rem 2rem;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    font-weight: 600;
+    color: var(--text-muted);
+    transition: all 0.3s ease;
+    border-bottom: 3px solid transparent;
+  }
+  
+  .tab-button.active,
+  .tab-button:hover {
+    color: var(--primary);
+    border-bottom-color: var(--primary);
+  }
+  
+  .tab-content {
+    display: none;
+    animation: fadeIn 0.3s ease;
+  }
+  
+  .tab-content.active {
+    display: block;
+  }
+  
+  .reviews-summary {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    background: var(--bg-secondary);
+    border-radius: var(--radius-lg);
+  }
+  
+  .rating-overview {
+    text-align: center;
+  }
+  
+  .rating-score {
+    font-size: 3rem;
+    font-weight: 700;
+    color: var(--primary);
+  }
+  
+  .rating-breakdown {
+    flex: 1;
+  }
+  
+  .rating-bar {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin: 0.5rem 0;
+  }
+  
+  .rating-bar-fill {
+    flex: 1;
+    height: 8px;
+    background: var(--bg-muted);
+    border-radius: var(--radius-full);
+    overflow: hidden;
+  }
+  
+  .rating-bar-inner {
+    height: 100%;
+    background: var(--primary);
+    transition: width 0.6s ease;
+  }
+  
+  .zoom-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.9);
+    z-index: 1000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .zoom-overlay.active {
+    display: flex;
+  }
+  
+  .zoom-image {
+    max-width: 90%;
+    max-height: 90%;
+    object-fit: contain;
+  }
+  
+  .stock-indicator {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 1rem 0;
+    padding: 0.75rem 1rem;
+    border-radius: var(--radius-md);
+  }
+  
+  .stock-indicator.in-stock {
+    background: rgba(34, 197, 94, 0.1);
+    color: rgb(34, 197, 94);
+  }
+  
+  .stock-indicator.low-stock {
+    background: rgba(249, 115, 22, 0.1);
+    color: rgb(249, 115, 22);
+  }
+  
+  .stock-indicator.out-stock {
+    background: rgba(239, 68, 68, 0.1);
+    color: rgb(239, 68, 68);
+  }
+  
+  @media (max-width: 768px) {
+    .product-main-image {
+      aspect-ratio: 4/3;
+    }
+    
+    .product-info {
+      position: static;
+      margin-top: 2rem;
+    }
+    
+    .size-options {
+      justify-content: center;
+    }
+    
+    .add-to-cart-section {
+      flex-direction: column;
+    }
+    
+    .btn-wishlist {
+      align-self: center;
+    }
+    
+    .tab-buttons {
+      flex-wrap: wrap;
+    }
+    
+    .tab-button {
+      flex: 1;
+      min-width: 120px;
+    }
+  }
+  
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+  }
+  
+  .loading {
+    animation: pulse 1.5s infinite;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<main class="main-content">
+  <!-- Breadcrumb -->
+  <nav aria-label="{% trans 'Breadcrumb' %}" class="breadcrumb-nav">
+    <div class="container">
+      <ol class="breadcrumb">
+        <li><a href="{% url 'pages:index' %}">{% trans "Accueil" %}</a></li>
+        <li><a href="{% url 'shop:product_list' %}">{% trans "Boutique" %}</a></li>
+        {% if product.category %}
+        <li><a href="{% url 'shop:category_detail' product.category.slug %}">{{ product.category.name }}</a></li>
+        {% endif %}
+        <li aria-current="page">{{ product.name }}</li>
+      </ol>
+    </div>
+  </nav>
+
+  <!-- Product Detail -->
+  <section class="product-detail-section">
+    <div class="container">
+      <div class="grid grid-product">
+        <!-- Product Gallery -->
+        <div class="product-gallery">
+          <div class="product-main-image" id="mainImage">
+            {% if product.image %}
+            <img 
+              src="{{ product.image.url }}" 
+              alt="{{ product.name }}"
+              class="image-responsive"
+              loading="eager"
+              onclick="openZoom(this.src)"
+            >
+            {% else %}
+            <img 
+              src="{% static 'images/no-image.webp' %}" 
+              alt="{% trans 'Image non disponible' %}"
+              class="image-responsive"
+            >
+            {% endif %}
+          </div>
+          
+          {% if product.images.exists %}
+          <div class="product-thumbnails" id="thumbnails">
+            {% for image in product.images.all %}
+            <div class="thumbnail {% if forloop.first %}active{% endif %}" 
+                 onclick="changeMainImage('{{ image.image.url }}', this)">
+              <img src="{{ image.image.url }}" alt="{{ product.name }}" class="image-responsive">
+            </div>
+            {% endfor %}
+          </div>
+          {% endif %}
+        </div>
+
+        <!-- Product Info -->
+        <div class="product-info">
+          <h1 class="product-title">{{ product.name }}</h1>
+          
+          <!-- Stock Indicator -->
+          <div class="stock-indicator {% if product.stock > 10 %}in-stock{% elif product.stock > 0 %}low-stock{% else %}out-stock{% endif %}">
+            <svg class="icon" viewBox="0 0 20 20" fill="currentColor">
+              <circle cx="10" cy="10" r="3"/>
+            </svg>
+            {% if product.stock > 10 %}
+              {% trans "En stock" %}
+            {% elif product.stock > 0 %}
+              {% blocktrans with stock=product.stock %}Plus que {{ stock }} en stock{% endblocktrans %}
+            {% else %}
+              {% trans "Rupture de stock" %}
+            {% endif %}
+          </div>
+
+          <!-- Price -->
+          <div class="price-display">
+            <span class="current-price">{{ product.price }}€</span>
+            {% if product.original_price and product.original_price > product.price %}
+            <span class="original-price">{{ product.original_price }}€</span>
+            <span class="discount-badge">
+              -{% widthratio product.original_price|sub:product.price product.original_price 100 %}%
+            </span>
+            {% endif %}
+          </div>
+
+          <!-- Short Description -->
+          {% if product.short_description %}
+          <div class="product-summary">
+            <p>{{ product.short_description }}</p>
+          </div>
+          {% endif %}
+
+          <!-- Size Selector -->
+          {% if product.sizes.exists %}
+          <div class="size-selector">
+            <label class="form-label">{% trans "Taille" %}</label>
+            <div class="size-options" id="sizeOptions">
+              {% for size in product.sizes.all %}
+              <button 
+                type="button" 
+                class="size-option" 
+                data-size="{{ size.id }}"
+                {% if size.stock <= 0 %}disabled{% endif %}
+              >
+                {{ size.name }}
+              </button>
+              {% endfor %}
+            </div>
+          </div>
+          {% endif %}
+
+          <!-- Quantity & Add to Cart -->
+          <form id="addToCartForm" class="add-to-cart-form">
+            {% csrf_token %}
+            <input type="hidden" name="product_id" value="{{ product.id }}">
+            <input type="hidden" name="size_id" id="selectedSize">
+            
+            <div class="quantity-selector">
+              <label class="form-label">{% trans "Quantité" %}</label>
+              <div class="quantity-controls">
+                <button type="button" class="quantity-btn" onclick="changeQuantity(-1)">-</button>
+                <input 
+                  type="number" 
+                  name="quantity" 
+                  value="1" 
+                  min="1" 
+                  max="{{ product.stock }}"
+                  class="quantity-input"
+                  id="quantityInput"
+                >
+                <button type="button" class="quantity-btn" onclick="changeQuantity(1)">+</button>
+              </div>
+            </div>
+
+            <div class="add-to-cart-section">
+              <button 
+                type="submit" 
+                class="btn-add-cart"
+                {% if product.stock <= 0 %}disabled{% endif %}
+              >
+                <span class="btn-text">{% trans "Ajouter au panier" %}</span>
+                <span class="btn-loading" style="display: none;">
+                  <svg class="icon spinning" viewBox="0 0 24 24">
+                    <circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2" stroke-dasharray="31.416" stroke-dashoffset="31.416"/>
+                  </svg>
+                </span>
+              </button>
+              
+              <button 
+                type="button" 
+                class="btn-wishlist"
+                onclick="toggleWishlist({{ product.id }})"
+                title="{% trans 'Ajouter à la liste de souhaits' %}"
+              >
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                </svg>
+              </button>
+            </div>
+          </form>
+
+          <!-- Product Features -->
+          <div class="product-features">
+            <h3>{% trans "Avantages" %}</h3>
+            <ul class="feature-list">
+              <li class="feature-item">
+                <svg class="feature-icon" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                </svg>
+                {% trans "Livraison gratuite dès 50€" %}
+              </li>
+              <li class="feature-item">
+                <svg class="feature-icon" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                </svg>
+                {% trans "Retours gratuits sous 30 jours" %}
+              </li>
+              <li class="feature-item">
+                <svg class="feature-icon" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                </svg>
+                {% trans "Paiement sécurisé" %}
+              </li>
+              <li class="feature-item">
+                <svg class="feature-icon" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                </svg>
+                {% trans "Service client 7j/7" %}
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Product Tabs -->
+  <section class="product-tabs">
+    <div class="container">
+      <div class="tab-buttons">
+        <button class="tab-button active" onclick="showTab('description')">
+          {% trans "Description" %}
+        </button>
+        <button class="tab-button" onclick="showTab('specifications')">
+          {% trans "Caractéristiques" %}
+        </button>
+        <button class="tab-button" onclick="showTab('reviews')">
+          {% trans "Avis" %} ({{ product.reviews.count }})
+        </button>
+        <button class="tab-button" onclick="showTab('shipping')">
+          {% trans "Livraison" %}
+        </button>
+      </div>
+
+      <!-- Description Tab -->
+      <div id="description" class="tab-content active">
+        <div class="content-rich">
+          {{ product.description|safe }}
+        </div>
+      </div>
+
+      <!-- Specifications Tab -->
+      <div id="specifications" class="tab-content">
+        {% if product.specifications %}
+        <div class="specifications-grid">
+          {% for spec in product.specifications.all %}
+          <div class="spec-item">
+            <strong>{{ spec.name }}:</strong> {{ spec.value }}
+          </div>
+          {% endfor %}
+        </div>
+        {% else %}
+        <p>{% trans "Aucune caractéristique disponible." %}</p>
+        {% endif %}
+      </div>
+
+      <!-- Reviews Tab -->
+      <div id="reviews" class="tab-content">
+        {% if product.reviews.exists %}
+        <div class="reviews-summary">
+          <div class="rating-overview">
+            <div class="rating-score">{{ product.average_rating|floatformat:1 }}</div>
+            <div class="rating-stars">
+              {% include "components/rating_stars.html" with rating=product.average_rating %}
+            </div>
+            <p>{{ product.reviews.count }} {% trans "avis" %}</p>
+          </div>
+          <div class="rating-breakdown">
+            {% for i in "54321"|make_list %}
+            <div class="rating-bar">
+              <span>{{ i }} ⭐</span>
+              <div class="rating-bar-fill">
+                <div class="rating-bar-inner" style="width: {% widthratio product.rating_breakdown|get_item:i product.reviews.count 100 %}%"></div>
+              </div>
+              <span>{{ product.rating_breakdown|get_item:i }}</span>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+
+        <div class="reviews-list">
+          {% for review in product.reviews.all|slice:":5" %}
+          <article class="review-item">
+            <header class="review-header">
+              <div class="review-rating">
+                {% include "components/rating_stars.html" with rating=review.rating %}
+              </div>
+              <div class="review-meta">
+                <strong>{{ review.user.get_full_name|default:review.user.username }}</strong>
+                <time datetime="{{ review.created_at|date:'Y-m-d' }}">
+                  {{ review.created_at|date:'d F Y' }}
+                </time>
+              </div>
+            </header>
+            <div class="review-content">
+              <p>{{ review.comment }}</p>
+            </div>
+          </article>
+          {% endfor %}
+        </div>
+        {% else %}
+        <p>{% trans "Aucun avis pour le moment. Soyez le premier à donner votre avis !" %}</p>
+        {% endif %}
+      </div>
+
+      <!-- Shipping Tab -->
+      <div id="shipping" class="tab-content">
+        <div class="shipping-info">
+          <h3>{% trans "Options de livraison" %}</h3>
+          <div class="shipping-options">
+            <div class="shipping-option">
+              <strong>{% trans "Livraison standard" %}</strong>
+              <p>{% trans "3-5 jours ouvrés - Gratuite dès 50€" %}</p>
+            </div>
+            <div class="shipping-option">
+              <strong>{% trans "Livraison express" %}</strong>
+              <p>{% trans "1-2 jours ouvrés - 9.99€" %}</p>
+            </div>
+            <div class="shipping-option">
+              <strong>{% trans "Retrait en magasin" %}</strong>
+              <p>{% trans "Disponible sous 24h - Gratuit" %}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Related Products -->
+  {% if related_products %}
+  <section class="related-products-section">
+    <div class="container">
+      <h2 class="section-title">{% trans "Produits similaires" %}</h2>
+      <div class="products-grid">
+        {% for product in related_products|slice:":4" %}
+        {% include "components/product_card.html" %}
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+  {% endif %}
+</main>
+
+<!-- Zoom Overlay -->
+<div class="zoom-overlay" id="zoomOverlay" onclick="closeZoom()">
+  <img id="zoomImage" class="zoom-image" alt="">
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Product gallery functionality
+function changeMainImage(src, thumbnail) {
+  const mainImage = document.querySelector('#mainImage img');
+  const thumbnails = document.querySelectorAll('.thumbnail');
+  
+  mainImage.src = src;
+  thumbnails.forEach(t => t.classList.remove('active'));
+  thumbnail.classList.add('active');
+}
+
+// Zoom functionality
+function openZoom(src) {
+  const overlay = document.getElementById('zoomOverlay');
+  const zoomImage = document.getElementById('zoomImage');
+  
+  zoomImage.src = src;
+  overlay.classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeZoom() {
+  const overlay = document.getElementById('zoomOverlay');
+  overlay.classList.remove('active');
+  document.body.style.overflow = '';
+}
+
+// Size selection
+document.addEventListener('DOMContentLoaded', function() {
+  const sizeOptions = document.querySelectorAll('.size-option');
+  const selectedSizeInput = document.getElementById('selectedSize');
+  
+  sizeOptions.forEach(option => {
+    option.addEventListener('click', function() {
+      if (this.disabled) return;
+      
+      sizeOptions.forEach(opt => opt.classList.remove('selected'));
+      this.classList.add('selected');
+      selectedSizeInput.value = this.dataset.size;
+    });
+  });
+});
+
+// Quantity controls
+function changeQuantity(delta) {
+  const input = document.getElementById('quantityInput');
+  const currentValue = parseInt(input.value);
+  const newValue = currentValue + delta;
+  const max = parseInt(input.max);
+  const min = parseInt(input.min);
+  
+  if (newValue >= min && newValue <= max) {
+    input.value = newValue;
+  }
+}
+
+// Tab functionality
+function showTab(tabId) {
+  const tabs = document.querySelectorAll('.tab-content');
+  const buttons = document.querySelectorAll('.tab-button');
+  
+  tabs.forEach(tab => tab.classList.remove('active'));
+  buttons.forEach(btn => btn.classList.remove('active'));
+  
+  document.getElementById(tabId).classList.add('active');
+  event.target.classList.add('active');
+}
+
+// Add to cart form
+document.getElementById('addToCartForm').addEventListener('submit', function(e) {
+  e.preventDefault();
+  
+  const formData = new FormData(this);
+  const button = this.querySelector('.btn-add-cart');
+  const btnText = button.querySelector('.btn-text');
+  const btnLoading = button.querySelector('.btn-loading');
+  
+  // Show loading state
+  button.disabled = true;
+  btnText.style.display = 'none';
+  btnLoading.style.display = 'inline-flex';
+  
+  fetch('{% url "shop:add_to_cart" %}', {
+    method: 'POST',
+    body: formData,
+    headers: {
+      'X-Requested-With': 'XMLHttpRequest',
+    }
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.success) {
+      // Update cart counter
+      updateCartCounter();
+      
+      // Show success message
+      showNotification('{% trans "Produit ajouté au panier !" %}', 'success');
+      
+      // Optional: Add animation
+      button.style.background = '#22c55e';
+      btnText.textContent = '{% trans "Ajouté !" %}';
+      
+      setTimeout(() => {
+        button.style.background = '';
+        btnText.textContent = '{% trans "Ajouter au panier" %}';
+      }, 2000);
+    } else {
+      showNotification(data.message || '{% trans "Erreur lors de l\'ajout au panier" %}', 'error');
+    }
+  })
+  .catch(error => {
+    console.error('Error:', error);
+    showNotification('{% trans "Erreur lors de l\'ajout au panier" %}', 'error');
+  })
+  .finally(() => {
+    // Hide loading state
+    button.disabled = false;
+    btnText.style.display = 'inline';
+    btnLoading.style.display = 'none';
+  });
+});
+
+// Wishlist functionality
+function toggleWishlist(productId) {
+  const button = event.target.closest('.btn-wishlist');
+  
+  fetch('{% url "shop:toggle_wishlist" %}', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+      'X-Requested-With': 'XMLHttpRequest',
+    },
+    body: JSON.stringify({ product_id: productId })
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.success) {
+      button.classList.toggle('active', data.in_wishlist);
+      const message = data.in_wishlist ? 
+        '{% trans "Ajouté à la liste de souhaits" %}' : 
+        '{% trans "Retiré de la liste de souhaits" %}';
+      showNotification(message, 'success');
+    }
+  })
+  .catch(error => {
+    console.error('Error:', error);
+    showNotification('{% trans "Erreur lors de l\'ajout à la liste de souhaits" %}', 'error');
+  });
+}
+
+// Notification system
+function showNotification(message, type = 'info') {
+  const notification = document.createElement('div');
+  notification.className = `notification notification-${type}`;
+  notification.textContent = message;
+  
+  notification.style.cssText = `
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 1rem 1.5rem;
+    border-radius: 8px;
+    color: white;
+    font-weight: 600;
+    z-index: 10000;
+    transform: translateX(100%);
+    transition: transform 0.3s ease;
+    ${type === 'success' ? 'background: #22c55e;' : 
+      type === 'error' ? 'background: #ef4444;' : 
+      'background: #3b82f6;'}
+  `;
+  
+  document.body.appendChild(notification);
+  
+  // Trigger animation
+  setTimeout(() => {
+    notification.style.transform = 'translateX(0)';
+  }, 10);
+  
+  // Auto remove
+  setTimeout(() => {
+    notification.style.transform = 'translateX(100%)';
+    setTimeout(() => {
+      document.body.removeChild(notification);
+    }, 300);
+  }, 3000);
+}
+
+// Update cart counter
+function updateCartCounter() {
+  fetch('{% url "shop:cart_count" %}')
+    .then(response => response.json())
+    .then(data => {
+      const counter = document.querySelector('.cart-counter');
+      if (counter) {
+        counter.textContent = data.count;
+        counter.style.display = data.count > 0 ? 'block' : 'none';
+      }
+    });
+}
+
+// Keyboard navigation for gallery
+document.addEventListener('keydown', function(e) {
+  if (document.getElementById('zoomOverlay').classList.contains('active')) {
+    if (e.key === 'Escape') {
+      closeZoom();
+    }
+  }
+});
+
+// Initialize features
+document.addEventListener('DOMContentLoaded', function() {
+  // Auto-select first size if only one available
+  const sizeOptions = document.querySelectorAll('.size-option:not(:disabled)');
+  if (sizeOptions.length === 1) {
+    sizeOptions[0].click();
+  }
+  
+  // Initialize quantity input validation
+  const quantityInput = document.getElementById('quantityInput');
+  quantityInput.addEventListener('input', function() {
+    const value = parseInt(this.value);
+    const max = parseInt(this.max);
+    const min = parseInt(this.min);
+    
+    if (value > max) this.value = max;
+    if (value < min) this.value = min;
+  });
+});
+</script>
+{% endblock %}

@@ -19,9 +19,9 @@
       <!-- Navigation Tabs -->
       <div class="d-flex gap-3 mb-4">
         <span class="badge bg-primary px-3 py-2">My Profile</span>
-        <a href="{% url 'order_history' %}" class="badge bg-light text-dark px-3 py-2 text-decoration-none">My Orders</a>
-        <a href="{% url 'cart' %}" class="badge bg-light text-dark px-3 py-2 text-decoration-none">Cart</a>
-        <a href="{% url 'checkout' %}" class="badge bg-light text-dark px-3 py-2 text-decoration-none">Checkout</a>
+        <a href="{% url 'accounts:order_history' %}" class="badge bg-light text-dark px-3 py-2 text-decoration-none">My Orders</a>
+        <a href="{% url 'store:cart' %}" class="badge bg-light text-dark px-3 py-2 text-decoration-none">Cart</a>
+        <a href="{% url 'store:checkout' %}" class="badge bg-light text-dark px-3 py-2 text-decoration-none">Checkout</a>
       </div>
     </div>
   </section>
@@ -57,7 +57,9 @@
                   {{ user.username }}
                 {% endif %}
               </h4>
-              <p class="text-muted mb-2">{{ user.email|default:"jane.doe@example.com" }}</p>
+              {% with fallback_email=COMPANY_EMAIL|default:"" %}
+                <p class="text-muted mb-2">{{ user.email|default:fallback_email }}</p>
+              {% endwith %}
               <div class="d-flex justify-content-center align-items-center gap-3 text-muted small">
                 {% if user.address %}
                   <span><i class="bi bi-geo-alt"></i> {{ user.address }}</span>
@@ -99,7 +101,9 @@
                     
                     <div class="mb-3">
                       <label class="form-label text-muted small">Email Address</label>
-                      <p class="mb-0">{{ user.email|default:"jane.doe@example.com" }}</p>
+                      {% with fallback_email=COMPANY_EMAIL|default:"" %}
+                        <p class="mb-0">{{ user.email|default:fallback_email }}</p>
+                      {% endwith %}
                     </div>
                     
                     <div class="mb-3">

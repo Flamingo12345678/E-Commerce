@@ -348,7 +348,7 @@ class UserIntegrationTest(TestCase):
 
         # 3. Ajouter au panier
         response = self.client.post(
-            reverse("add_to_cart", kwargs={"slug": "integration-product"})
+            reverse("store:add_to_cart", kwargs={"slug": "integration-product"})
         )
         self.assertEqual(response.status_code, 302)
 
@@ -357,7 +357,7 @@ class UserIntegrationTest(TestCase):
         self.assertEqual(cart.total_items, 1)
 
         # 5. Aller à la page panier
-        response = self.client.get(reverse("cart"))
+        response = self.client.get(reverse("store:cart"))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Integration Product")
 

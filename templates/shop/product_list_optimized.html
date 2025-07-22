@@ -1,0 +1,827 @@
+{% extends "base_optimized.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}
+{% if category %}
+  {{ category.name }} - {% trans "Boutique Rhodeskin" %}
+{% else %}
+  {% trans "Boutique" %} - {% trans "Rhodeskin" %}
+{% endif %}
+{% endblock %}
+
+{% block meta_description %}
+{% if category %}
+  {{ category.description|default:"Découvrez notre collection "|add:category.name|add:" - Rhodeskin"|truncatewords:30|striptags }}
+{% else %}
+  {% trans "Découvrez notre collection complète de produits de beauté et cosmétiques. Livraison gratuite dès 50€." %}
+{% endif %}
+{% endblock %}
+
+{% block structured_data %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "CollectionPage",
+  "name": "{% if category %}{{ category.name }}{% else %}{% trans 'Boutique' %}{% endif %}",
+  "description": "{% if category %}{{ category.description|striptags }}{% else %}{% trans 'Notre collection complète de produits' %}{% endif %}",
+  "url": "{{ request.build_absolute_uri }}",
+  "breadcrumb": {
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "{% trans 'Accueil' %}",
+        "item": "{{ request.scheme }}://{{ request.get_host }}{% url 'pages:index' %}"
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "{% trans 'Boutique' %}",
+        "item": "{{ request.scheme }}://{{ request.get_host }}{% url 'shop:product_list' %}"
+      }
+      {% if category %},
+      {
+        "@type": "ListItem",
+        "position": 3,
+        "name": "{{ category.name }}",
+        "item": "{{ request.build_absolute_uri }}"
+      }
+      {% endif %}
+    ]
+  }
+}
+</script>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+  .shop-header {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+    color: white;
+    padding: 4rem 0 2rem;
+    margin-bottom: 2rem;
+  }
+  
+  .shop-title {
+    font-size: 3rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    text-align: center;
+  }
+  
+  .shop-subtitle {
+    font-size: 1.25rem;
+    opacity: 0.9;
+    text-align: center;
+    max-width: 600px;
+    margin: 0 auto;
+  }
+  
+  .filters-section {
+    background: white;
+    padding: 2rem 0;
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 80px;
+    z-index: 10;
+  }
+  
+  .filters-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 2rem;
+    flex-wrap: wrap;
+  }
+  
+  .filters-left {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+  
+  .filters-right {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  
+  .filter-group {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  
+  .filter-select {
+    padding: 0.75rem 1rem;
+    border: 2px solid var(--border);
+    border-radius: var(--radius-md);
+    background: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-width: 150px;
+  }
+  
+  .filter-select:hover,
+  .filter-select:focus {
+    border-color: var(--primary);
+  }
+  
+  .view-toggle {
+    display: flex;
+    border: 2px solid var(--border);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+  }
+  
+  .view-btn {
+    padding: 0.75rem;
+    border: none;
+    background: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .view-btn.active,
+  .view-btn:hover {
+    background: var(--primary);
+    color: white;
+  }
+  
+  .view-btn .icon {
+    width: 20px;
+    height: 20px;
+  }
+  
+  .results-info {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 2rem 0;
+    padding: 1rem;
+    background: var(--bg-secondary);
+    border-radius: var(--radius-md);
+  }
+  
+  .results-count {
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+  
+  .active-filters {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+  
+  .filter-tag {
+    padding: 0.25rem 0.75rem;
+    background: var(--primary);
+    color: white;
+    border-radius: var(--radius-full);
+    font-size: 0.875rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  
+  .filter-tag-remove {
+    cursor: pointer;
+    border: none;
+    background: none;
+    color: white;
+    padding: 0;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .filter-tag-remove:hover {
+    background: rgba(255, 255, 255, 0.2);
+  }
+  
+  .products-container {
+    margin: 2rem 0;
+  }
+  
+  .products-grid {
+    display: grid;
+    gap: 2rem;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  }
+  
+  .products-grid.grid-view {
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  }
+  
+  .products-grid.list-view {
+    grid-template-columns: 1fr;
+  }
+  
+  .product-card.list-view {
+    display: flex;
+    flex-direction: row;
+    max-width: 100%;
+  }
+  
+  .product-card.list-view .product-card-image {
+    flex: 0 0 200px;
+    aspect-ratio: 1;
+  }
+  
+  .product-card.list-view .product-card-content {
+    flex: 1;
+    padding: 2rem;
+  }
+  
+  .load-more-section {
+    text-align: center;
+    margin: 4rem 0;
+  }
+  
+  .btn-load-more {
+    padding: 1rem 3rem;
+    background: var(--primary);
+    color: white;
+    border: none;
+    border-radius: var(--radius-md);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  
+  .btn-load-more:hover {
+    background: var(--primary-dark);
+    transform: translateY(-2px);
+  }
+  
+  .btn-load-more:disabled {
+    background: var(--bg-muted);
+    color: var(--text-muted);
+    cursor: not-allowed;
+    transform: none;
+  }
+  
+  .no-products {
+    text-align: center;
+    padding: 4rem 2rem;
+    background: var(--bg-secondary);
+    border-radius: var(--radius-lg);
+    margin: 2rem 0;
+  }
+  
+  .no-products-icon {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 2rem;
+    color: var(--text-muted);
+  }
+  
+  .loading-skeleton {
+    display: grid;
+    gap: 2rem;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  }
+  
+  .skeleton-card {
+    background: white;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+  }
+  
+  .skeleton-image {
+    aspect-ratio: 1;
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+  }
+  
+  .skeleton-content {
+    padding: 1.5rem;
+  }
+  
+  .skeleton-line {
+    height: 16px;
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    border-radius: 4px;
+    margin-bottom: 0.75rem;
+  }
+  
+  .skeleton-line.short {
+    width: 60%;
+  }
+  
+  .skeleton-line.medium {
+    width: 80%;
+  }
+  
+  @keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+  }
+  
+  /* Mobile responsive */
+  @media (max-width: 768px) {
+    .shop-title {
+      font-size: 2rem;
+    }
+    
+    .filters-container {
+      flex-direction: column;
+      align-items: stretch;
+    }
+    
+    .filters-left,
+    .filters-right {
+      justify-content: center;
+    }
+    
+    .filter-select {
+      min-width: auto;
+      flex: 1;
+    }
+    
+    .products-grid {
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 1rem;
+    }
+    
+    .product-card.list-view {
+      flex-direction: column;
+    }
+    
+    .product-card.list-view .product-card-image {
+      flex: none;
+      aspect-ratio: 4/3;
+    }
+    
+    .results-info {
+      flex-direction: column;
+      gap: 1rem;
+      align-items: stretch;
+    }
+  }
+  
+  /* Filter animations */
+  .filter-enter {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  
+  .filter-enter-active {
+    opacity: 1;
+    transform: translateY(0);
+    transition: all 0.3s ease;
+  }
+  
+  .filter-exit {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  
+  .filter-exit-active {
+    opacity: 0;
+    transform: translateY(-10px);
+    transition: all 0.3s ease;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<main class="main-content">
+  <!-- Breadcrumb -->
+  <nav aria-label="{% trans 'Breadcrumb' %}" class="breadcrumb-nav">
+    <div class="container">
+      <ol class="breadcrumb">
+        <li><a href="{% url 'pages:index' %}">{% trans "Accueil" %}</a></li>
+        <li><a href="{% url 'shop:product_list' %}">{% trans "Boutique" %}</a></li>
+        {% if category %}
+        <li aria-current="page">{{ category.name }}</li>
+        {% endif %}
+      </ol>
+    </div>
+  </nav>
+
+  <!-- Shop Header -->
+  <section class="shop-header">
+    <div class="container">
+      <h1 class="shop-title">
+        {% if category %}
+          {{ category.name }}
+        {% else %}
+          {% trans "Notre Boutique" %}
+        {% endif %}
+      </h1>
+      <p class="shop-subtitle">
+        {% if category %}
+          {{ category.description|default:"Découvrez notre sélection de produits"|safe }}
+        {% else %}
+          {% trans "Découvrez notre collection complète de produits de beauté et cosmétiques" %}
+        {% endif %}
+      </p>
+    </div>
+  </section>
+
+  <!-- Filters Section -->
+  <section class="filters-section">
+    <div class="container">
+      <div class="filters-container">
+        <div class="filters-left">
+          <!-- Category Filter -->
+          <div class="filter-group">
+            <label for="categoryFilter" class="sr-only">{% trans "Catégorie" %}</label>
+            <select id="categoryFilter" class="filter-select" onchange="applyFilter('category', this.value)">
+              <option value="">{% trans "Toutes les catégories" %}</option>
+              {% for cat in categories %}
+              <option value="{{ cat.slug }}" {% if category and cat.slug == category.slug %}selected{% endif %}>
+                {{ cat.name }}
+              </option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <!-- Price Filter -->
+          <div class="filter-group">
+            <label for="priceFilter" class="sr-only">{% trans "Prix" %}</label>
+            <select id="priceFilter" class="filter-select" onchange="applyFilter('price', this.value)">
+              <option value="">{% trans "Tous les prix" %}</option>
+              <option value="0-25" {% if request.GET.price == "0-25" %}selected{% endif %}>0€ - 25€</option>
+              <option value="25-50" {% if request.GET.price == "25-50" %}selected{% endif %}>25€ - 50€</option>
+              <option value="50-100" {% if request.GET.price == "50-100" %}selected{% endif %}>50€ - 100€</option>
+              <option value="100-plus" {% if request.GET.price == "100-plus" %}selected{% endif %}>100€+</option>
+            </select>
+          </div>
+
+          <!-- Availability Filter -->
+          <div class="filter-group">
+            <label for="availabilityFilter" class="sr-only">{% trans "Disponibilité" %}</label>
+            <select id="availabilityFilter" class="filter-select" onchange="applyFilter('availability', this.value)">
+              <option value="">{% trans "Tout" %}</option>
+              <option value="in-stock" {% if request.GET.availability == "in-stock" %}selected{% endif %}>
+                {% trans "En stock" %}
+              </option>
+              <option value="on-sale" {% if request.GET.availability == "on-sale" %}selected{% endif %}>
+                {% trans "En promotion" %}
+              </option>
+            </select>
+          </div>
+        </div>
+
+        <div class="filters-right">
+          <!-- Sort -->
+          <div class="filter-group">
+            <label for="sortFilter" class="sr-only">{% trans "Trier par" %}</label>
+            <select id="sortFilter" class="filter-select" onchange="applyFilter('sort', this.value)">
+              <option value="">{% trans "Trier par" %}</option>
+              <option value="name" {% if request.GET.sort == "name" %}selected{% endif %}>
+                {% trans "Nom A-Z" %}
+              </option>
+              <option value="-name" {% if request.GET.sort == "-name" %}selected{% endif %}>
+                {% trans "Nom Z-A" %}
+              </option>
+              <option value="price" {% if request.GET.sort == "price" %}selected{% endif %}>
+                {% trans "Prix croissant" %}
+              </option>
+              <option value="-price" {% if request.GET.sort == "-price" %}selected{% endif %}>
+                {% trans "Prix décroissant" %}
+              </option>
+              <option value="-created_at" {% if request.GET.sort == "-created_at" %}selected{% endif %}>
+                {% trans "Plus récent" %}
+              </option>
+              <option value="popularity" {% if request.GET.sort == "popularity" %}selected{% endif %}>
+                {% trans "Popularité" %}
+              </option>
+            </select>
+          </div>
+
+          <!-- View Toggle -->
+          <div class="view-toggle">
+            <button class="view-btn {% if request.GET.view != 'list' %}active{% endif %}" 
+                    onclick="toggleView('grid')"
+                    title="{% trans 'Vue grille' %}">
+              <svg class="icon" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M3 3h7v7H3V3zm0 11h7v7H3v-7zm11-11h7v7h-7V3zm0 11h7v7h-7v-7z"/>
+              </svg>
+            </button>
+            <button class="view-btn {% if request.GET.view == 'list' %}active{% endif %}" 
+                    onclick="toggleView('list')"
+                    title="{% trans 'Vue liste' %}">
+              <svg class="icon" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M3 5h18v2H3V5zm0 6h18v2H3v-2zm0 6h18v2H3v-2z"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Results Info -->
+  <section class="results-info">
+    <div class="container">
+      <div class="results-count">
+        {% blocktrans count counter=products.count with count=products.count %}
+          {{ count }} produit trouvé
+        {% plural %}
+          {{ count }} produits trouvés
+        {% endblocktrans %}
+      </div>
+
+      <!-- Active Filters -->
+      {% if request.GET.category or request.GET.price or request.GET.availability %}
+      <div class="active-filters">
+        {% if request.GET.category %}
+        <span class="filter-tag">
+          {% trans "Catégorie:" %} {{ request.GET.category }}
+          <button class="filter-tag-remove" onclick="removeFilter('category')" aria-label="{% trans 'Supprimer le filtre' %}">×</button>
+        </span>
+        {% endif %}
+        
+        {% if request.GET.price %}
+        <span class="filter-tag">
+          {% trans "Prix:" %} {{ request.GET.price }}
+          <button class="filter-tag-remove" onclick="removeFilter('price')" aria-label="{% trans 'Supprimer le filtre' %}">×</button>
+        </span>
+        {% endif %}
+        
+        {% if request.GET.availability %}
+        <span class="filter-tag">
+          {% trans "Disponibilité:" %} {{ request.GET.availability }}
+          <button class="filter-tag-remove" onclick="removeFilter('availability')" aria-label="{% trans 'Supprimer le filtre' %}">×</button>
+        </span>
+        {% endif %}
+        
+        <button class="filter-tag" onclick="clearAllFilters()">
+          {% trans "Effacer tous les filtres" %}
+        </button>
+      </div>
+      {% endif %}
+    </div>
+  </section>
+
+  <!-- Products Grid -->
+  <section class="products-container">
+    <div class="container">
+      {% if products %}
+      <div class="products-grid {% if request.GET.view == 'list' %}list-view{% else %}grid-view{% endif %}" 
+           id="productsGrid">
+        {% for product in products %}
+        <div class="product-wrapper {% if request.GET.view == 'list' %}list-view{% endif %}">
+          {% include "components/product_card.html" %}
+        </div>
+        {% endfor %}
+      </div>
+
+      <!-- Load More / Pagination -->
+      {% if products.has_next %}
+      <div class="load-more-section">
+        <button class="btn-load-more" onclick="loadMore({{ products.next_page_number }})">
+          {% trans "Charger plus de produits" %}
+        </button>
+      </div>
+      {% endif %}
+
+      {% else %}
+      <!-- No Products -->
+      <div class="no-products">
+        <svg class="no-products-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+          <circle cx="11" cy="11" r="8"/>
+          <path d="m21 21-4.35-4.35"/>
+        </svg>
+        <h3>{% trans "Aucun produit trouvé" %}</h3>
+        <p>{% trans "Essayez de modifier vos critères de recherche ou parcourez nos catégories." %}</p>
+        <a href="{% url 'shop:product_list' %}" class="btn-primary">
+          {% trans "Voir tous les produits" %}
+        </a>
+      </div>
+      {% endif %}
+    </div>
+  </section>
+
+  <!-- Loading Skeleton (hidden by default) -->
+  <div class="loading-skeleton" id="loadingSkeleton" style="display: none;">
+    <div class="container">
+      {% for i in "1234"|make_list %}
+      <div class="skeleton-card">
+        <div class="skeleton-image"></div>
+        <div class="skeleton-content">
+          <div class="skeleton-line short"></div>
+          <div class="skeleton-line medium"></div>
+          <div class="skeleton-line"></div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</main>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Filter functionality
+function applyFilter(filterType, value) {
+  const url = new URL(window.location);
+  
+  if (value) {
+    url.searchParams.set(filterType, value);
+  } else {
+    url.searchParams.delete(filterType);
+  }
+  
+  // Reset to first page when applying filters
+  url.searchParams.delete('page');
+  
+  // Show loading
+  showLoading(true);
+  
+  window.location.href = url.toString();
+}
+
+function removeFilter(filterType) {
+  const url = new URL(window.location);
+  url.searchParams.delete(filterType);
+  url.searchParams.delete('page');
+  
+  window.location.href = url.toString();
+}
+
+function clearAllFilters() {
+  const url = new URL(window.location);
+  url.searchParams.delete('category');
+  url.searchParams.delete('price');
+  url.searchParams.delete('availability');
+  url.searchParams.delete('page');
+  
+  window.location.href = url.toString();
+}
+
+// View toggle
+function toggleView(viewType) {
+  const url = new URL(window.location);
+  
+  if (viewType === 'list') {
+    url.searchParams.set('view', 'list');
+  } else {
+    url.searchParams.delete('view');
+  }
+  
+  window.location.href = url.toString();
+}
+
+// Load more functionality
+let isLoading = false;
+
+function loadMore(page) {
+  if (isLoading) return;
+  
+  isLoading = true;
+  const button = document.querySelector('.btn-load-more');
+  button.disabled = true;
+  button.textContent = '{% trans "Chargement..." %}';
+  
+  const url = new URL(window.location);
+  url.searchParams.set('page', page);
+  
+  fetch(url.toString(), {
+    headers: {
+      'X-Requested-With': 'XMLHttpRequest',
+    }
+  })
+  .then(response => response.text())
+  .then(html => {
+    // Parse the response
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, 'text/html');
+    
+    // Get new products
+    const newProducts = doc.querySelectorAll('.product-wrapper');
+    const grid = document.getElementById('productsGrid');
+    
+    // Add new products with animation
+    newProducts.forEach((product, index) => {
+      product.style.opacity = '0';
+      product.style.transform = 'translateY(20px)';
+      grid.appendChild(product);
+      
+      setTimeout(() => {
+        product.style.transition = 'all 0.5s ease';
+        product.style.opacity = '1';
+        product.style.transform = 'translateY(0)';
+      }, index * 100);
+    });
+    
+    // Update load more button
+    const newButton = doc.querySelector('.btn-load-more');
+    if (newButton) {
+      button.textContent = '{% trans "Charger plus de produits" %}';
+      button.disabled = false;
+      button.onclick = () => loadMore(page + 1);
+    } else {
+      button.remove();
+    }
+    
+    // Update URL without reload
+    window.history.pushState({}, '', url.toString());
+  })
+  .catch(error => {
+    console.error('Error loading more products:', error);
+    button.textContent = '{% trans "Erreur - Réessayer" %}';
+    button.disabled = false;
+  })
+  .finally(() => {
+    isLoading = false;
+  });
+}
+
+// Loading state management
+function showLoading(show) {
+  const skeleton = document.getElementById('loadingSkeleton');
+  const content = document.querySelector('.products-container');
+  
+  if (show) {
+    skeleton.style.display = 'block';
+    if (content) content.style.opacity = '0.5';
+  } else {
+    skeleton.style.display = 'none';
+    if (content) content.style.opacity = '1';
+  }
+}
+
+// Infinite scroll (optional)
+function initInfiniteScroll() {
+  let lastScrollTop = 0;
+  
+  window.addEventListener('scroll', () => {
+    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+    
+    // Only trigger when scrolling down
+    if (scrollTop > lastScrollTop) {
+      const scrollHeight = document.documentElement.scrollHeight;
+      const clientHeight = document.documentElement.clientHeight;
+      const scrolled = scrollTop + clientHeight;
+      
+      // Trigger when 80% scrolled
+      if (scrolled >= scrollHeight * 0.8) {
+        const loadMoreBtn = document.querySelector('.btn-load-more');
+        if (loadMoreBtn && !isLoading) {
+          loadMoreBtn.click();
+        }
+      }
+    }
+    
+    lastScrollTop = scrollTop;
+  });
+}
+
+// Initialize
+document.addEventListener('DOMContentLoaded', function() {
+  // Initialize infinite scroll if enabled
+  if (window.enableInfiniteScroll) {
+    initInfiniteScroll();
+  }
+  
+  // Add loading class to products when clicking links
+  document.querySelectorAll('.product-card a').forEach(link => {
+    link.addEventListener('click', function() {
+      this.closest('.product-card').classList.add('loading');
+    });
+  });
+  
+  // Restore scroll position
+  if (window.performance && window.performance.navigation.type === 2) {
+    window.scrollTo(0, parseInt(sessionStorage.getItem('scrollPosition') || 0));
+  }
+  
+  // Save scroll position
+  window.addEventListener('beforeunload', function() {
+    sessionStorage.setItem('scrollPosition', window.scrollY);
+  });
+});
+
+// Update cart counter function (if not already defined)
+function updateCartCounter() {
+  fetch('{% url "shop:cart_count" %}')
+    .then(response => response.json())
+    .then(data => {
+      const counter = document.querySelector('.cart-counter');
+      if (counter) {
+        counter.textContent = data.count;
+        counter.style.display = data.count > 0 ? 'block' : 'none';
+      }
+    })
+    .catch(error => console.error('Error updating cart counter:', error));
+}
+</script>
+{% endblock %}

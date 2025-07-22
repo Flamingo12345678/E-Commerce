@@ -253,7 +253,7 @@
 
     <!-- Bouton retour -->
     <div class="text-center mt-4">
-        <a href="{% url 'checkout' %}" class="btn btn-outline-secondary btn-lg">
+        <a href="{% url 'store:checkout' %}" class="btn btn-outline-secondary btn-lg">
             <i class="fas fa-arrow-left me-2"></i>Retour au panier
         </a>
     </div>
@@ -430,7 +430,7 @@
                     </div>
 
                     <div class="text-center mt-4">
-                        <a href="{% if request.GET.source == 'checkout' %}{% url 'checkout' %}{% else %}{% url 'profile' %}{% endif %}" class="btn btn-secondary btn-lg">
+                        <a href="{% if request.GET.source == 'checkout' %}{% url 'store:checkout' %}{% else %}{% url 'profile' %}{% endif %}" class="btn btn-secondary btn-lg">
                             <i class="fas fa-arrow-left me-2"></i>
                             Retour
                         </a>

@@ -4,6 +4,7 @@ Version nettoyée et corrigée
 """
 
 import stripe
+import logging
 from decimal import Decimal, InvalidOperation
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
@@ -15,6 +16,9 @@ from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import transaction as db_transaction
 from django.utils import timezone
+
+# Configuration du logger
+logger = logging.getLogger(__name__)
 
 # Import des modèles
 from .models import PaymentMethod, Transaction
@@ -252,13 +256,13 @@ def confirm_stripe_payment(request):
                 order.date_ordered = timezone.now()
                 order.save()
 
-                # Diminuer le stock
+                # Diminuer le stock via la variante appropriée
                 product = order.product
-                if product.stock >= order.quantity:
-                    product.stock -= order.quantity
-                    product.save()
-                else:
-                    logger.warning(f"Stock insuffisant pour {product.name}")
+                if not product.reduce_stock(order.size, order.quantity):
+                    logger.warning(
+                        f"Stock insuffisant pour {product.name} "
+                        f"taille {order.size or 'unique'}, quantité demandée: {order.quantity}"
+                    )
 
             logger.info(f"Commande finalisée - Transaction: {transaction.id}")
 
@@ -409,11 +413,13 @@ def _finalize_successful_payment(request, transaction, cart_orders):
                 order.date_ordered = timezone.now()
                 order.save()
 
-                # Diminuer le stock
+                # Diminuer le stock via la variante appropriée
                 product = order.product
-                if product.stock >= order.quantity:
-                    product.stock -= order.quantity
-                    product.save()
+                if not product.reduce_stock(order.size, order.quantity):
+                    logger.warning(
+                        f"Stock insuffisant pour {product.name} "
+                        f"taille {order.size or 'unique'}, quantité: {order.quantity}"
+                    )
 
             # Nettoyer la session PayPal si nécessaire
             if "paypal_transaction_id" in request.session:
@@ -464,7 +470,7 @@ def payment_success(request):
     if latest_order:
         from django.urls import reverse
 
-        order_url = reverse("order_detail", kwargs={"order_id": latest_order.id})
+        order_url = reverse("store:order_detail", kwargs={"order_id": latest_order.id})
         redirect_url = order_url + "?payment=success"
     else:
         redirect_url = "/accounts/order-history/?payment=success"
@@ -758,15 +764,12 @@ def stripe_confirm_payment(request):
                 order.date_ordered = timezone.now()
                 order.save()
 
-                # Décrémenter le stock
+                # Décrémenter le stock via la variante appropriée
                 product = order.product
-                if product.stock >= order.quantity:
-                    product.stock -= order.quantity
-                    product.save()
-                else:
+                if not product.reduce_stock(order.size, order.quantity):
                     logger.warning(
-                        f"Stock insuffisant pour {product.name}: "
-                        f"disponible={product.stock}, demandé={order.quantity}"
+                        f"Stock insuffisant pour {product.name} "
+                        f"taille {order.size or 'unique'}: demandé={order.quantity}"
                     )
 
             logger.info(f"Commande finalisée - Transaction: {transaction.id}")

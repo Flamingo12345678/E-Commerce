@@ -9,6 +9,11 @@ from django.http import HttpResponse, JsonResponse, HttpResponseRedirect
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
 from django.conf import settings
+from django.core.mail import send_mail
+from django.contrib.auth.tokens import default_token_generator
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.utils.encoding import force_bytes, force_str
+from django.template.loader import render_to_string
 import re
 import json
 from datetime import datetime
@@ -762,6 +767,117 @@ def profile_edit_modal(request):
             request.user.save()
             return JsonResponse({"success": True, "message": "Profil mis à jour"})
         except Exception:
-            return JsonResponse({"success": False, "error": "Erreur de sauvegarde"})
+            return JsonResponse(
+                {"success": False, "error": "Erreur lors de la sauvegarde"}
+            )
+
+    return JsonResponse({"success": False, "error": "Méthode non autorisée"})
+
+
+def password_reset_request(request):
+    """Vue pour demander une réinitialisation de mot de passe"""
+    if request.method == "POST":
+        email = request.POST.get("email", "").strip()
+
+        if not email:
+            messages.error(request, "Veuillez saisir votre adresse email.")
+            return render(request, "accounts/password_reset.html")
+
+        try:
+            user = User.objects.get(email=email)
+
+            # Générer le token et l'UID
+            token = default_token_generator.make_token(user)
+            uid = urlsafe_base64_encode(force_bytes(user.pk))
+
+            # Créer le lien de réinitialisation
+            reset_url = request.build_absolute_uri(
+                reverse(
+                    "password_reset_confirm", kwargs={"uidb64": uid, "token": token}
+                )
+            )
+
+            # Préparer le contexte pour l'email
+            context = {
+                "user": user,
+                "reset_url": reset_url,
+                "site_name": "YEE",
+            }
+
+            # Envoyer l'email (pour l'instant, on affiche juste un message)
+            # TODO: Configurer l'envoi d'email en production
+            # send_mail(
+            #     'Réinitialisation de votre mot de passe',
+            #     render_to_string('accounts/password_reset_email.txt', context),
+            #     settings.DEFAULT_FROM_EMAIL,
+            #     [email],
+            #     html_message=render_to_string('accounts/password_reset_email.html', context),
+            # )
+
+            messages.success(
+                request,
+                "Si cette adresse email existe dans notre système, vous recevrez un lien de réinitialisation.",
+            )
+            return render(request, "accounts/password_reset_done.html")
+
+        except User.DoesNotExist:
+            # Ne pas révéler si l'email existe ou non pour des raisons de sécurité
+            messages.success(
+                request,
+                "Si cette adresse email existe dans notre système, vous recevrez un lien de réinitialisation.",
+            )
+            return render(request, "accounts/password_reset_done.html")
+
+    return render(request, "accounts/password_reset.html")
+
+
+def password_reset_confirm(request, uidb64, token):
+    """Vue pour confirmer la réinitialisation de mot de passe"""
+    try:
+        uid = force_str(urlsafe_base64_decode(uidb64))
+        user = User.objects.get(pk=uid)
+    except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+        user = None
+
+    if user is not None and default_token_generator.check_token(user, token):
+        if request.method == "POST":
+            new_password = request.POST.get("new_password", "")
+            confirm_password = request.POST.get("confirm_password", "")
+
+            if new_password != confirm_password:
+                messages.error(request, "Les mots de passe ne correspondent pas.")
+                return render(
+                    request,
+                    "accounts/password_reset_confirm.html",
+                    {"valid_link": True, "uidb64": uidb64, "token": token},
+                )
+
+            try:
+                validate_password(new_password, user)
+                user.set_password(new_password)
+                user.save()
+
+                messages.success(
+                    request, "Votre mot de passe a été réinitialisé avec succès."
+                )
+                return redirect("login")
+
+            except ValidationError as e:
+                for error in e.messages:
+                    messages.error(request, error)
+                return render(
+                    request,
+                    "accounts/password_reset_confirm.html",
+                    {"valid_link": True, "uidb64": uidb64, "token": token},
+                )
+
+        return render(
+            request,
+            "accounts/password_reset_confirm.html",
+            {"valid_link": True, "uidb64": uidb64, "token": token},
+        )
+    else:
+        messages.error(request, "Le lien de réinitialisation est invalide ou a expiré.")
+        return redirect("login")
 
     return JsonResponse({"success": False, "error": "Méthode non autorisée"})
