@@ -2,7 +2,6 @@ from django.urls import path, include
 from . import views
 from . import payment_views
 from . import admin_views
-
 # from . import debug_webhook
 from . import firebase_views
 
@@ -39,12 +38,12 @@ urlpatterns = [
         "connect-social/", views.connect_social_account, name="connect_social_account"
     ),
     path("profile-edit-modal/", views.profile_edit_modal, name="profile_edit_modal"),
+    
     # Firebase URLs
     path("firebase/login/", firebase_views.firebase_login, name="firebase_login"),
     path("firebase/logout/", firebase_views.firebase_logout, name="firebase_logout"),
-    path(
-        "firebase/config/", firebase_views.firebase_config_view, name="firebase_config"
-    ),
+    path("firebase/config/", firebase_views.firebase_config_view, name="firebase_config"),
+    
     # URLs de paiement
     path("payment/options/", payment_views.payment_options, name="payment_options"),
     # PayPal

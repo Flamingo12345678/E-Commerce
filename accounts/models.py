@@ -86,10 +86,11 @@ class Shopper(AbstractUser):
     two_factor_enabled = models.BooleanField(
         default=False, verbose_name="Authentification à deux facteurs"
     )
-
+    
     # Firebase
     firebase_uid = models.CharField(
-        max_length=128, blank=True, null=True, unique=True, verbose_name="Firebase UID"
+        max_length=128, blank=True, null=True, unique=True,
+        verbose_name="Firebase UID"
     )
 
     # Facturation

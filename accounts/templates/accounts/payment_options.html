@@ -60,7 +60,7 @@
                     <div class="tab-content mt-3" id="paymentTabsContent">
                         <!-- Onglet Stripe -->
                         <div class="tab-pane fade show active" id="stripe-pane" role="tabpanel">
-                            <form id="stripe-payment-form" method="POST" action="{% url 'stripe_confirm_payment' %}">
+                            <form id="stripe-payment-form" method="POST" action="{% url 'accounts:stripe_confirm_payment' %}">
                                 {% csrf_token %}
                                 <input type="hidden" name="amount" value="{{ total }}">
                                 
@@ -94,7 +94,7 @@
                             <div class="text-center py-4">
                                 <p class="mb-4">Payez en toute sécurité avec votre compte PayPal</p>
                                 
-                                <form method="POST" action="{% url 'process_paypal_payment' %}">
+                                <form method="POST" action="{% url 'accounts:process_paypal_payment' %}">
                                     {% csrf_token %}
                                     <button type="submit" class="btn btn-primary btn-lg">
                                         <i class="bi bi-paypal"></i> Payer avec PayPal ({{ total }} €)
@@ -212,7 +212,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const formData = new FormData();
         formData.append('amount', '{{ total }}');
 
-        const response = await fetch('/accounts/payment/stripe/create-intent/', {
+        const response = await fetch("{% url 'accounts:create_stripe_payment_intent' %}", {
             method: 'POST',
             headers: {
                 'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
@@ -243,7 +243,7 @@ document.addEventListener('DOMContentLoaded', function() {
             resetButton();
         } else if (paymentIntent.status === 'succeeded') {
             // Paiement réussi, appeler le backend pour finaliser la commande
-            fetch('/accounts/payment/stripe/confirm/', {
+            fetch("{% url 'accounts:stripe_confirm_payment' %}", {
                 method: 'POST',
                 headers: {
                     'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
@@ -261,7 +261,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     showError(data.error);
                     resetButton();
                 } else {
-                    window.location.href = '{% url "payment_success" %}';
+                    window.location.href = '{% url "accounts:payment_success" %}';
                 }
             })
             .catch(error => {

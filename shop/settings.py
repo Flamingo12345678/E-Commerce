@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 from pathlib import Path
 import environ
 import os
+from django.urls import reverse_lazy
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -194,7 +195,7 @@ PAYPAL_CLIENT_SECRET = env("PAYPAL_CLIENT_SECRET", default="paypal_secret_defaul
 
 # Payment Settings
 PAYMENT_HOST_URL = env("PAYMENT_HOST_URL", default="http://localhost:8000")
-PAYMENT_SUCCESS_URL = PAYMENT_HOST_URL + "/accounts/payment/success/"
+PAYMENT_SUCCESS_URL = reverse_lazy("accounts:payment_success")
 PAYMENT_CANCEL_URL = PAYMENT_HOST_URL + "/accounts/payment/cancelled/"
 
 # Security for payment processing

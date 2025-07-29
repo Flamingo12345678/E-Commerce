@@ -28,40 +28,29 @@ from .payment_services import (
     PaymentProcessingError,
     PayPalPaymentProcessor,
 )
-from store.models import Order
+from store.models import Order, Cart
 
 
 @login_required
 def payment_options(request):
     """Affiche les options de paiement disponibles."""
     # Récupérer les paramètres de paiement
-    amount = request.GET.get("amount", "")
+    amount = request.GET.get("amount", "0.00")
     description = request.GET.get("description", "Commande MyStore")
     source = request.GET.get("source", "unknown")
 
-    # Convertir le montant (format français vers décimal)
-    try:
-        if amount:
-            # Gérer les montants au format français
-            amount_clean = amount.replace(",", ".").replace(" ", "")
-            amount_decimal = Decimal(amount_clean)
-        else:
-            # Si pas de montant fourni, calculer depuis le panier
-            from store.views import get_cart_summary
+    # Récupérer le panier actif de l'utilisateur
+    cart = Cart.objects.filter(user=request.user).first()
 
-            cart_data = get_cart_summary(request.user)
-            amount_decimal = cart_data.get("total_price", Decimal("0.00"))
-    except (ValueError, InvalidOperation):
-        # En cas d'erreur, récupérer depuis le panier
-        from store.views import get_cart_summary
-
-        cart_data = get_cart_summary(request.user)
-        amount_decimal = cart_data.get("total_price", Decimal("0.00"))
-
-    # Récupérer les commandes en cours du panier
-    orders = Order.objects.filter(user=request.user, ordered=False).select_related(
-        "product"
-    )
+    if not cart:
+        orders = Order.objects.none()
+    else:
+        # Récupérer uniquement les commandes non payées du panier
+        orders = (
+            cart.orders.filter(ordered=False)
+            .select_related("product")
+            .order_by("created_at")
+        )
 
     order_items = []
     total_amount = Decimal("0.00")
@@ -73,7 +62,7 @@ def payment_options(request):
         order_items.append(
             {
                 "product": {
-                    "name": order.product.name,  # Corriger: utiliser 'name' pas 'title'
+                    "name": order.product.name,
                     "price": order.product.price,
                 },
                 "quantity": order.quantity,
@@ -83,17 +72,23 @@ def payment_options(request):
             }
         )
 
-    # Utiliser le total calculé ou celui passé en paramètre
-    if not amount_decimal or amount_decimal == Decimal("0.00"):
-        amount_decimal = total_amount
-
-    # Récupérer les méthodes de paiement de l'utilisateur
+        # Récupérer les méthodes de paiement de l'utilisateur
     payment_methods = PaymentMethod.objects.filter(user=request.user)
     default_method = payment_methods.filter(is_default=True).first()
 
+    # Convertir le montant de l'URL en Decimal si fourni
+    try:
+        amount_decimal = Decimal(amount.replace(",", "."))
+    except (InvalidOperation, TypeError):
+        amount_decimal = total_amount
+
+    # Utiliser le total calculé si aucun montant valide n'est fourni
+    if amount_decimal <= 0:
+        amount_decimal = total_amount
+
     context = {
         "amount": amount_decimal,
-        "total": amount_decimal,  # Ajout pour le template
+        "total": total_amount,  # Utiliser le total calculé
         "description": description,
         "source": source,
         "orders": orders,
@@ -302,7 +297,7 @@ def process_paypal_payment(request):
         cart_orders = Order.objects.filter(user=request.user, ordered=False)
         if not cart_orders.exists():
             messages.warning(request, "Votre panier est vide.")
-            return redirect("cart")
+            return redirect("store:cart")
 
         # Calculer le total
         total = sum(order.quantity * order.product.price for order in cart_orders)
@@ -350,7 +345,7 @@ def process_paypal_payment(request):
 
         else:
             messages.error(request, f"Erreur PayPal: {result['error']}")
-            return redirect("payment_options")
+            return redirect("accounts:payment_options")
 
     except Exception as e:
         error_msg = f"Erreur lors de l'initialisation PayPal: {str(e)}"
@@ -368,13 +363,13 @@ def execute_paypal_payment(request):
 
         if not payment_id or not payer_id:
             messages.error(request, "Paramètres PayPal manquants")
-            return redirect("payment_options")
+            return redirect("accounts:payment_options")
 
         # Récupérer l'ID de transaction depuis la session
         transaction_id = request.session.get("paypal_transaction_id")
         if not transaction_id:
             messages.error(request, "Session PayPal expirée")
-            return redirect("payment_options")
+            return redirect("accounts:payment_options")
 
         # Récupérer la transaction
         transaction = Transaction.objects.get(
@@ -534,7 +529,7 @@ def payment_failed(request):
 def payment_cancelled(request):
     """Vue pour les paiements annulés"""
     messages.info(request, "Paiement annulé par l'utilisateur")
-    return redirect("payment_options")
+    return redirect("accounts:payment_options")
 
 
 @login_required

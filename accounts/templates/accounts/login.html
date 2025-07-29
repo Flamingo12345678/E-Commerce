@@ -266,7 +266,7 @@ async function sendToBackend(user, provider) {
                 'X-CSRFToken': '{{ csrf_token }}'
             },
             body: JSON.stringify({
-                idToken: token,
+                token: token,
                 provider: provider
             })
         });
