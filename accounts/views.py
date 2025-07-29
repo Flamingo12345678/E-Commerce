@@ -32,6 +32,7 @@ from .utils import (
     validate_cvv,
     mask_card_number,
 )
+from shop.firebase_config import get_firebase_config
 
 # Create your views here.
 
@@ -83,65 +84,73 @@ def signup(request):
         messages.info(request, "Vous êtes déjà connecté.")
         return redirect("index")
 
-    if request.method == "POST":
-        # Récupération des données du formulaire
-        username = request.POST.get("username", "").strip()
-        email = request.POST.get("email", "").strip()
-        password = request.POST.get("password", "")
-        password_confirm = request.POST.get("password_confirm", "")
+    try:
+        if request.method == "POST":
+            # 🔐 Évite les redirections POST anormales (ex: depuis Firebase)
+            if not request.POST.get("form_type") == "classic_signup":
+                return redirect("signup")
 
-        # Validation des données
-        validation_errors = validate_signup_data(
-            username, email, password, password_confirm
-        )
+            # Récupération des données du formulaire
+            username = request.POST.get("username", "").strip()
+            email = request.POST.get("email", "").strip()
+            password = request.POST.get("password", "")
+            password_confirm = request.POST.get("password_confirm", "")
 
-        if validation_errors:
-            for error in validation_errors:
-                messages.error(request, error)
-            return render(
-                request, "accounts/signup.html", {"username": username, "email": email}
+            # Validation des données
+            validation_errors = validate_signup_data(
+                username, email, password, password_confirm
             )
 
-        try:
-            with transaction.atomic():
-                # Vérifier si l'utilisateur existe déjà
-                if User.objects.filter(username=username).exists():
-                    messages.error(request, "Ce nom d'utilisateur est déjà pris.")
-                    return render(
-                        request,
-                        "accounts/signup.html",
-                        {"username": username, "email": email},
-                    )
-
-                if email and User.objects.filter(email=email).exists():
-                    messages.error(request, "Cette adresse email est déjà utilisée.")
-                    return render(
-                        request,
-                        "accounts/signup.html",
-                        {"username": username, "email": email},
-                    )
-
-                # Créer l'utilisateur
-                user = User.objects.create_user(
-                    username=username, email=email if email else "", password=password
+            if validation_errors:
+                for error in validation_errors:
+                    messages.error(request, error)
+                return render(
+                    request, "accounts/signup.html", {"username": username, "email": email}
                 )
 
-                # Connexion automatique
-                login(request, user)
-                messages.success(
-                    request,
-                    f"Bienvenue {username} ! Votre compte a été créé avec succès.",
+            try:
+                with transaction.atomic():
+                    if User.objects.filter(username=username).exists():
+                        messages.error(request, "Ce nom d'utilisateur est déjà pris.")
+                        return render(
+                            request,
+                            "accounts/signup.html",
+                            {"username": username, "email": email},
+                        )
+
+                    if email and User.objects.filter(email=email).exists():
+                        messages.error(request, "Cette adresse email est déjà utilisée.")
+                        return render(
+                            request,
+                            "accounts/signup.html",
+                            {"username": username, "email": email},
+                        )
+
+                    user = User.objects.create_user(
+                        username=username, email=email if email else "", password=password
+                    )
+
+                    login(request, user)
+                    messages.success(
+                        request,
+                        f"Bienvenue {username} ! Votre compte a été créé avec succès.",
+                    )
+                    return redirect("index")
+
+            except IntegrityError:
+                messages.error(
+                    request, "Une erreur s'est produite lors de la création du compte."
                 )
-                return redirect("index")
+            except Exception as e:
+                messages.error(request, "Une erreur inattendue s'est produite.")
 
-        except IntegrityError:
-            messages.error(
-                request, "Une erreur s'est produite lors de la création du compte."
-            )
-        except Exception as e:
-            messages.error(request, "Une erreur inattendue s'est produite.")
+        return render(request, "accounts/signup.html", {
+            'firebase_config': get_firebase_config()
+        })
 
-    return render(request, "accounts/signup.html")
+    except SessionInterrupted:
+        messages.error(request, "Session interrompue. Veuillez réessayer.")
+        return redirect("signup")
 
 
 def login_user(request):
@@ -228,7 +237,12 @@ def login_user(request):
 
         return render(request, "accounts/login.html", {"username": username})
 
-    return render(request, "accounts/login.html")
+    # Ajouter la configuration Firebase au contexte
+    context = {
+        'firebase_config': get_firebase_config()
+    }
+    
+    return render(request, "accounts/login.html", context)
 
 
 def logout_user(request):

@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 from pathlib import Path
 import environ
 import os
+from django.urls import reverse_lazy
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -167,6 +168,12 @@ MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
 AUTH_USER_MODEL = "accounts.Shopper"  # Use the custom user model
 
+# Authentication backends
+AUTHENTICATION_BACKENDS = [
+    "django.contrib.auth.backends.ModelBackend",
+    "accounts.firebase_auth.FirebaseAuthenticationBackend",
+]
+
 # Configuration de l'interface admin
 ADMIN_SITE_HEADER = "YEE E-Commerce - Administration"
 ADMIN_SITE_TITLE = "YEE Admin"
@@ -188,7 +195,7 @@ PAYPAL_CLIENT_SECRET = env("PAYPAL_CLIENT_SECRET", default="paypal_secret_defaul
 
 # Payment Settings
 PAYMENT_HOST_URL = env("PAYMENT_HOST_URL", default="http://localhost:8000")
-PAYMENT_SUCCESS_URL = PAYMENT_HOST_URL + "/accounts/payment/success/"
+PAYMENT_SUCCESS_URL = reverse_lazy("accounts:payment_success")
 PAYMENT_CANCEL_URL = PAYMENT_HOST_URL + "/accounts/payment/cancelled/"
 
 # Security for payment processing
@@ -205,6 +212,20 @@ EMAIL_PORT = env.int("EMAIL_PORT", default=587)
 EMAIL_USE_TLS = env.bool("EMAIL_USE_TLS", default=True)
 EMAIL_HOST_USER = env("EMAIL_HOST_USER", default="")
 EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD", default="")
+
+# =============================================================================
+# FIREBASE CONFIGURATION
+# =============================================================================
+FIREBASE_API_KEY = env("FIREBASE_API_KEY", default="")
+FIREBASE_AUTH_DOMAIN = env("FIREBASE_AUTH_DOMAIN", default="")
+FIREBASE_PROJECT_ID = env("FIREBASE_PROJECT_ID", default="")
+FIREBASE_STORAGE_BUCKET = env("FIREBASE_STORAGE_BUCKET", default="")
+FIREBASE_MESSAGING_SENDER_ID = env("FIREBASE_MESSAGING_SENDER_ID", default="")
+FIREBASE_APP_ID = env("FIREBASE_APP_ID", default="")
+
+# Firebase Admin SDK Configuration
+FIREBASE_CREDENTIALS_PATH = env("FIREBASE_CREDENTIALS_PATH", default="")
+FIREBASE_DATABASE_URL = env("FIREBASE_DATABASE_URL", default="")
 
 # =============================================================================
 # LOGGING CONFIGURATION

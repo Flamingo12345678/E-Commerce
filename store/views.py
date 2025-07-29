@@ -213,7 +213,10 @@ def product_detail(request, slug):
 
     # Récupérer toutes les variantes disponibles pour ce produit
     variants = product.variants.all().order_by("size")
-    available_variants = product.variants.filter(stock__gt=0)
+    available_variants = variants.filter(stock__gt=0)
+
+    # Sélectionner la première variante disponible par défaut
+    selected_variant = available_variants.first()
 
     # Récupérer des produits similaires (même catégorie ou produits récents)
     similar_products = (
@@ -231,6 +234,7 @@ def product_detail(request, slug):
         "variants": variants,
         "available_variants": available_variants,
         "similar_products": similar_products,
+        "selected_variant": selected_variant,
     }
     return render(request, "store/product_detail.html", context)
 
@@ -432,7 +436,7 @@ def increase_quantity(request, order_id):
         logger = logging.getLogger(__name__)
         logger.error(f"Erreur increase_quantity: {e}")
 
-    return redirect("cart")
+    return redirect("store:cart")
 
 
 # Fonction pour diminuer la quantité d'un produit dans le panier
@@ -462,7 +466,7 @@ def decrease_quantity(request, order_id):
     except (Order.DoesNotExist, Cart.DoesNotExist):
         messages.error(request, "Erreur lors de la modification du panier.")
 
-    return redirect("cart")
+    return redirect("store:cart")
 
 
 # Fonction pour supprimer un produit du panier

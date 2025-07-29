@@ -396,17 +396,53 @@ function initFormValidation() {
  * Initialisation principale
  */
 function initProductDetail() {
+    console.log('🔍 Initialisation du détail produit...');
+    
     const sizeOptions = document.querySelectorAll('.size-option:not(.unavailable)');
+    console.log('📏 Options de taille disponibles:', sizeOptions.length);
+    
     const addToCartBtn = document.querySelector('.add-to-cart');
-    const quantityInput = document.querySelector('.quantity-input');
-
-    // Forcer la visibilité du bouton si trouvé
+    console.log('🛒 Bouton ajout panier trouvé:', addToCartBtn ? 'OUI' : 'NON');
     if (addToCartBtn) {
-        addToCartBtn.style.display = 'block';
-        addToCartBtn.style.visibility = 'visible';
-        addToCartBtn.style.opacity = '1';
-        addToCartBtn.style.position = 'relative';
-        addToCartBtn.style.zIndex = '999999';
+        console.log('Style actuel du bouton:', {
+            display: getComputedStyle(addToCartBtn).display,
+            visibility: getComputedStyle(addToCartBtn).visibility,
+            opacity: getComputedStyle(addToCartBtn).opacity,
+            position: getComputedStyle(addToCartBtn).position,
+            zIndex: getComputedStyle(addToCartBtn).zIndex
+        });
+    }
+    
+    // Forcer la visibilité du bouton si trouvé avec tous les styles possibles
+    if (addToCartBtn) {
+        const styles = {
+            display: 'block !important',
+            visibility: 'visible !important',
+            opacity: '1 !important',
+            position: 'relative !important',
+            zIndex: '999999 !important',
+            width: '100% !important',
+            margin: '20px 0 !important',
+            padding: '15px !important',
+            backgroundColor: '#000000 !important',
+            color: '#ffffff !important',
+            border: 'none !important',
+            cursor: 'pointer !important',
+            borderRadius: '0 !important',
+            fontSize: '1rem !important',
+            fontWeight: '500 !important',
+            textTransform: 'lowercase !important'
+        };
+        
+        Object.assign(addToCartBtn.style, styles);
+        
+        // Force l'application des styles avec setAttribute
+        let styleString = Object.entries(styles)
+            .map(([key, value]) => `${key.replace(/([A-Z])/g, '-$1').toLowerCase()}: ${value}`)
+            .join('; ');
+        addToCartBtn.setAttribute('style', styleString);
+        
+        console.log('💅 Styles appliqués au bouton');
     }
 
     // Initialiser les différents modules

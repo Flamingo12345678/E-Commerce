@@ -32,6 +32,7 @@
                 
                 <form method="POST">
                     {% csrf_token %}
+                    <input type="hidden" name="form_type" value="classic_signup">
                     
                     <div class="form-group">
                         <label for="username" class="form-label">Nom d'utilisateur *</label>
