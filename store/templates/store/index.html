@@ -12,10 +12,10 @@
 {% block content %}
 <!-- Hero Section - Rhode Skin Style with Full Width Image -->
 <section class="hero-rhode-fullscreen">
-  {% if hero_products.0.thumbnail %}
-    <img src="{{ hero_products.0.thumbnail.url }}" alt="YEE Collection" class="hero-image-rhode">
+  {% if hero_products.10.thumbnail %}
+    <img src="{{ hero_products.10.thumbnail.url }}" alt="YEE Collection" class="hero-image-rhode">
   {% else %}
-    <img src="{% static 'images/Hero-Section.png' %}" alt="YEE Collection" class="hero-image-rhode">
+    <img src="{% static 'images/Hero-Section.jpg' %}" alt="YEE Collection" class="hero-image-rhode">
   {% endif %}
   <div class="hero-overlay-rhode"></div>
   <div class="hero-content-center-rhode">
@@ -47,12 +47,12 @@
       <!-- Left Large Card -->
       <div class="col-lg-6">
         <div class="product-card-rhode-new">
-          {% if hero_products.0 %}
+          {% if hero_products.3 %}
             <div class="product-badge-rhode-new new">new</div>
             <div class="product-image-wrapper-rhode-new">
-              {% if hero_products.0.thumbnail %}
-                <img src="{{ hero_products.0.thumbnail.url }}" alt="{{ hero_products.0.name }}" class="product-image-main">
-                <img src="{{ hero_products.0.thumbnail.url }}" alt="{{ hero_products.0.name }}" class="product-image-hover">
+              {% if hero_products.3.thumbnail %}
+                <img src="{{ hero_products.3.thumbnail.url }}" alt="{{ hero_products.3.name }}" class="product-image-main">
+                <img src="{{ hero_products.3.thumbnail.url }}" alt="{{ hero_products.3.name }}" class="product-image-hover">
               {% else %}
                 <div class="image-placeholder-rhode product-image-main" style="background: linear-gradient(135deg, #F8C471, #F4D03F); display: flex; align-items: center; justify-content: center;">
                   <i class="bi bi-droplet" style="font-size: 4rem; color: white;"></i>
@@ -116,7 +116,7 @@
           {% endif %}
         </div>
       </div>
-      
+
       <!-- Right Large Card -->
       <div class="col-lg-6">
         <div class="product-card-rhode-new">
@@ -190,7 +190,7 @@
         </div>
       </div>
     </div>
-    
+
     <!-- Grid Rows 2-9 - Product Grid 2x2 -->
     {% for row in "12345" %}
     <div class="row g-4 mb-4">
