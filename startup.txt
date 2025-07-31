@@ -1,1 +1,1 @@
-gunicorn nom_du_projet.wsgi:application
+gunicorn E-Commerce.wsgi:application --bind=0.0.0.0
