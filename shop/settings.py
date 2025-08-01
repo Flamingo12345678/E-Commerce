@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 from pathlib import Path
 import environ
 import os
+import sys
 from django.urls import reverse_lazy
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -114,8 +115,9 @@ WSGI_APPLICATION = "shop.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-# Check if DATABASE_URL is set (for CI/testing with SQLite)
+# Check if we're in testing mode or CI environment
 database_url = env("DATABASE_URL", default=None)
+is_testing = 'test' in sys.argv or env.bool("TESTING", default=False)
 
 if database_url and ("sqlite" in database_url or database_url == "sqlite:///:memory:"):
     # Use SQLite configuration for tests/CI
@@ -123,24 +125,62 @@ if database_url and ("sqlite" in database_url or database_url == "sqlite:///:mem
         "default": {
             "ENGINE": "django.db.backends.sqlite3",
             "NAME": ":memory:" if database_url == "sqlite:///:memory:" else BASE_DIR / "db.sqlite3",
+            "OPTIONS": {
+                "timeout": 20,
+            },
+            "TEST": {
+                "NAME": ":memory:",
+            },
+        }
+    }
+elif is_testing:
+    # Force SQLite for tests even without DATABASE_URL
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": ":memory:",
+            "OPTIONS": {
+                "timeout": 20,
+            },
+            "TEST": {
+                "NAME": ":memory:",
+            },
         }
     }
 else:
     # Use MySQL configuration for production/development
-    DATABASES = {
-        "default": {
-            "ENGINE": "django.db.backends.mysql",
-            "NAME": env("DB_NAME"),
-            "USER": env("DB_USER"),
-            "PASSWORD": env("DB_PASSWORD"),
-            "HOST": env("DB_HOST", default="localhost"),
-            "PORT": env("DB_PORT", default="3306"),
-            "OPTIONS": {
-                "charset": "utf8mb4",
-                "init_command": "SET sql_mode='STRICT_TRANS_TABLES'",
-            },
+    try:
+        DATABASES = {
+            "default": {
+                "ENGINE": "django.db.backends.mysql",
+                "NAME": env("DB_NAME"),
+                "USER": env("DB_USER"),
+                "PASSWORD": env("DB_PASSWORD"),
+                "HOST": env("DB_HOST", default="localhost"),
+                "PORT": env("DB_PORT", default="3306"),
+                "OPTIONS": {
+                    "charset": "utf8mb4",
+                    "init_command": "SET sql_mode='STRICT_TRANS_TABLES'",
+                },
+                "TEST": {
+                    "NAME": f"test_{env('DB_NAME', default='test_db')}",
+                },
+            }
         }
-    }
+    except Exception:
+        # Fallback to SQLite if MySQL config is missing
+        DATABASES = {
+            "default": {
+                "ENGINE": "django.db.backends.sqlite3",
+                "NAME": BASE_DIR / "db.sqlite3",
+                "OPTIONS": {
+                    "timeout": 20,
+                },
+                "TEST": {
+                    "NAME": ":memory:",
+                },
+            }
+        }
 
 
 # Password validation
