@@ -382,4 +382,3 @@ python debug_webhook_headers.py
 ✅ Paiements sécurisés | ✅ 2FA activé | ✅ Facturation native | ✅ Interface admin complète
 
 Merci de contribuer à ce projet ! Pour toute question, n'hésitez pas à ouvrir une issue ou à nous contacter directement.
-# E-Commerce
