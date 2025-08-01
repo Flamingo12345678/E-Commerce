@@ -1,0 +1,18 @@
+# Informations Azure pour votre projet E-Commerce
+# Généré le Fri Aug  1 16:13:20 CEST 2025
+
+SUBSCRIPTION_ID="727244c5-82e1-458c-812f-42c50e7f25f3"
+TENANT_ID="7db2a10b-00d1-4bcf-9ed9-3956e0999700"
+SUBSCRIPTION_NAME="Azure for Students"
+RESOURCE_GROUP="E-Commerce"
+APP_SERVICE_NAME="flam-ecommerce-1754047481"
+
+# Commandes utiles:
+# 1. Créer Service Principal:
+az ad sp create-for-rbac --name "github-actions-ecommerce" --role contributor --scopes /subscriptions/727244c5-82e1-458c-812f-42c50e7f25f3/resourceGroups/E-Commerce --sdk-auth
+
+# 2. Vérifier Service Principals existants:
+az ad sp list --display-name "github-actions-ecommerce"
+
+# 3. Vérifier permissions (remplacez CLIENT_ID):
+az role assignment list --assignee CLIENT_ID --scope /subscriptions/727244c5-82e1-458c-812f-42c50e7f25f3/resourceGroups/E-Commerce
