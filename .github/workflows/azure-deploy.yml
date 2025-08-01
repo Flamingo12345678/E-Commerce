@@ -42,17 +42,28 @@ jobs:
         SECRET_KEY: 'test-secret-key-for-ci-django-ecommerce-2025'
         DEBUG: 'True'
         ALLOWED_HOSTS: 'localhost,127.0.0.1'
-        DB_NAME: 'test_db'
-        DB_USER: 'test_user'
-        DB_PASSWORD: 'test_password'
-        DB_HOST: 'localhost'
-        DB_PORT: '3306'
+        # Use SQLite in memory for tests (no MySQL server needed)
+        DATABASE_URL: 'sqlite:///:memory:'
+        DB_NAME: ':memory:'
+        DB_USER: ''
+        DB_PASSWORD: ''
+        DB_HOST: ''
+        DB_PORT: ''
+        # Stripe fake keys for tests
         STRIPE_PUBLISHABLE_KEY: 'fake_pk_test_key'
         STRIPE_SECRET_KEY: 'fake_sk_test_key'
         STRIPE_WEBHOOK_SECRET: 'fake_webhook_secret'
+        # PayPal fake keys for tests
         PAYPAL_CLIENT_ID: 'fake_paypal_client'
         PAYPAL_CLIENT_SECRET: 'fake_paypal_secret'
         PAYPAL_MODE: 'sandbox'
+        # Firebase fake config for tests
+        FIREBASE_API_KEY: 'fake_firebase_api_key'
+        FIREBASE_AUTH_DOMAIN: 'fake-project.firebaseapp.com'
+        FIREBASE_PROJECT_ID: 'fake-project-id'
+        FIREBASE_STORAGE_BUCKET: 'fake-project.appspot.com'
+        FIREBASE_MESSAGING_SENDER_ID: '123456789'
+        FIREBASE_APP_ID: 'fake-app-id'
 
     - name: 'Collect static files'
       run: |
@@ -61,11 +72,20 @@ jobs:
         SECRET_KEY: 'test-secret-key-for-ci-django-ecommerce-2025'
         DEBUG: 'False'
         ALLOWED_HOSTS: 'localhost,127.0.0.1'
-        DB_NAME: 'test_db'
-        DB_USER: 'test_user'
-        DB_PASSWORD: 'test_password'
-        DB_HOST: 'localhost'
-        DB_PORT: '3306'
+        # Use SQLite in memory for static collection
+        DATABASE_URL: 'sqlite:///:memory:'
+        DB_NAME: ':memory:'
+        DB_USER: ''
+        DB_PASSWORD: ''
+        DB_HOST: ''
+        DB_PORT: ''
+        # Firebase fake config for static collection
+        FIREBASE_API_KEY: 'fake_firebase_api_key'
+        FIREBASE_AUTH_DOMAIN: 'fake-project.firebaseapp.com'
+        FIREBASE_PROJECT_ID: 'fake-project-id'
+        FIREBASE_STORAGE_BUCKET: 'fake-project.appspot.com'
+        FIREBASE_MESSAGING_SENDER_ID: '123456789'
+        FIREBASE_APP_ID: 'fake-app-id'
 
     - name: 'Deploy to Azure Web App'
       uses: azure/webapps-deploy@v3
