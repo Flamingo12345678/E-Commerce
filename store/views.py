@@ -547,13 +547,14 @@ def get_cart_summary(user):
 
 
 # Fonctions utilitaires pour la gestion de stock
-def check_stock_availability(product, requested_quantity=1):
+def check_stock_availability(product, requested_quantity=1, size=None):
     """
-    Vérifie la disponibilité du stock pour un produit.
+    Vérifie la disponibilité du stock pour un produit avec le système de variantes.
 
     Args:
         product: Instance du produit à vérifier
         requested_quantity: Quantité demandée (défaut: 1)
+        size: Taille spécifique (optionnel)
 
     Returns:
         dict: {
@@ -564,27 +565,50 @@ def check_stock_availability(product, requested_quantity=1):
     """
     product.refresh_from_db()  # Données les plus récentes
 
-    if product.stock <= 0:
+    # Utiliser le système de variantes
+    if size:
+        # Vérifier une taille spécifique
+        variant = product.get_variant_by_size(size)
+        if not variant:
+            return {
+                "available": False,
+                "max_quantity": 0,
+                "message": f"Taille '{size}' non disponible pour '{product.name}'.",
+            }
+
+        available_stock = variant.stock
+        stock_message = f"Stock disponible pour la taille {size}: {available_stock}"
+    else:
+        # Vérifier le stock total de toutes les variantes
+        if hasattr(product, 'total_stock'):
+            available_stock = product.total_stock
+        else:
+            # Fallback si la propriété n'existe pas
+            available_stock = sum(variant.stock for variant in product.variants.all())
+
+        stock_message = f"Stock total disponible: {available_stock}"
+
+    if available_stock <= 0:
         return {
             "available": False,
             "max_quantity": 0,
             "message": f"Le produit '{product.name}' n'est plus en stock.",
         }
 
-    if requested_quantity > product.stock:
+    if requested_quantity > available_stock:
         return {
             "available": False,
-            "max_quantity": product.stock,
+            "max_quantity": available_stock,
             "message": (
                 f"Stock insuffisant pour '{product.name}'. "
-                f"Stock disponible: {product.stock}"
+                f"{stock_message}"
             ),
         }
 
     return {
         "available": True,
-        "max_quantity": product.stock,
-        "message": f"Stock disponible: {product.stock}",
+        "max_quantity": available_stock,
+        "message": stock_message,
     }
 
 
