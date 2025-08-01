@@ -1,96 +1,66 @@
-# GitHub Actions workflow pour déploiement continu Django E-Commerce sur Azure
-name: Deploy Django E-Commerce to Azure
+name: Deploy to Azure
 
 on:
   push:
     branches: [ main ]
   workflow_dispatch:
 
-env:
-  AZURE_WEBAPP_NAME: flam-ecommerce-1754047481
-  PYTHON_VERSION: '3.11'
-
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
-    - name: 'Checkout GitHub Action'
+    - name: 'Checkout code'
       uses: actions/checkout@v4
 
-    - name: Setup Python ${{ env.PYTHON_VERSION }} Environment
-      uses: actions/setup-python@v5
+    - name: 'Set up Python'
+      uses: actions/setup-python@v4
       with:
-        python-version: ${{ env.PYTHON_VERSION }}
-
-    - name: 'Create and activate virtual environment'
-      run: |
-        python -m venv venv
-        source venv/bin/activate
-        echo "$VIRTUAL_ENV/bin" >> $GITHUB_PATH
-        echo "VIRTUAL_ENV=$VIRTUAL_ENV" >> $GITHUB_ENV
+        python-version: '3.11'
 
     - name: 'Install dependencies'
       run: |
-        pip install --upgrade pip
+        python -m pip install --upgrade pip
         pip install -r requirements.txt
 
-    - name: 'Run Django tests'
-      run: |
-        python manage.py test --verbosity=2
+    - name: 'Run tests'
       env:
-        SECRET_KEY: 'test-secret-key-for-ci-django-ecommerce-2025'
+        DATABASE_URL: 'sqlite:///:memory:'
         DEBUG: 'True'
+        SECRET_KEY: 'test-secret-key-for-ci'
         ALLOWED_HOSTS: 'localhost,127.0.0.1'
-        # Use SQLite in memory for tests (no MySQL server needed)
-        DATABASE_URL: 'sqlite:///:memory:'
-        DB_NAME: ':memory:'
-        DB_USER: ''
-        DB_PASSWORD: ''
-        DB_HOST: ''
-        DB_PORT: ''
-        # Stripe fake keys for tests
-        STRIPE_PUBLISHABLE_KEY: 'fake_pk_test_key'
-        STRIPE_SECRET_KEY: 'fake_sk_test_key'
-        STRIPE_WEBHOOK_SECRET: 'fake_webhook_secret'
-        # PayPal fake keys for tests
-        PAYPAL_CLIENT_ID: 'fake_paypal_client'
-        PAYPAL_CLIENT_SECRET: 'fake_paypal_secret'
-        PAYPAL_MODE: 'sandbox'
-        # Firebase fake config for tests
-        FIREBASE_API_KEY: 'fake_firebase_api_key'
-        FIREBASE_AUTH_DOMAIN: 'fake-project.firebaseapp.com'
-        FIREBASE_PROJECT_ID: 'fake-project-id'
-        FIREBASE_STORAGE_BUCKET: 'fake-project.appspot.com'
-        FIREBASE_MESSAGING_SENDER_ID: '123456789'
-        FIREBASE_APP_ID: 'fake-app-id'
-
-    - name: 'Collect static files'
       run: |
-        python manage.py collectstatic --noinput
-      env:
-        SECRET_KEY: 'test-secret-key-for-ci-django-ecommerce-2025'
-        DEBUG: 'False'
-        ALLOWED_HOSTS: 'localhost,127.0.0.1'
-        # Use SQLite in memory for static collection
-        DATABASE_URL: 'sqlite:///:memory:'
-        DB_NAME: ':memory:'
-        DB_USER: ''
-        DB_PASSWORD: ''
-        DB_HOST: ''
-        DB_PORT: ''
-        # Firebase fake config for static collection
-        FIREBASE_API_KEY: 'fake_firebase_api_key'
-        FIREBASE_AUTH_DOMAIN: 'fake-project.firebaseapp.com'
-        FIREBASE_PROJECT_ID: 'fake-project-id'
-        FIREBASE_STORAGE_BUCKET: 'fake-project.appspot.com'
-        FIREBASE_MESSAGING_SENDER_ID: '123456789'
-        FIREBASE_APP_ID: 'fake-app-id'
+        python manage.py test
+
+    # Azure Login avec les bonnes variables d'environnement
+    - name: 'Login to Azure'
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    # Alternative : Login avec des secrets individuels
+    - name: 'Login to Azure (Alternative)'
+      if: failure()
+      uses: azure/login@v1
+      with:
+        client-id: ${{ secrets.AZURE_CLIENT_ID }}
+        tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+        client-secret: ${{ secrets.AZURE_CLIENT_SECRET }}
 
     - name: 'Deploy to Azure Web App'
-      uses: azure/webapps-deploy@v3
+      uses: azure/webapps-deploy@v2
       with:
-        app-name: ${{ env.AZURE_WEBAPP_NAME }}
-        publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+        app-name: 'flam-ecommerce-1754047481'
+        slot-name: 'production'
         package: '.'
-        startup-file: 'startup.sh'
+
+    - name: 'Run Database Migrations on Azure'
+      env:
+        SCM_DO_BUILD_DURING_DEPLOYMENT: 'true'
+      run: |
+        # Attendre que l'app soit disponible
+        sleep 30
+        
+        # Exécuter les migrations via Kudu API (optionnel)
+        echo "Déploiement terminé. Vérifiez les migrations dans le portail Azure."
