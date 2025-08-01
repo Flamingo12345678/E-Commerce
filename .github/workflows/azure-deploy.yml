@@ -39,17 +39,33 @@ jobs:
       run: |
         python manage.py test --verbosity=2
       env:
-        SECRET_KEY: 'test-secret-key-for-ci'
+        SECRET_KEY: 'test-secret-key-for-ci-django-ecommerce-2025'
         DEBUG: 'True'
         ALLOWED_HOSTS: 'localhost,127.0.0.1'
+        DB_NAME: 'test_db'
+        DB_USER: 'test_user'
+        DB_PASSWORD: 'test_password'
+        DB_HOST: 'localhost'
+        DB_PORT: '3306'
+        STRIPE_PUBLISHABLE_KEY: 'fake_pk_test_key'
+        STRIPE_SECRET_KEY: 'fake_sk_test_key'
+        STRIPE_WEBHOOK_SECRET: 'fake_webhook_secret'
+        PAYPAL_CLIENT_ID: 'fake_paypal_client'
+        PAYPAL_CLIENT_SECRET: 'fake_paypal_secret'
+        PAYPAL_MODE: 'sandbox'
 
     - name: 'Collect static files'
       run: |
         python manage.py collectstatic --noinput
       env:
-        SECRET_KEY: 'test-secret-key-for-ci'
+        SECRET_KEY: 'test-secret-key-for-ci-django-ecommerce-2025'
         DEBUG: 'False'
         ALLOWED_HOSTS: 'localhost,127.0.0.1'
+        DB_NAME: 'test_db'
+        DB_USER: 'test_user'
+        DB_PASSWORD: 'test_password'
+        DB_HOST: 'localhost'
+        DB_PORT: '3306'
 
     - name: 'Deploy to Azure Web App'
       uses: azure/webapps-deploy@v3
