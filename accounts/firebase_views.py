@@ -12,11 +12,13 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 from django.conf import settings
 from django.contrib import messages
-from django.urls import reverse
-from django.utils.decorators import method_decorator
 from django.views import View
 
-from .firebase_auth import FirebaseAuthenticationBackend, FirebaseAuthHelper
+from .firebase_auth import (
+    FirebaseAuthenticationBackend,
+    verify_firebase_token
+)
+from shop.firebase_config import get_firebase_config
 
 logger = logging.getLogger(__name__)
 
@@ -29,17 +31,11 @@ class FirebaseAuthView(View):
         if request.user.is_authenticated:
             return redirect('store:index')
             
+        # Utiliser le template de connexion existant qui contient déjà Firebase
         context = {
-            'firebase_config': {
-                'apiKey': getattr(settings, 'FIREBASE_API_KEY', ''),
-                'authDomain': getattr(settings, 'FIREBASE_AUTH_DOMAIN', ''),
-                'projectId': getattr(settings, 'FIREBASE_PROJECT_ID', ''),
-                'storageBucket': getattr(settings, 'FIREBASE_STORAGE_BUCKET', ''),
-                'messagingSenderId': getattr(settings, 'FIREBASE_MESSAGING_SENDER_ID', ''),
-                'appId': getattr(settings, 'FIREBASE_APP_ID', ''),
-            }
+            'firebase_config': get_firebase_config()
         }
-        return render(request, 'accounts/firebase_auth.html', context)
+        return render(request, 'accounts/login.html', context)
 
 
 @csrf_exempt
@@ -105,10 +101,11 @@ def firebase_logout(request):
     Déconnecte l'utilisateur
     """
     try:
-        # Révoquer les tokens Firebase si disponible
-        if request.user.is_authenticated and hasattr(request.user, 'firebase_uid'):
-            FirebaseAuthHelper.revoke_refresh_tokens(request.user.firebase_uid)
-        
+        # Note: La révocation des tokens Firebase nécessiterait une fonction spécifique
+        # Pour l'instant, on fait juste la déconnexion Django
+        if request.user.is_authenticated:
+            logger.info(f"Déconnexion Firebase pour {request.user.email}")
+
         logout(request)
         
         return JsonResponse({
@@ -126,7 +123,7 @@ def firebase_logout(request):
 
 @csrf_exempt
 @require_http_methods(["POST"])
-def verify_firebase_token(request):
+def verify_token_view(request):
     """
     Vérifie un token Firebase sans connecter l'utilisateur
     """
@@ -141,8 +138,8 @@ def verify_firebase_token(request):
             }, status=400)
         
         # Vérifier le token
-        decoded_token = FirebaseAuthHelper.verify_firebase_token(firebase_token)
-        
+        decoded_token = verify_firebase_token(firebase_token)
+
         if decoded_token:
             return JsonResponse({
                 'success': True,
@@ -181,8 +178,9 @@ def firebase_profile(request):
     context = {
         'user': request.user,
         'has_firebase_uid': hasattr(request.user, 'firebase_uid') and request.user.firebase_uid,
+        'firebase_config': get_firebase_config()  # Ajout pour les fonctionnalités Firebase
     }
-    return render(request, 'accounts/firebase_profile.html', context)
+    return render(request, 'accounts/profile.html', context)
 
 
 @csrf_exempt
@@ -208,8 +206,8 @@ def link_firebase_account(request):
             }, status=400)
         
         # Vérifier le token Firebase
-        decoded_token = FirebaseAuthHelper.verify_firebase_token(firebase_token)
-        
+        decoded_token = verify_firebase_token(firebase_token)
+
         if not decoded_token:
             return JsonResponse({
                 'success': False,
@@ -307,98 +305,3 @@ def firebase_config_view(request):
     }
     
     return JsonResponse({'firebase_config': config})
-
-import json
-from django.http import JsonResponse
-from django.conf import settings
-from django.contrib.auth import login
-from django.views.decorators.csrf import csrf_protect
-from django.views.decorators.http import require_http_methods
-import firebase_admin
-from firebase_admin import auth, credentials
-
-# Initialisation de Firebase Admin
-if not firebase_admin._apps:
-    cred = credentials.Certificate(settings.FIREBASE_CREDENTIALS_PATH)
-    firebase_admin.initialize_app(cred)
-
-
-def get_firebase_config(request):
-    """Retourne la configuration Firebase pour le frontend."""
-    return {
-        "apiKey": settings.FIREBASE_API_KEY,
-        "authDomain": settings.FIREBASE_AUTH_DOMAIN,
-        "projectId": settings.FIREBASE_PROJECT_ID,
-        "storageBucket": settings.FIREBASE_STORAGE_BUCKET,
-        "messagingSenderId": settings.FIREBASE_MESSAGING_SENDER_ID,
-        "appId": settings.FIREBASE_APP_ID,
-        "databaseURL": settings.FIREBASE_DATABASE_URL,
-    }
-
-
-@csrf_protect
-@require_http_methods(["POST"])
-def firebase_auth(request):
-    """Vue pour gérer l'authentification Firebase."""
-    try:
-        # Récupérer le token du corps de la requête
-        data = json.loads(request.body)
-        token = data.get("token")
-
-        if not token:
-            return JsonResponse({"error": "Token manquant"}, status=400)
-
-        # Vérifier le token avec Firebase Admin
-        try:
-            decoded_token = auth.verify_id_token(token)
-            uid = decoded_token["uid"]
-            user_data = auth.get_user(uid)
-
-            # Création ou récupération de l'utilisateur Django
-            from .models import Shopper
-
-            # Essayer de trouver l'utilisateur par email
-            user = None
-            if user_data.email:
-                try:
-                    user = Shopper.objects.get(email=user_data.email)
-                except Shopper.DoesNotExist:
-                    pass
-
-            # Si l'utilisateur n'existe pas, le créer
-            if not user:
-                username = (
-                    user_data.email.split("@")[0] if user_data.email else f"user_{uid}"
-                )
-                # S'assurer que le nom d'utilisateur est unique
-                base_username = username
-                counter = 1
-                while Shopper.objects.filter(username=username).exists():
-                    username = f"{base_username}_{counter}"
-                    counter += 1
-
-                user = Shopper.objects.create_user(
-                    username=username, email=user_data.email, firebase_uid=uid
-                )
-
-                # Mise à jour du profil si disponible
-                if user_data.display_name:
-                    user.first_name = user_data.display_name.split()[0]
-                    if len(user_data.display_name.split()) > 1:
-                        user.last_name = " ".join(user_data.display_name.split()[1:])
-                if user_data.photo_url:
-                    user.photo_url = user_data.photo_url
-                user.save()
-
-            # Connexion de l'utilisateur
-            login(request, user)
-
-            return JsonResponse({"success": True})
-
-        except auth.InvalidIdTokenError:
-            return JsonResponse({"error": "Token invalide"}, status=401)
-
-    except json.JSONDecodeError:
-        return JsonResponse({"error": "JSON invalide"}, status=400)
-    except Exception as e:
-        return JsonResponse({"error": str(e)}, status=500)

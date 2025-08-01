@@ -51,7 +51,10 @@ CSRF_TRUSTED_ORIGINS = env.list(
         "http://localhost:8000",
         "http://127.0.0.1:8000",
         "http://0.0.0.0:8000",
+        "http://192.168.1.26:8000",  # IP locale pour iPhone
         "https://d4fe2da5a95b.ngrok-free.app/",
+        "https://yee.azurewebsites.net",  # Azure App Service domain
+        "https://*.azurewebsites.net",    # Azure App Service wildcard
     ],
 )
 
@@ -232,8 +235,23 @@ FIREBASE_MESSAGING_SENDER_ID = env("FIREBASE_MESSAGING_SENDER_ID", default="")
 FIREBASE_APP_ID = env("FIREBASE_APP_ID", default="")
 
 # Firebase Admin SDK Configuration
-FIREBASE_CREDENTIALS_PATH = env("FIREBASE_CREDENTIALS_PATH", default="")
+FIREBASE_CREDENTIALS_PATH = env("FIREBASE_CREDENTIALS_PATH", default="firebase-credentials.json")
 FIREBASE_DATABASE_URL = env("FIREBASE_DATABASE_URL", default="")
+
+# Configuration complète pour les templates frontend
+FIREBASE_CONFIG = {
+    'apiKey': FIREBASE_API_KEY,
+    'authDomain': FIREBASE_AUTH_DOMAIN,
+    'projectId': FIREBASE_PROJECT_ID,
+    'storageBucket': FIREBASE_STORAGE_BUCKET,
+    'messagingSenderId': FIREBASE_MESSAGING_SENDER_ID,
+    'appId': FIREBASE_APP_ID,
+    'databaseURL': FIREBASE_DATABASE_URL,
+}
+
+# Chemin absolu vers le fichier de credentials
+if FIREBASE_CREDENTIALS_PATH and not os.path.isabs(FIREBASE_CREDENTIALS_PATH):
+    FIREBASE_CREDENTIALS_PATH = os.path.join(BASE_DIR, FIREBASE_CREDENTIALS_PATH)
 
 # =============================================================================
 # LOGGING CONFIGURATION
@@ -241,15 +259,33 @@ FIREBASE_DATABASE_URL = env("FIREBASE_DATABASE_URL", default="")
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
+    "formatters": {
+        "verbose": {
+            "format": "{levelname} {asctime} {module} {process:d} {thread:d} {message}",
+            "style": "{",
+        },
+        "simple": {
+            "format": "{levelname} {message}",
+            "style": "{",
+        },
+    },
     "handlers": {
         "file": {
             "level": "INFO",
             "class": "logging.FileHandler",
             "filename": BASE_DIR / "payment.log",
+            "formatter": "verbose",
         },
         "console": {
             "level": "DEBUG",
             "class": "logging.StreamHandler",
+            "formatter": "simple",
+        },
+        "firebase_file": {
+            "level": "DEBUG",
+            "class": "logging.FileHandler",
+            "filename": BASE_DIR / "firebase.log",
+            "formatter": "verbose",
         },
     },
     "loggers": {
@@ -257,6 +293,16 @@ LOGGING = {
             "handlers": ["file", "console"],
             "level": env("LOG_LEVEL", default="INFO"),
             "propagate": True,
+        },
+        "accounts.firebase_auth": {
+            "handlers": ["firebase_file", "console"],
+            "level": "DEBUG",
+            "propagate": False,
+        },
+        "shop.firebase_config": {
+            "handlers": ["firebase_file", "console"],
+            "level": "DEBUG",
+            "propagate": False,
         },
     },
 }

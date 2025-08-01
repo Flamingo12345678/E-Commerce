@@ -2,7 +2,7 @@
 # More GitHub Actions for Azure: https://github.com/Azure/actions
 # More info on Python, GitHub Actions, and Azure App Service: https://aka.ms/python-webapps-actions
 
-name: Build and deploy Python app to Azure Web App - yee
+name: Build and deploy Django E-Commerce to Azure Web App
 
 on:
   push:
@@ -14,7 +14,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     permissions:
-      contents: read #This is required for actions/checkout
+      contents: read
 
     steps:
       - uses: actions/checkout@v4
@@ -30,9 +30,26 @@ jobs:
           source venv/bin/activate
       
       - name: Install dependencies
-        run: pip install -r requirements.txt
-        
-      # Optional: Add step to run tests here (PyTest, Django test suites, etc.)
+        run: |
+          source venv/bin/activate
+          pip install -r requirements.txt
+
+      - name: Run tests
+        run: |
+          source venv/bin/activate
+          python manage.py test --verbosity=2
+        env:
+          SECRET_KEY: 'test-secret-key-for-ci'
+          DEBUG: 'True'
+          DB_NAME: ':memory:'
+
+      - name: Collect static files
+        run: |
+          source venv/bin/activate
+          python manage.py collectstatic --noinput
+        env:
+          SECRET_KEY: 'test-secret-key-for-ci'
+          DEBUG: 'False'
 
       - name: Upload artifact for deployment jobs
         uses: actions/upload-artifact@v4
@@ -46,8 +63,11 @@ jobs:
     runs-on: ubuntu-latest
     needs: build
     permissions:
-      id-token: write #This is required for requesting the JWT
-      contents: read #This is required for actions/checkout
+      id-token: write
+      contents: read
+    environment:
+      name: 'Production'
+      url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
 
     steps:
       - name: Download artifact from build job
@@ -58,14 +78,15 @@ jobs:
       - name: Login to Azure
         uses: azure/login@v2
         with:
-          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_7E74E67B701B4419B84B4DFF0C6F8290 }}
-          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_1CBDC2F876EA480D879E9337174F7DCB }}
-          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_DB98885FCB844CD6A832BE8D27D6D89D }}
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_FLAM_ECOMMERCE }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_FLAM_ECOMMERCE }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_FLAM_ECOMMERCE }}
 
       - name: 'Deploy to Azure Web App'
         uses: azure/webapps-deploy@v3
         id: deploy-to-webapp
         with:
-          app-name: 'yee'
+          app-name: 'flam-ecommerce-1754047481'
           slot-name: 'Production'
-          
+          package: .
+          startup-file: 'startup.sh'
