@@ -40,10 +40,16 @@ urlpatterns = [
     path("profile-edit-modal/", views.profile_edit_modal, name="profile_edit_modal"),
     
     # Firebase URLs
+    path("firebase/", firebase_views.FirebaseAuthView.as_view(), name="firebase_auth"),
     path("firebase/login/", firebase_views.firebase_login, name="firebase_login"),
     path("firebase/logout/", firebase_views.firebase_logout, name="firebase_logout"),
+    path("firebase/verify-token/", firebase_views.verify_token_view, name="verify_token"),
+    path("firebase/profile/", firebase_views.firebase_profile, name="firebase_profile"),
+    path("firebase/link-account/", firebase_views.link_firebase_account, name="link_firebase_account"),
+    path("firebase/auth-status/", firebase_views.firebase_auth_status, name="firebase_auth_status"),
     path("firebase/config/", firebase_views.firebase_config_view, name="firebase_config"),
-    
+    path("firebase/callback/", firebase_views.SocialAuthCallbackView.as_view(), name="social_auth_callback"),
+
     # URLs de paiement
     path("payment/options/", payment_views.payment_options, name="payment_options"),
     # PayPal

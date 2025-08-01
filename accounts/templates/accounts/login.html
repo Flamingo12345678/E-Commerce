@@ -236,6 +236,12 @@ const facebookBtn = document.getElementById('facebook-login');
 const loading = document.getElementById('loading');
 const errorDiv = document.getElementById('firebase-error');
 
+// Fonction pour détecter si on est sur mobile
+function isMobileDevice() {
+    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
+           window.innerWidth <= 768;
+}
+
 // Fonction pour afficher les erreurs
 function showError(message) {
     errorDiv.textContent = message;
@@ -250,84 +256,156 @@ function hideError() {
 // Fonction pour afficher/masquer le loading
 function setLoading(isLoading) {
     loading.style.display = isLoading ? 'block' : 'none';
-    googleBtn.disabled = isLoading;
-    facebookBtn.disabled = isLoading;
 }
 
-// Fonction pour envoyer les données à Django
-async function sendToBackend(user, provider) {
+// Fonction pour envoyer le token au backend Django
+async function sendTokenToBackend(idToken) {
     try {
-        const token = await user.getIdToken();
-        
         const response = await fetch('{% url "accounts:firebase_login" %}', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'X-CSRFToken': '{{ csrf_token }}'
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
             },
             body: JSON.stringify({
-                token: token,
-                provider: provider
+                idToken: idToken
             })
         });
         
         const data = await response.json();
         
         if (data.success) {
-            window.location.href = data.redirect_url || '{% url "index" %}';
+            // Succès - rediriger vers la page d'accueil
+            window.location.href = '{% url "store:product_list" %}';
         } else {
             showError(data.error || 'Erreur de connexion');
+            setLoading(false);
         }
     } catch (error) {
         console.error('Erreur:', error);
-        showError('Erreur de connexion au serveur');
+        showError('Erreur de communication avec le serveur');
+        setLoading(false);
+    }
+}
+
+// Fonction générique pour l'authentification (popup ou redirect)
+async function authenticateWithProvider(provider, providerName) {
+    hideError();
+    setLoading(true);
+    
+    try {
+        let result;
+
+        if (isMobileDevice()) {
+            // Sur mobile, utiliser la redirection
+            console.log(`Redirection ${providerName} en cours...`);
+            // IMPORTANT: Stocker le type de provider pour le retour de redirection
+            localStorage.setItem('firebase_auth_provider', providerName);
+            await auth.signInWithRedirect(provider);
+            // La gestion du résultat se fera dans getRedirectResult au rechargement de la page
+            return;
+        } else {
+            // Sur desktop, utiliser la popup
+            result = await auth.signInWithPopup(provider);
+        }
+
+        const idToken = await result.user.getIdToken();
+        await sendTokenToBackend(idToken);
+    } catch (error) {
+        console.error(`Erreur ${providerName}:`, error);
+        setLoading(false);
+
+        if (error.code === 'auth/popup-closed-by-user') {
+            showError('Connexion annulée');
+        } else if (error.code === 'auth/popup-blocked') {
+            showError('Popup bloquée. Redirection en cours...');
+            // Essayer avec redirect si popup échoue
+            try {
+                localStorage.setItem('firebase_auth_provider', providerName);
+                await auth.signInWithRedirect(provider);
+                return;
+            } catch (redirectError) {
+                showError(`Erreur de connexion ${providerName}: ${redirectError.message}`);
+            }
+        } else {
+            showError(`Erreur de connexion ${providerName}: ${error.message}`);
+        }
     }
 }
 
 // Connexion Google
-googleBtn.addEventListener('click', async () => {
-    hideError();
-    setLoading(true);
-    
-    try {
-        const provider = new firebase.auth.GoogleAuthProvider();
-        provider.addScope('email');
-        provider.addScope('profile');
-        
-        const result = await auth.signInWithPopup(provider);
-        await sendToBackend(result.user, 'google');
-    } catch (error) {
-        console.error('Erreur Google:', error);
-        if (error.code === 'auth/popup-closed-by-user') {
-            showError('Connexion annulée');
-        } else {
-            showError('Erreur de connexion avec Google');
-        }
-    } finally {
-        setLoading(false);
-    }
+googleBtn.addEventListener('click', async (e) => {
+    e.preventDefault();
+
+    const provider = new firebase.auth.GoogleAuthProvider();
+    provider.addScope('email');
+    provider.addScope('profile');
+
+    await authenticateWithProvider(provider, 'Google');
 });
 
 // Connexion Facebook
-facebookBtn.addEventListener('click', async () => {
-    hideError();
-    setLoading(true);
-    
-    try {
-        const provider = new firebase.auth.FacebookAuthProvider();
-        provider.addScope('email');
-        
-        const result = await auth.signInWithPopup(provider);
-        await sendToBackend(result.user, 'facebook');
-    } catch (error) {
-        console.error('Erreur Facebook:', error);
-        if (error.code === 'auth/popup-closed-by-user') {
-            showError('Connexion annulée');
-        } else {
-            showError('Erreur de connexion avec Facebook');
+facebookBtn.addEventListener('click', async (e) => {
+    e.preventDefault();
+
+    const provider = new firebase.auth.FacebookAuthProvider();
+    provider.addScope('email');
+
+    await authenticateWithProvider(provider, 'Facebook');
+});
+
+// Gérer le résultat de la redirection (pour mobile)
+auth.getRedirectResult().then(async (result) => {
+    if (result.user) {
+        console.log('Connexion par redirection réussie:', result.user.email);
+        setLoading(true);
+
+        try {
+            const idToken = await result.user.getIdToken();
+            await sendTokenToBackend(idToken);
+        } catch (error) {
+            console.error('Erreur lors du traitement de la redirection:', error);
+            showError('Erreur lors de la connexion');
+            setLoading(false);
         }
-    } finally {
-        setLoading(false);
+    }
+}).catch((error) => {
+    console.error('Erreur de redirection:', error);
+    showError('Erreur de redirection: ' + error.message);
+    setLoading(false);
+});
+
+// Vérifier l'état d'authentification au chargement
+auth.onAuthStateChanged(async (user) => {
+    console.log('État d\'authentification changé:', user ? user.email : 'non connecté');
+    console.log('Chemin actuel:', window.location.pathname);
+    console.log('URL complète:', window.location.href);
+
+    if (user) {
+        // Si l'utilisateur est connecté mais qu'on est sur la page de connexion
+        // cela signifie qu'on revient probablement d'une redirection
+        const currentPath = window.location.pathname;
+        const isLoginPage = currentPath.includes('/login') || currentPath.endsWith('/login/') || currentPath === '/login';
+
+        console.log('Est-ce une page de connexion?', isLoginPage);
+
+        if (isLoginPage) {
+            console.log('Utilisateur connecté détecté sur la page de connexion - traitement automatique...');
+            setLoading(true);
+
+            try {
+                const idToken = await user.getIdToken();
+                console.log('Token récupéré automatiquement, envoi au backend...');
+                console.log('Longueur du token:', idToken.length);
+                await sendTokenToBackend(idToken);
+            } catch (error) {
+                console.error('Erreur lors de la récupération automatique du token:', error);
+                showError('Erreur de connexion automatique');
+                setLoading(false);
+            }
+        } else {
+            console.log('Utilisateur connecté mais pas sur la page de connexion, pas d\'action automatique');
+        }
     }
 });
 </script>
