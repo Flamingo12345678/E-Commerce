@@ -111,11 +111,22 @@ WSGI_APPLICATION = "shop.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-# Check if DATABASE_URL is set (for CI/testing with SQLite)
+import dj_database_url
+
+# Configuration pour App Platform Digital Ocean
 database_url = env("DATABASE_URL", default=None)
 
-if database_url and ("sqlite" in database_url or database_url == "sqlite:///:memory:"):
-    # Use SQLite configuration for tests/CI
+if database_url and database_url.startswith(('postgres://', 'postgresql://')):
+    # Configuration automatique via DATABASE_URL (App Platform)
+    DATABASES = {
+        'default': dj_database_url.parse(
+            database_url,
+            conn_max_age=600,
+            conn_health_checks=True,
+        )
+    }
+elif database_url and ("sqlite" in database_url or database_url == "sqlite:///:memory:"):
+    # Check if DATABASE_URL is set (for CI/testing with SQLite)
     DATABASES = {
         "default": {
             "ENGINE": "django.db.backends.sqlite3",

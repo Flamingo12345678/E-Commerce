@@ -1,0 +1,71 @@
+name: yee-ecommerce
+services:
+- name: web
+  source_dir: /
+  github:
+    repo: VOTRE_USERNAME/VOTRE_REPO
+    branch: main
+    deploy_on_push: true
+
+  run_command: gunicorn --worker-tmp-dir /dev/shm shop.wsgi:application
+
+  environment_slug: python
+  instance_count: 1
+  instance_size_slug: basic-xxs
+
+  http_port: 8000
+
+  envs:
+  - key: DEBUG
+    value: "False"
+  - key: ALLOWED_HOSTS
+    value: ".ondigitalocean.app"
+  - key: SECRET_KEY
+    value: "VOTRE_SECRET_KEY_PRODUCTION"
+    type: SECRET
+  - key: DB_ENGINE
+    value: "postgresql"
+  - key: DATABASE_URL
+    value: "${db.DATABASE_URL}"
+  - key: STRIPE_PUBLISHABLE_KEY
+    value: "VOTRE_STRIPE_PUBLISHABLE_KEY"
+    type: SECRET
+  - key: STRIPE_SECRET_KEY
+    value: "VOTRE_STRIPE_SECRET_KEY"
+    type: SECRET
+  - key: STRIPE_WEBHOOK_SECRET
+    value: "VOTRE_STRIPE_WEBHOOK_SECRET"
+    type: SECRET
+  - key: PAYPAL_CLIENT_ID
+    value: "VOTRE_PAYPAL_CLIENT_ID"
+    type: SECRET
+  - key: PAYPAL_CLIENT_SECRET
+    value: "VOTRE_PAYPAL_CLIENT_SECRET"
+    type: SECRET
+  - key: PAYPAL_MODE
+    value: "sandbox"
+  - key: EMAIL_HOST_USER
+    value: "votre@email.com"
+    type: SECRET
+  - key: EMAIL_HOST_PASSWORD
+    value: "votre_mot_de_passe"
+    type: SECRET
+  - key: FIREBASE_API_KEY
+    value: "AIzaSyBwguAg6qxCZKqoQNGMVKDrbvPhhavcTo0"
+  - key: FIREBASE_AUTH_DOMAIN
+    value: "yee-ecommerce.firebaseapp.com"
+  - key: FIREBASE_PROJECT_ID
+    value: "yee-ecommerce"
+  - key: FIREBASE_STORAGE_BUCKET
+    value: "yee-ecommerce.firebasestorage.app"
+  - key: FIREBASE_MESSAGING_SENDER_ID
+    value: "503069643994"
+  - key: FIREBASE_APP_ID
+    value: "1:503069643994:web:64bda02a018266bed841e3"
+  - key: FIREBASE_DATABASE_URL
+    value: "https://yee-ecommerce-default-rtdb.europe-west1.firebasedatabase.app/"
+
+databases:
+- name: db
+  engine: PG
+  version: "14"
