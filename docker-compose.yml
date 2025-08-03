@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  web:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - DEBUG=False
+    volumes:
+      - ./staticfiles:/opt/app/staticfiles
+      - ./media:/opt/app/media
+      - ./firebase-credentials.json:/opt/app/firebase-credentials.json
+    depends_on:
+      - db
+    restart: unless-stopped
+
+  db:
+    image: postgres:14
+    environment:
+      POSTGRES_DB: ecommerce_prod
+      POSTGRES_USER: ecommerce_user
+      POSTGRES_PASSWORD: VOTRE_MOT_DE_PASSE_DB
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
+      - ./staticfiles:/opt/app/staticfiles
+      - ./media:/opt/app/media
+      - /etc/letsencrypt:/etc/letsencrypt
+    depends_on:
+      - web
+    restart: unless-stopped
+
+volumes:
+  postgres_data:

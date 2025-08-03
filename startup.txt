@@ -1,1 +1,0 @@
-gunicorn E-Commerce.wsgi:application --bind=0.0.0.0

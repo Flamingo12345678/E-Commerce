@@ -694,25 +694,6 @@
               ACCOUNT
             </a>
           {% endif %}
-
-          <!-- Bouton mobile toggle -->
-          <button class="navbar-toggler d-lg-none" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" style="border: none; background: none;">
-            <span style="display: block; width: 25px; height: 2px; background: var(--rhode-black); margin: 5px 0; transition: 0.3s;"></span>
-            <span style="display: block; width: 25px; height: 2px; background: var(--rhode-black); margin: 5px 0; transition: 0.3s;"></span>
-            <span style="display: block; width: 25px; height: 2px; background: var(--rhode-black); margin: 5px 0; transition: 0.3s;"></span>
-          </button>
-        </div>
-      </div>
-
-      <!-- Menu mobile -->
-      <div class="collapse navbar-collapse d-lg-none mt-3" id="navbarNav">
-        <ul class="navbar-nav w-100">
-          <!-- SHOP avec sous-catégories mobiles -->
-          <li class="nav-item py-2">
-            <div class="accordion" id="mobileShopAccordion">
-              <div class="accordion-item" style="border: none; background: transparent;">
-                <h2 class="accordion-header" id="shopHeading">
-                  <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#shopCollapse" aria-expanded="false" aria-controls="shopCollapse"
                           style="background: transparent; border: none; padding: 0; box-shadow: none; font-size: 0.9rem; font-weight: 500; color: var(--rhode-black); text-transform: uppercase; letter-spacing: 0.5px;">
                     SHOP
                   </button>
@@ -781,6 +762,10 @@
     {% for message in messages %}
       <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
         {{ message }}
+            {% get_cart_info user as cart_info %}
+            <a class="nav-link-rhode" href="{% url 'store:cart' %}" style="font-size: 0.9rem; font-weight: 400; color: var(--rhode-black); text-decoration: none; text-transform: uppercase; letter-spacing: 0.5px;">CART ({{ cart_info.total_items }})</a>
+          </li>
+          <li class="nav-item py-2">
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fermer"></button>
       </div>
     {% endfor %}
@@ -1230,8 +1215,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     const featuredBtn = document.querySelector('[data-carousel="featuredCarousel"]');
                     if (featuredBtn) {
                         featuredBtn.classList.add('active');
-                    }
-                });
+                    const allCarousels = document.querySelectorAll('.product-carousel');
+                    allCarousels.forEach(carousel => carousel.style.display = 'none');
             }
         }
     });
