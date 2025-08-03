@@ -62,7 +62,7 @@
             margin: 20px 0;
             color: #666;
         }
-        
+
         .divider::before {
             content: '';
             position: absolute;
@@ -72,7 +72,7 @@
             height: 1px;
             background: #ddd;
         }
-        
+
         .divider span {
             background: white;
             padding: 0 15px;
@@ -116,7 +116,7 @@
             <div class="auth-form">
                 <h1 class="auth-title">Connexion</h1>
                 <p class="auth-subtitle">Accédez à votre compte YEE</p>
-                
+
                 <!-- Messages d'erreur Firebase -->
                 <div id="firebase-error" class="error-message"></div>
                 <div id="loading" class="loading">Connexion en cours...</div>
@@ -146,11 +146,11 @@
                         <span>OU</span>
                     </div>
                 </div>
-                
+
                 <!-- Messages -->
                 {% if messages %}
                     {% for message in messages %}
-                        <div class="message-alert 
+                        <div class="message-alert
                             {% if message.tags == 'error' %}message-error
                             {% elif message.tags == 'success' %}message-success
                             {% elif message.tags == 'warning' %}message-warning
@@ -159,25 +159,25 @@
                         </div>
                     {% endfor %}
                 {% endif %}
-                
+
                 <form method="POST">
                     {% csrf_token %}
-                    
+
                     <div class="form-group">
                         <label for="username" class="form-label">Email / Nom d'utilisateur</label>
-                        <input type="text" name="username" id="username" required 
+                        <input type="text" name="username" id="username" required
                                value="{{ username|default:'' }}"
                                {% if show_2fa %}readonly{% endif %}
                                class="form-input">
                     </div>
-                    
+
                     <div class="form-group">
                         <label for="password" class="form-label">Mot de passe</label>
                         <input type="password" name="password" id="password" required
                                {% if show_2fa %}readonly{% endif %}
                                class="form-input">
                     </div>
-                    
+
                     {% if show_2fa %}
                     <div class="totp-section">
                         <h4 class="totp-title">🔐 Authentification à deux facteurs</h4>
@@ -186,19 +186,19 @@
                         </p>
                         <div class="form-group">
                             <label for="totp_code" class="form-label">Code d'authentification</label>
-                            <input type="text" name="totp_code" id="totp_code" required 
+                            <input type="text" name="totp_code" id="totp_code" required
                                    maxlength="6" pattern="[0-9]{6}" placeholder="000000"
                                    class="form-input totp-input">
                             <input type="hidden" name="user_id" value="{{ user_id }}">
                         </div>
                     </div>
                     {% endif %}
-                    
+
                     <button type="submit" class="auth-button">
                         {% if show_2fa %}Vérifier et se connecter{% else %}Se connecter{% endif %}
                     </button>
                 </form>
-                
+
                 <div class="forgot-password">
                     <a href="{% url 'password_reset' %}" class="forgot-link">Mot de passe oublié ?</a>
                 </div>
@@ -271,7 +271,7 @@ async function sendTokenToBackend(idToken) {
                 idToken: idToken
             })
         });
-        
+
         const data = await response.json();
         
         if (data.success) {
@@ -292,7 +292,7 @@ async function sendTokenToBackend(idToken) {
 async function authenticateWithProvider(provider, providerName) {
     hideError();
     setLoading(true);
-    
+
     try {
         let result;
 

@@ -14,9 +14,6 @@ from django.contrib.auth.tokens import default_token_generator
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_str
 from django.template.loader import render_to_string
-import re
-import json
-from datetime import datetime
 
 # Django OTP imports
 from django_otp.plugins.otp_totp.models import TOTPDevice
@@ -132,11 +129,7 @@ def signup(request):
 
                     login(request, user)
                     messages.success(
-                        request,
-                        f"Bienvenue {username} ! Votre compte a été créé avec succès.",
-                    )
-                    return redirect("index")
-
+                        request,messages.success "Votre compte a été créé avec succès.")
             except IntegrityError:
                 messages.error(
                     request, "Une erreur s'est produite lors de la création du compte."
@@ -156,12 +149,7 @@ def signup(request):
 def login_user(request):
     if request.user.is_authenticated:
         messages.info(request, "Vous êtes déjà connecté.")
-        return redirect("index")
-
-    if request.method == "POST":
-        username = request.POST.get("username", "").strip()
-        password = request.POST.get("password", "")
-        totp_code = request.POST.get("totp_code", "").strip()
+        messages.error(request, "Session interrompue. Veuillez réessayer.")
 
         # Validation basique
         if not username or not password:
