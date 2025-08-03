@@ -40,7 +40,7 @@ ENV ALLOWED_HOSTS=localhost
 RUN python manage.py collectstatic --noinput
 
 # Exposition du port
-EXPOSE 8000
+EXPOSE 8080
 
 # Commande de démarrage optimisée pour App Platform
-CMD ["gunicorn", "--worker-tmp-dir", "/dev/shm", "--workers", "2", "--bind", "0.0.0.0:8000", "--max-requests", "1000", "--timeout", "30", "shop.wsgi:application"]
+CMD ["gunicorn", "--worker-tmp-dir", "/dev/shm", "--workers", "2", "--bind", "0.0.0.0:8080", "--max-requests", "1000", "--timeout", "30", "shop.wsgi:application"]
