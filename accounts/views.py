@@ -129,7 +129,7 @@ def signup(request):
 
                     login(request, user)
                     messages.success(
-                        request,messages.success "Votre compte a été créé avec succès.")
+                        request, "Votre compte a été créé avec succès.")
             except IntegrityError:
                 messages.error(
                     request, "Une erreur s'est produite lors de la création du compte."

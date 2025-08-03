@@ -41,7 +41,7 @@ urlpatterns = [
     
     # Firebase URLs
     path("firebase/", firebase_views.FirebaseAuthView.as_view(), name="firebase_auth"),
-    path("firebase/login/", firebase_views.firebase_login, name="firebase_login"),
+    path("firebase/login/", firebase_views.FirebaseAuthView.as_view(), name="firebase_login"),
     path("firebase/logout/", firebase_views.firebase_logout, name="firebase_logout"),
     path("firebase/verify-token/", firebase_views.verify_token_view, name="verify_token"),
     path("firebase/profile/", firebase_views.firebase_profile, name="firebase_profile"),
