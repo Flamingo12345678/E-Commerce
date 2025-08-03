@@ -142,9 +142,9 @@ else:
         DATABASES = {
             "default": {
                 "ENGINE": "django.db.backends.postgresql",
-                "NAME": env("DB_NAME"),
-                "USER": env("DB_USER"),
-                "PASSWORD": env("DB_PASSWORD"),
+                "NAME": env("DB_NAME", default="ecommerce_prod"),
+                "USER": env("DB_USER", default="ecommerce_user"),
+                "PASSWORD": env("DB_PASSWORD", default=""),
                 "HOST": env("DB_HOST", default="localhost"),
                 "PORT": env("DB_PORT", default="5432"),
                 "OPTIONS": {
@@ -153,21 +153,30 @@ else:
             }
         }
     else:
-        # Configuration MySQL pour développement
-        DATABASES = {
-            "default": {
-                "ENGINE": "django.db.backends.mysql",
-                "NAME": env("DB_NAME"),
-                "USER": env("DB_USER"),
-                "PASSWORD": env("DB_PASSWORD"),
-                "HOST": env("DB_HOST", default="localhost"),
-                "PORT": env("DB_PORT", default="3306"),
-                "OPTIONS": {
-                    "charset": "utf8mb4",
-                    "init_command": "SET sql_mode='STRICT_TRANS_TABLES'",
-                },
+        # Configuration MySQL/SQLite pour développement/build
+        # Utiliser SQLite par défaut pour les builds sans DB configurée
+        if not env("DB_NAME", default=""):
+            DATABASES = {
+                "default": {
+                    "ENGINE": "django.db.backends.sqlite3",
+                    "NAME": BASE_DIR / "db.sqlite3",
+                }
             }
-        }
+        else:
+            DATABASES = {
+                "default": {
+                    "ENGINE": "django.db.backends.mysql",
+                    "NAME": env("DB_NAME"),
+                    "USER": env("DB_USER"),
+                    "PASSWORD": env("DB_PASSWORD"),
+                    "HOST": env("DB_HOST", default="localhost"),
+                    "PORT": env("DB_PORT", default="3306"),
+                    "OPTIONS": {
+                        "charset": "utf8mb4",
+                        "init_command": "SET sql_mode='STRICT_TRANS_TABLES'",
+                    },
+                }
+            }
 
 
 # Password validation
