@@ -44,6 +44,8 @@ from accounts.views import (
 urlpatterns = [
     # Admin doit être en premier pour éviter les conflits
     path("admin/", admin.site.urls),
+    # Redirection de /admin vers /admin/
+    path("admin", RedirectView.as_view(url="/admin/", permanent=True)),
     path("", index, name="index"),
     # Include URLs from accounts app (authentication + payment)
     path("accounts/", include("accounts.urls", namespace="accounts")),
