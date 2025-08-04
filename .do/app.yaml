@@ -1,9 +1,9 @@
-name: yee-ecommerce
+name: yee
 services:
 - name: web
   source_dir: /
   github:
-    repo: VOTRE_USERNAME/VOTRE_REPO
+    repo: Flamingo12345678/E-Commerce
     branch: main
     deploy_on_push: true
 
