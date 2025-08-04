@@ -250,10 +250,11 @@ STATICFILES_DIRS = [
     BASE_DIR / "static",
 ]
 
-# Configuration WhiteNoise pour optimiser les fichiers statiques
-STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+# Configuration WhiteNoise ajustée pour préserver vos styles
+STATICFILES_STORAGE = "django.contrib.staticfiles.storage.StaticFilesStorage"
 WHITENOISE_USE_FINDERS = True
 WHITENOISE_AUTOREFRESH = True
+WHITENOISE_SKIP_COMPRESS_EXTENSIONS = ['css', 'js']
 
 
 # Default primary key field type
