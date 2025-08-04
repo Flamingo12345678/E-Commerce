@@ -27,7 +27,7 @@
     <link rel="stylesheet" href="{% static 'css/rhode-landing.css' %}">
     <link rel="stylesheet" href="{% static 'css/product-detail.css' %}">
     <link rel="stylesheet" href="{% static 'css/image-optimization.css' %}">
-    
+
     <!-- Custom overrides - Load last to ensure priority -->
     <link rel="stylesheet" href="{% static 'css/custom-overrides.css' %}">
 
@@ -43,7 +43,7 @@
     <!-- Custom dropdown and navbar styles -->
     <style>
         /* IMPORTANT: Ces styles peuvent être déplacés dans custom-overrides.css pour un meilleur contrôle */
-        
+
         /* Dropdown styles - Priority: Inline styles have high priority */
         .dropdown-menu {
             min-width: 200px;
@@ -56,10 +56,10 @@
         
         .navbar { z-index: 9998; position: relative; }
         .dropdown { z-index: 9999; position: relative; }
-        
+
         .dropdown-item { padding: 0.5rem 1rem; transition: all 0.2s ease; }
         .dropdown-item:hover { background-color: rgba(99, 102, 241, 0.1); color: var(--bs-primary); }
-        
+
         /* Styles hover pour les catégories du dropdown Shop */
         .dropdown-category-btn {
             position: relative;
@@ -74,7 +74,7 @@
             border-bottom-color: var(--rhode-black) !important;
             background-color: transparent;
         }
-        
+
         /* Hover pour les éléments NON actifs */
         .dropdown-category-btn:not(.active):hover {
             color: var(--rhode-black) !important;
@@ -82,13 +82,13 @@
             background-color: rgba(0, 0, 0, 0.05);
             transform: translateY(-2px);
         }
-        
+
         /* Hover pour l'élément actif - effet plus subtil */
         .dropdown-category-btn.active:hover {
             background-color: rgba(0, 0, 0, 0.03);
             transform: translateY(-1px);
         }
-        
+
         /* Animation pour l'effet de focus */
         .dropdown-category-btn:focus {
             outline: none;
@@ -99,7 +99,7 @@
         .hero-section { z-index: 1; position: relative; min-height: 75vh; }
         .hero-section::before { z-index: 1; }
         .hero-content { z-index: 2; }
-        
+
         /* Animation */
         @keyframes heroFadeIn {
             from { opacity: 0; transform: translateY(20px); }
@@ -109,7 +109,7 @@
         .hero-section .container > .row > .col-lg-6 {
             animation: heroFadeIn 1s ease-out;
         }
-        
+
         /* Ensure navbar stays on top */
         header, header .navbar { z-index: 9999; position: relative; }
     </style>
@@ -127,8 +127,8 @@
         <div class="d-flex align-items-center gap-4">
           <ul class="navbar-nav d-none d-lg-flex flex-row gap-3 mb-0">
             <li class="nav-item mega-menu-item">
-              <a class="nav-link-rhode" href="{% url 'store:product_list' %}" 
-                 id="shopMegaMenu" 
+              <a class="nav-link-rhode" href="{% url 'store:product_list' %}"
+                 id="shopMegaMenu"
                  style="font-size: 0.9rem; font-weight: 400; color: var(--rhode-black); text-decoration: none; text-transform: uppercase; letter-spacing: 0.5px;">
                 SHOP
               </a>
@@ -138,44 +138,44 @@
                   <!-- Barre de catégories à l'intérieur du dropdown -->
                   <div class="dropdown-category-bar">
                     <div class="dropdown-category-buttons d-flex justify-content-center gap-4 flex-wrap mb-4">
-                      <a href="{% url 'store:product_list' %}?featured=true" class="dropdown-category-btn active" 
+                      <a href="{% url 'store:product_list' %}?featured=true" class="dropdown-category-btn active"
                          data-carousel="featuredCarousel"
                          style="font-size: 0.8rem; font-weight: 500; color: var(--rhode-black); text-decoration: none; text-transform: uppercase; letter-spacing: 0.8px; padding: 0.5rem 1rem; border-bottom: 2px solid var(--rhode-black); transition: all 0.3s ease;">
                         FEATURED
                       </a>
-                      <a href="{% url 'store:product_list' %}?category=men" class="dropdown-category-btn" 
+                      <a href="{% url 'store:product_list' %}?category=men" class="dropdown-category-btn"
                          data-carousel="menCarousel"
                          style="font-size: 0.8rem; font-weight: 500; color: var(--rhode-gray-medium); text-decoration: none; text-transform: uppercase; letter-spacing: 0.8px; padding: 0.5rem 1rem; border-bottom: 2px solid transparent; transition: all 0.3s ease;">
                         HOMME
                       </a>
-                      <a href="{% url 'store:product_list' %}?category=women" class="dropdown-category-btn" 
+                      <a href="{% url 'store:product_list' %}?category=women" class="dropdown-category-btn"
                          data-carousel="womenCarousel"
                          style="font-size: 0.8rem; font-weight: 500; color: var(--rhode-gray-medium); text-decoration: none; text-transform: uppercase; letter-spacing: 0.8px; padding: 0.5rem 1rem; border-bottom: 2px solid transparent; transition: all 0.3s ease;">
                         FEMME
                       </a>
-                      <a href="{% url 'store:product_list' %}?category=kids" class="dropdown-category-btn" 
+                      <a href="{% url 'store:product_list' %}?category=kids" class="dropdown-category-btn"
                          data-carousel="kidsCarousel"
                          style="font-size: 0.8rem; font-weight: 500; color: var(--rhode-gray-medium); text-decoration: none; text-transform: uppercase; letter-spacing: 0.8px; padding: 0.5rem 1rem; border-bottom: 2px solid transparent; transition: all 0.3s ease;">
                         ENFANT
                       </a>
-                      <a href="{% url 'store:product_list' %}?category=shoes" class="dropdown-category-btn" 
+                      <a href="{% url 'store:product_list' %}?category=shoes" class="dropdown-category-btn"
                          data-carousel="shoesCarousel"
                          style="font-size: 0.8rem; font-weight: 500; color: var(--rhode-gray-medium); text-decoration: none; text-transform: uppercase; letter-spacing: 0.8px; padding: 0.5rem 1rem; border-bottom: 2px solid transparent; transition: all 0.3s ease;">
                         CHAUSSURES
                       </a>
-                      <a href="{% url 'store:product_list' %}?category=accessories" class="dropdown-category-btn" 
+                      <a href="{% url 'store:product_list' %}?category=accessories" class="dropdown-category-btn"
                          data-carousel="accessoriesCarousel"
                          style="font-size: 0.8rem; font-weight: 500; color: var(--rhode-gray-medium); text-decoration: none; text-transform: uppercase; letter-spacing: 0.8px; padding: 0.5rem 1rem; border-bottom: 2px solid transparent; transition: all 0.3s ease;">
                         ACCESSOIRES
                       </a>
-                      <a href="{% url 'store:product_list' %}" class="dropdown-category-btn" 
+                      <a href="{% url 'store:product_list' %}" class="dropdown-category-btn"
                          data-carousel="shopallCarousel"
                          style="font-size: 0.8rem; font-weight: 500; color: var(--rhode-gray-medium); text-decoration: none; text-transform: uppercase; letter-spacing: 0.8px; padding: 0.5rem 1rem; border-bottom: 2px solid transparent; transition: all 0.3s ease;">
                         SHOP ALL
                       </a>
                     </div>
                   </div>
-                  
+
                   <div class="row">
                     <!-- Carrousel de produits -->
                     <div class="col-12">
@@ -195,7 +195,7 @@
                               <p class="carousel-product-subtitle">Nouveaux looks tendance</p>
                             </div>
                           </div>
-                          
+
                           <!-- Produit 2 -->
                           <div class="carousel-product-card">
                             <div class="product-badge-new">nouveau</div>
@@ -209,7 +209,7 @@
                               <p class="carousel-product-subtitle">Accessoires essentiels</p>
                             </div>
                           </div>
-                          
+
                           <!-- Produit 3 -->
                           <div class="carousel-product-card">
                             <div class="product-badge-new">nouveau</div>
@@ -223,7 +223,7 @@
                               <p class="carousel-product-subtitle">Trois essentiels mode</p>
                             </div>
                           </div>
-                          
+
                           <!-- Produit 4 -->
                           <div class="carousel-product-card">
                             <div class="product-badge-new">nouveau</div>
@@ -253,7 +253,7 @@
                               <p class="carousel-product-subtitle">Élégance au quotidien</p>
                             </div>
                           </div>
-                          
+
                           <div class="carousel-product-card">
                             <div class="product-badge-new">nouveau</div>
                             <div class="carousel-product-image">
@@ -266,7 +266,7 @@
                               <p class="carousel-product-subtitle">Confort moderne</p>
                             </div>
                           </div>
-                          
+
                           <div class="carousel-product-card">
                             <div class="carousel-product-image">
                               <div class="product-placeholder" style="background: linear-gradient(135deg, #34495E, #2C3E50);">
@@ -278,7 +278,7 @@
                               <p class="carousel-product-subtitle">Finition parfaite</p>
                             </div>
                           </div>
-                          
+
                           <div class="carousel-product-card">
                             <div class="carousel-product-image">
                               <div class="product-placeholder" style="background: linear-gradient(135deg, #8E44AD, #7D3C98);">
@@ -306,7 +306,7 @@
                               <p class="carousel-product-subtitle">6 modèles disponibles</p>
                             </div>
                           </div>
-                          
+
                           <div class="carousel-product-card">
                             <div class="product-badge-viral">viral</div>
                             <div class="carousel-product-image">
@@ -319,7 +319,7 @@
                               <p class="carousel-product-subtitle">8 couleurs disponibles</p>
                             </div>
                           </div>
-                          
+
                           <div class="carousel-product-card">
                             <div class="carousel-product-image">
                               <div class="product-placeholder" style="background: linear-gradient(135deg, #F39C12, #E67E22);">
@@ -331,7 +331,7 @@
                               <p class="carousel-product-subtitle">Élégance professionnelle</p>
                             </div>
                           </div>
-                          
+
                           <div class="carousel-product-card">
                             <div class="carousel-product-image">
                               <div class="product-placeholder" style="background: linear-gradient(135deg, #1ABC9C, #16A085);">
@@ -359,7 +359,7 @@
                               <p class="carousel-product-subtitle">3 tailles complètes</p>
                             </div>
                           </div>
-                          
+
                           <div class="carousel-product-card">
                             <div class="product-badge-limited">limité</div>
                             <div class="carousel-product-image">
@@ -372,7 +372,7 @@
                               <p class="carousel-product-subtitle">Collection spéciale</p>
                             </div>
                           </div>
-                          
+
                           <div class="carousel-product-card">
                             <div class="carousel-product-image">
                               <div class="product-placeholder" style="background: linear-gradient(135deg, #1ABC9C, #16A085);">
@@ -400,7 +400,7 @@
                               <p class="carousel-product-subtitle">Design moderne</p>
                             </div>
                           </div>
-                          
+
                           <div class="carousel-product-card">
                             <div class="carousel-product-image">
                               <div class="product-placeholder" style="background: linear-gradient(135deg, #8E44AD, #7D3C98);">
@@ -412,7 +412,7 @@
                               <p class="carousel-product-subtitle">Cuir véritable</p>
                             </div>
                           </div>
-                          
+
                           <div class="carousel-product-card">
                             <div class="carousel-product-image">
                               <div class="product-placeholder" style="background: linear-gradient(135deg, #E67E22, #D35400);">
@@ -440,7 +440,7 @@
                               <p class="carousel-product-subtitle">Design élégant</p>
                             </div>
                           </div>
-                          
+
                           <div class="carousel-product-card">
                             <div class="carousel-product-image">
                               <div class="product-placeholder" style="background: linear-gradient(135deg, #E74C3C, #C0392B);">
@@ -452,7 +452,7 @@
                               <p class="carousel-product-subtitle">Essentiels nomades</p>
                             </div>
                           </div>
-                          
+
                           <div class="carousel-product-card">
                             <div class="carousel-product-image">
                               <div class="product-placeholder" style="background: linear-gradient(135deg, #9B59B6, #8E44AD);">
@@ -480,7 +480,7 @@
                               <p class="carousel-product-subtitle">Le plus populaire</p>
                             </div>
                           </div>
-                          
+
                           <div class="carousel-product-card">
                             <div class="product-badge-bestseller">best-seller</div>
                             <div class="carousel-product-image">
@@ -493,7 +493,7 @@
                               <p class="carousel-product-subtitle">Favori des clients</p>
                             </div>
                           </div>
-                          
+
                           <div class="carousel-product-card">
                             <div class="product-badge-viral">viral</div>
                             <div class="carousel-product-image">
@@ -506,7 +506,7 @@
                               <p class="carousel-product-subtitle">Hit des réseaux</p>
                             </div>
                           </div>
-                          
+
                           <div class="carousel-product-card">
                             <div class="product-badge-limited">limité</div>
                             <div class="carousel-product-image">
@@ -519,7 +519,7 @@
                               <p class="carousel-product-subtitle">Édition limitée</p>
                             </div>
                           </div>
-                          
+
                           <div class="carousel-product-card">
                             <div class="carousel-product-image">
                               <div class="product-placeholder" style="background: linear-gradient(135deg, #C0392B, #A93226);">
@@ -532,7 +532,7 @@
                             </div>
                           </div>
                         </div>
-                        
+
                         <!-- Bouton Shop YEE au centre -->
                         <div class="carousel-shop-button">
                           <a href="{% url 'store:product_list' %}" class="btn-shop-yee">
@@ -546,8 +546,8 @@
               </div>
             </li>
             <li class="nav-item mega-menu-item" id="aboutMegaMenuItem">
-              <a class="nav-link-rhode" href="{% url 'pages:about' %}" 
-                 id="aboutMegaMenu" 
+              <a class="nav-link-rhode" href="{% url 'pages:about' %}"
+                 id="aboutMegaMenu"
                  style="font-size: 0.9rem; font-weight: 400; color: var(--rhode-black); text-decoration: none; text-transform: uppercase; letter-spacing: 0.5px;">
                 ABOUT
               </a>
@@ -596,8 +596,8 @@
               </div>
             </li>
             <li class="nav-item mega-menu-item" id="futuresMegaMenuItem">
-              <a class="nav-link-rhode" href="{% url 'pages:contact' %}" 
-                 id="futuresMegaMenu" 
+              <a class="nav-link-rhode" href="{% url 'pages:contact' %}"
+                 id="futuresMegaMenu"
                  style="font-size: 0.9rem; font-weight: 400; color: var(--rhode-black); text-decoration: none; text-transform: uppercase; letter-spacing: 0.5px;">
                 FUTURES
               </a>
@@ -665,7 +665,7 @@
           <button class="d-none d-lg-block" type="button" style="background: none; border: none; color: var(--rhode-black); font-size: 0.9rem; font-weight: 400; text-transform: uppercase; letter-spacing: 0.5px;">
             SEARCH
           </button>
-          
+
           {% if user.is_authenticated %}
             <!-- Compte utilisateur -->
             <div class="dropdown d-none d-lg-block">
@@ -694,63 +694,46 @@
               ACCOUNT
             </a>
           {% endif %}
-                          style="background: transparent; border: none; padding: 0; box-shadow: none; font-size: 0.9rem; font-weight: 500; color: var(--rhode-black); text-transform: uppercase; letter-spacing: 0.5px;">
-                    SHOP
-                  </button>
-                </h2>
-                <div id="shopCollapse" class="accordion-collapse collapse" aria-labelledby="shopHeading" data-bs-parent="#mobileShopAccordion">
-                  <div class="accordion-body" style="padding: 1rem 0 0 1rem;">
-                    <div class="d-flex flex-column gap-2">
-                      <a href="{% url 'store:product_list' %}" class="text-decoration-none" 
-                         style="font-size: 0.85rem; color: var(--rhode-gray-medium); padding: 0.3rem 0;">
-                        <i class="bi bi-grid-3x3-gap me-2"></i>Tous les produits</a>
-                      <a href="{% url 'store:product_list' %}?category=men" class="text-decoration-none" 
-                         style="font-size: 0.85rem; color: var(--rhode-gray-medium); padding: 0.3rem 0;">
-                        <i class="bi bi-person me-2"></i>Homme</a>
-                      <a href="{% url 'store:product_list' %}?category=women" class="text-decoration-none" 
-                         style="font-size: 0.85rem; color: var(--rhode-gray-medium); padding: 0.3rem 0;">
-                        <i class="bi bi-person-dress me-2"></i>Femme</a>
-                      <a href="{% url 'store:product_list' %}?category=kids" class="text-decoration-none" 
-                         style="font-size: 0.85rem; color: var(--rhode-gray-medium); padding: 0.3rem 0;">
-                        <i class="bi bi-star me-2"></i>Enfant</a>
-                      <a href="{% url 'store:product_list' %}?category=shoes" class="text-decoration-none" 
-                         style="font-size: 0.85rem; color: var(--rhode-gray-medium); padding: 0.3rem 0;">
-                        <i class="bi bi-shoe me-2"></i>Chaussures</a>
-                      <a href="{% url 'store:product_list' %}?category=accessories" class="text-decoration-none" 
-                         style="font-size: 0.85rem; color: var(--rhode-gray-medium); padding: 0.3rem 0;">
-                        <i class="bi bi-handbag me-2"></i>Accessoires</a>
-                      <a href="{% url 'store:product_list' %}?featured=true" class="text-decoration-none" 
-                         style="font-size: 0.85rem; color: var(--rhode-accent); font-weight: 500; padding: 0.3rem 0;">
-                        <i class="bi bi-award me-2"></i>Nouveautés</a>
-                    </div>
+
+          <!-- Menu mobile accordion pour SHOP -->
+          <div class="accordion d-lg-none" id="mobileShopAccordion">
+            <div class="accordion-item" style="border: none; background: transparent;">
+              <h2 class="accordion-header" id="shopHeading">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#shopCollapse" aria-expanded="false" aria-controls="shopCollapse"
+                        style="background: transparent; border: none; padding: 0; box-shadow: none; font-size: 0.9rem; font-weight: 500; color: var(--rhode-black); text-transform: uppercase; letter-spacing: 0.5px;">
+                  SHOP
+                </button>
+              </h2>
+              <div id="shopCollapse" class="accordion-collapse collapse" aria-labelledby="shopHeading" data-bs-parent="#mobileShopAccordion">
+                <div class="accordion-body" style="padding: 1rem 0 0 1rem;">
+                  <div class="d-flex flex-column gap-2">
+                    <a href="{% url 'store:product_list' %}" class="text-decoration-none"
+                       style="font-size: 0.85rem; color: var(--rhode-gray-medium); padding: 0.3rem 0;">
+                      <i class="bi bi-grid-3x3-gap me-2"></i>Tous les produits</a>
+                    <a href="{% url 'store:product_list' %}?category=men" class="text-decoration-none"
+                       style="font-size: 0.85rem; color: var(--rhode-gray-medium); padding: 0.3rem 0;">
+                      <i class="bi bi-person me-2"></i>Homme</a>
+                    <a href="{% url 'store:product_list' %}?category=women" class="text-decoration-none"
+                       style="font-size: 0.85rem; color: var(--rhode-gray-medium); padding: 0.3rem 0;">
+                      <i class="bi bi-person-dress me-2"></i>Femme</a>
+                    <a href="{% url 'store:product_list' %}?category=kids" class="text-decoration-none"
+                       style="font-size: 0.85rem; color: var(--rhode-gray-medium); padding: 0.3rem 0;">
+                      <i class="bi bi-star me-2"></i>Enfant</a>
+                    <a href="{% url 'store:product_list' %}?category=shoes" class="text-decoration-none"
+                       style="font-size: 0.85rem; color: var(--rhode-gray-medium); padding: 0.3rem 0;">
+                      <i class="bi bi-shoe me-2"></i>Chaussures</a>
+                    <a href="{% url 'store:product_list' %}?category=accessories" class="text-decoration-none"
+                       style="font-size: 0.85rem; color: var(--rhode-gray-medium); padding: 0.3rem 0;">
+                      <i class="bi bi-handbag me-2"></i>Accessoires</a>
+                    <a href="{% url 'store:product_list' %}?featured=true" class="text-decoration-none"
+                       style="font-size: 0.85rem; color: var(--rhode-accent); font-weight: 500; padding: 0.3rem 0;">
+                      <i class="bi bi-award me-2"></i>Nouveautés</a>
                   </div>
                 </div>
               </div>
             </div>
-          </li>
-          <li class="nav-item py-2">
-            <a class="nav-link-rhode" href="{% url 'pages:about' %}" style="font-size: 0.9rem; font-weight: 400; color: var(--rhode-black); text-decoration: none; text-transform: uppercase; letter-spacing: 0.5px;">ABOUT</a>
-          </li>
-          <li class="nav-item py-2">
-            <a class="nav-link-rhode" href="{% url 'pages:contact' %}" style="font-size: 0.9rem; font-weight: 400; color: var(--rhode-black); text-decoration: none; text-transform: uppercase; letter-spacing: 0.5px;">FUTURES</a>
-          </li>
-          {% if user.is_authenticated %}
-          <li class="nav-item py-2">
-            <a class="nav-link-rhode" href="{% url 'profile' %}" style="font-size: 0.9rem; font-weight: 400; color: var(--rhode-black); text-decoration: none; text-transform: uppercase; letter-spacing: 0.5px;">ACCOUNT</a>
-          </li>
-          <li class="nav-item py-2">
-            {% get_cart_info user as cart_info %}
-            <a class="nav-link-rhode" href="{% url 'store:cart' %}" style="font-size: 0.9rem; font-weight: 400; color: var(--rhode-black); text-decoration: none; text-transform: uppercase; letter-spacing: 0.5px;">CART ({{ cart_info.total_items }})</a>
-          </li>
-          <li class="nav-item py-2">
-            <a class="nav-link-rhode" href="{% url 'logout' %}" style="font-size: 0.9rem; font-weight: 400; color: var(--rhode-gray-medium); text-decoration: none; text-transform: uppercase; letter-spacing: 0.5px;">DÉCONNEXION</a>
-          </li>
-          {% else %}
-          <li class="nav-item py-2">
-            <a class="nav-link-rhode" href="{% url 'login' %}" style="font-size: 0.9rem; font-weight: 400; color: var(--rhode-black); text-decoration: none; text-transform: uppercase; letter-spacing: 0.5px;">ACCOUNT</a>
-          </li>
-          {% endif %}
-        </ul>
+          </div>
+        </div>
       </div>
     </div>
   </nav>
@@ -762,10 +745,6 @@
     {% for message in messages %}
       <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
         {{ message }}
-            {% get_cart_info user as cart_info %}
-            <a class="nav-link-rhode" href="{% url 'store:cart' %}" style="font-size: 0.9rem; font-weight: 400; color: var(--rhode-black); text-decoration: none; text-transform: uppercase; letter-spacing: 0.5px;">CART ({{ cart_info.total_items }})</a>
-          </li>
-          <li class="nav-item py-2">
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fermer"></button>
       </div>
     {% endfor %}
@@ -840,17 +819,17 @@
     <div class="text-center mt-5 pt-4" style="border-top: 1px solid var(--rhode-gray-light);">
       <p style="color: var(--rhode-gray-medium); font-size: 0.9rem; margin-bottom: 1.5rem;">rejoignez-nous pour un style sans effort.</p>
       <p style="color: var(--rhode-gray-medium); font-size: 0.85rem; margin-bottom: 2rem;">illuminez votre boîte mail avec nos conseils, astuces et contenus exclusifs de notre équipe.</p>
-      
+
       <form class="d-flex justify-content-center gap-2 mb-3" style="max-width: 400px; margin: 0 auto;">
         <input type="email" class="form-control" placeholder="adresse email" style="border: 1px solid var(--rhode-gray-medium); border-radius: 0; padding: 0.8rem; font-size: 0.85rem; background: var(--rhode-white);">
         <button type="submit" style="background: var(--rhode-black); color: var(--rhode-white); border: none; padding: 0.8rem 1.5rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; border-radius: 0; font-size: 0.8rem;">s'abonner</button>
       </form>
-      
+
       <p style="font-size: 0.75rem; color: var(--rhode-gray-medium);">
         en vous inscrivant, vous acceptez notre <a href="#" style="color: var(--rhode-black); text-decoration: underline;">politique de confidentialité</a>*
       </p>
     </div>
-    
+
     <!-- Copyright -->
     <div class="text-center mt-4 pt-3" style="border-top: 1px solid var(--rhode-gray-light);">
       <p style="color: var(--rhode-gray-medium); font-size: 0.8rem; margin-bottom: 0;">© yee 2025</p>
@@ -870,8 +849,8 @@
 // Protection contre les erreurs externes
 window.addEventListener('error', function(e) {
     // Ignorer les erreurs des extensions ou fichiers externes
-    if (e.filename && (e.filename.includes('index-CUHM8_N7.js') || 
-                       e.filename.includes('extension') || 
+    if (e.filename && (e.filename.includes('index-CUHM8_N7.js') ||
+                       e.filename.includes('extension') ||
                        e.filename.includes('chrome-extension'))) {
         e.preventDefault();
         return false;
@@ -948,7 +927,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 console.log(`Showing mega menu: ${config.linkSelector}`);
                 clearTimeout(hideTimeout);
                 isMenuVisible = true;
-            
+
             // Masquer tous les autres mega menus
             megaMenus.forEach(otherConfig => {
                 if (otherConfig.dropdownSelector !== config.dropdownSelector) {
@@ -960,23 +939,23 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                 }
             });
-            
+
             // Affichage immédiat du conteneur
             megaMenuDropdown.style.display = 'block';
-            
+
             // Force le reflow
             megaMenuDropdown.offsetHeight;
-            
+
             // Réinitialiser les styles pour l'animation
             megaMenuDropdown.style.opacity = '0';
             megaMenuDropdown.style.visibility = 'visible';
             megaMenuDropdown.style.transform = 'translateY(-20px)';
-            
+
             if (categoryBar) {
                 categoryBar.style.opacity = '0';
                 categoryBar.style.transform = 'translateY(10px)';
             }
-            
+
             if (carouselWrapper) {
                 carouselWrapper.style.opacity = '0';
                 carouselWrapper.style.transform = 'translateY(15px)';
@@ -988,7 +967,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 megaMenuDropdown.style.transition = 'all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
                 megaMenuDropdown.style.opacity = '1';
                 megaMenuDropdown.style.transform = 'translateY(0)';
-                
+
                 // 2. Apparition de la barre de catégories (délai 200ms) - seulement pour SHOP
                 if (categoryBar) {
                     setTimeout(() => {
@@ -999,7 +978,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         }
                     }, 200);
                 }
-                
+
                 // 3. Apparition du carousel (délai 400ms ou 200ms si pas de categoryBar)
                 const carouselDelay = categoryBar ? 400 : 200;
                 setTimeout(() => {
@@ -1007,7 +986,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         carouselWrapper.style.transition = 'all 0.9s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
                         carouselWrapper.style.opacity = '1';
                         carouselWrapper.style.transform = 'translateY(0)';
-                        
+
                         // Animation des cartes une par une
                         const cards = carouselWrapper.querySelectorAll('.carousel-product-card, .about-card, .futures-card');
                         cards.forEach((card, index) => {
@@ -1024,7 +1003,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                 }, carouselDelay);
             });
-            
+
             // Ajouter une classe au lien pour l'indiquer comme actif
             if (menuLink) {
                 menuLink.style.borderBottomColor = 'var(--rhode-black)';
@@ -1041,14 +1020,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 console.log(`Hiding mega menu: ${config.linkSelector}`);
                 hideTimeout = setTimeout(() => {
                 isMenuVisible = false;
-                
+
                 // Animation de fermeture inverse
                 if (carouselWrapper) {
                     carouselWrapper.style.transition = 'all 0.4s ease-in';
                     carouselWrapper.style.opacity = '0';
                     carouselWrapper.style.transform = 'translateY(10px)';
                 }
-                
+
                 if (categoryBar) {
                     setTimeout(() => {
                         categoryBar.style.transition = 'all 0.4s ease-in';
@@ -1056,12 +1035,12 @@ document.addEventListener('DOMContentLoaded', function() {
                         categoryBar.style.transform = 'translateY(5px)';
                     }, 100);
                 }
-                
+
                 setTimeout(() => {
                     megaMenuDropdown.style.transition = 'all 0.4s ease-in';
                     megaMenuDropdown.style.opacity = '0';
                     megaMenuDropdown.style.transform = 'translateY(-10px)';
-                    
+
                     setTimeout(() => {
                         if (!isMenuVisible) {
                             megaMenuDropdown.style.display = 'none';
@@ -1069,7 +1048,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         }
                     }, 400);
                 }, 200);
-                
+
                 // Retirer l'état actif du lien
                 if (menuLink) {
                     menuLink.style.borderBottomColor = 'transparent';
@@ -1087,18 +1066,18 @@ document.addEventListener('DOMContentLoaded', function() {
                 console.log(`Mouse enter mega menu item: ${config.linkSelector}`);
                 showMegaMenu();
             });
-            
+
             megaMenuItem.addEventListener('mouseleave', function(e) {
                 console.log(`Mouse leave mega menu item: ${config.linkSelector}`);
                 hideMegaMenu();
             });
-            
+
             // Garder le menu ouvert si on survole le dropdown
             megaMenuDropdown.addEventListener('mouseenter', function(e) {
                 console.log(`Mouse enter mega menu dropdown: ${config.linkSelector}`);
                 clearTimeout(hideTimeout);
             });
-            
+
             megaMenuDropdown.addEventListener('mouseleave', function(e) {
                 console.log(`Mouse leave mega menu dropdown: ${config.linkSelector}`);
                 hideMegaMenu();
@@ -1125,13 +1104,13 @@ document.addEventListener('DOMContentLoaded', function() {
         megaMenus.forEach(config => {
             initializeMegaMenu(config);
         });
-        
+
         YeePerf.end('mega-menu-init');
         YeeDebug.info('All mega menus initialized successfully');
     } catch (error) {
         YeeDebug.error('Error initializing mega menus:', error);
     }
-    
+
     // Gestion des catégories dans le dropdown SHOP avec protection d'erreurs
     try {
         const categoryBtns = document.querySelectorAll('.dropdown-category-btn');
@@ -1139,7 +1118,7 @@ document.addEventListener('DOMContentLoaded', function() {
             btn.addEventListener('mouseenter', function(e) {
                 try {
                     e.preventDefault();
-            
+
                     // Retirer la classe active de tous les boutons (sauf si c'est le bouton par défaut)
                     categoryBtns.forEach(b => {
                         if (b !== this) {
@@ -1148,10 +1127,10 @@ document.addEventListener('DOMContentLoaded', function() {
                     });
                     // Ajouter la classe active au bouton survolé
                     this.classList.add('active');
-                    
+
                     // Obtenir l'ID du carrousel à afficher
                     const carouselId = this.getAttribute('data-carousel');
-                    
+
                     if (carouselId) {
                         // Masquer tous les carrousels
                         const allCarousels = document.querySelectorAll('.product-carousel');
@@ -1159,17 +1138,17 @@ document.addEventListener('DOMContentLoaded', function() {
                             carousel.style.display = 'none';
                             carousel.style.opacity = '0';
                         });
-                        
+
                         // Afficher le carrousel correspondant
                         const targetCarousel = document.getElementById(carouselId);
                         if (targetCarousel) {
                             targetCarousel.style.display = 'flex';
-                            
+
                             // Animation d'apparition du nouveau carrousel
                             setTimeout(() => {
                                 targetCarousel.style.transition = 'opacity 0.8s ease-out';
                                 targetCarousel.style.opacity = '1';
-                                
+
                                 // Animation des cartes du nouveau carrousel
                                 const cards = targetCarousel.querySelectorAll('.carousel-product-card');
                                 cards.forEach((card, index) => {
@@ -1192,7 +1171,7 @@ document.addEventListener('DOMContentLoaded', function() {
     } catch (error) {
         console.error('Error initializing category buttons:', error);
     }
-    
+
     // Réinitialiser au carrousel FEATURED quand on sort du mega menu
     megaMenus.forEach(config => {
         if (config.linkSelector === '#shopMegaMenu') {
@@ -1200,27 +1179,27 @@ document.addEventListener('DOMContentLoaded', function() {
             if (megaMenuDropdown) {
                 megaMenuDropdown.addEventListener('mouseleave', function() {
                     // Retour au carrousel FEATURED - immédiat
-                    const allCarousels = document.querySelectorAll('.product-carousel');
-                    allCarousels.forEach(carousel => carousel.style.display = 'none');
-                    
+                    const allCarrousels = document.querySelectorAll('.product-carousel');
+                    allCarrousels.forEach(carousel => carousel.style.display = 'none');
+
                     const featuredCarousel = document.getElementById('featuredCarousel');
                     if (featuredCarousel) {
                         featuredCarousel.style.display = 'flex';
                         featuredCarousel.style.opacity = '1';
                     }
-                    
+
                     // Réinitialiser les boutons de catégorie - immédiat
                     const categoryBtns = document.querySelectorAll('.dropdown-category-btn');
                     categoryBtns.forEach(b => b.classList.remove('active'));
                     const featuredBtn = document.querySelector('[data-carousel="featuredCarousel"]');
                     if (featuredBtn) {
                         featuredBtn.classList.add('active');
-                    const allCarousels = document.querySelectorAll('.product-carousel');
-                    allCarousels.forEach(carousel => carousel.style.display = 'none');
+                    }
+                });
             }
         }
     });
-    
+
     // Animation hover sur les cartes produits du carousel
     const carouselCards = document.querySelectorAll('.carousel-product-card');
     carouselCards.forEach(card => {
@@ -1228,7 +1207,7 @@ document.addEventListener('DOMContentLoaded', function() {
             this.style.transform = 'translateY(-8px) scale(1.02)';
             this.style.transition = 'all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
         });
-        
+
         card.addEventListener('mouseleave', function() {
             this.style.transform = 'translateY(0) scale(1)';
         });

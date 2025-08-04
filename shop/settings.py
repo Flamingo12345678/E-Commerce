@@ -57,7 +57,6 @@ CSRF_TRUSTED_ORIGINS = env.list(
         "http://192.168.1.26:8000",  # IP locale pour iPhone
         "https://d4fe2da5a95b.ngrok-free.app/",
         # Domaine de production
-        "https://y-e-e.codes",
         "https://www.y-e-e.codes",
         # URL temporaire DigitalOcean App Platform
         "https://*.ondigitalocean.app",

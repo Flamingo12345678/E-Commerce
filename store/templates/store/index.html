@@ -42,17 +42,17 @@
 <!-- Featured Products Grid - Rhode Skin Style -->
 <section class="py-5" style="background: var(--rhode-white);">
   <div class="container">
-    <!-- Product Grid Row 1 -->
+    <!-- Product Grid Row 1 - Large Cards -->
     <div class="row g-4 mb-4">
       <!-- Left Large Card -->
       <div class="col-lg-6">
         <div class="product-card-rhode-new">
-          {% if hero_products.3 %}
+          {% if hero_products.0 %}
             <div class="product-badge-rhode-new new">new</div>
             <div class="product-image-wrapper-rhode-new">
-              {% if hero_products.3.thumbnail %}
-                <img src="{{ hero_products.3.thumbnail.url }}" alt="{{ hero_products.3.name }}" class="product-image-main">
-                <img src="{{ hero_products.3.thumbnail.url }}" alt="{{ hero_products.3.name }}" class="product-image-hover">
+              {% if hero_products.0.thumbnail %}
+                <img src="{{ hero_products.0.thumbnail.url }}" alt="{{ hero_products.0.name }}" class="product-image-main">
+                <img src="{{ hero_products.0.thumbnail.url }}" alt="{{ hero_products.0.name }}" class="product-image-hover">
               {% else %}
                 <div class="image-placeholder-rhode product-image-main" style="background: linear-gradient(135deg, #F8C471, #F4D03F); display: flex; align-items: center; justify-content: center;">
                   <i class="bi bi-droplet" style="font-size: 4rem; color: white;"></i>
@@ -62,8 +62,8 @@
                 </div>
               {% endif %}
               <!-- Bouton d'achat au hover -->
-              <a href="{% if hero_products.0 %}{% url 'store:product_detail' hero_products.0.slug %}{% else %}#{% endif %}" class="product-buy-button-hover">
-                Acheter - €{{ hero_products.0.price|default:"32,00" }}
+              <a href="{% url 'store:product_detail' hero_products.0.slug %}" class="product-buy-button-hover">
+                Acheter - €{{ hero_products.0.price }}
               </a>
             </div>
             <div class="product-info-rhode-new">
@@ -76,14 +76,14 @@
                   <span class="star">★</span>
                   <span class="star">★</span>
                 </div>
-                <span class="product-reviews-count-rhode-new">(175)</span>
+                <span class="product-reviews-count-rhode-new">({{ hero_products.0.id|add:100 }})</span>
               </div>
-              <h3 class="product-title-rhode-new">{{ hero_products.0.name|default:"CHEMISE PREMIUM" }}</h3>
-              <p class="product-subtitle-rhode-new">{{ hero_products.0.description|truncatewords:8|default:"The compact mirror" }}</p>
-              <div class="product-price-rhode-new">€{{ hero_products.0.price|default:"32,00" }}</div>
+              <h3 class="product-title-rhode-new">{{ hero_products.0.name }}</h3>
+              <p class="product-subtitle-rhode-new">{{ hero_products.0.description|truncatewords:8 }}</p>
+              <div class="product-price-rhode-new">€{{ hero_products.0.price }}</div>
             </div>
           {% else %}
-            <!-- Demo Product 1 -->
+            <!-- Fallback si aucun produit -->
             <div class="product-badge-rhode-new new">new</div>
             <div class="product-image-wrapper-rhode-new">
               <div class="image-placeholder-rhode product-image-main" style="background: linear-gradient(135deg, #2C3E50, #34495E); display: flex; align-items: center; justify-content: center;">
@@ -93,8 +93,8 @@
                 <i class="bi bi-suit-club-fill" style="font-size: 4rem; color: white;"></i>
               </div>
               <!-- Bouton d'achat au hover -->
-              <a href="#" class="product-buy-button-hover">
-                Acheter - €49,00
+              <a href="{% url 'store:product_list' %}" class="product-buy-button-hover">
+                Découvrir - €49,00
               </a>
             </div>
             <div class="product-info-rhode-new">
@@ -109,9 +109,9 @@
                 </div>
                 <span class="product-reviews-count-rhode-new">(175)</span>
               </div>
-              <h3 class="product-title-rhode-new">chemise élégante</h3>
-              <p class="product-subtitle-rhode-new">Confort et style au quotidien</p>
-              <div class="product-price-rhode-new">€49,00</div>
+              <h3 class="product-title-rhode-new">Découvrez nos produits</h3>
+              <p class="product-subtitle-rhode-new">Mode de qualité pour tous</p>
+              <div class="product-price-rhode-new">À partir de €49,00</div>
             </div>
           {% endif %}
         </div>
@@ -135,8 +135,8 @@
                 </div>
               {% endif %}
               <!-- Bouton d'achat au hover -->
-              <a href="{% if hero_products.1 %}{% url 'store:product_detail' hero_products.1.slug %}{% else %}#{% endif %}" class="product-buy-button-hover">
-                Acheter - €{{ hero_products.1.price|default:"35,00" }}
+              <a href="{% url 'store:product_detail' hero_products.1.slug %}" class="product-buy-button-hover">
+                Acheter - €{{ hero_products.1.price }}
               </a>
             </div>
             <div class="product-info-rhode-new">
@@ -149,14 +149,14 @@
                   <span class="star">★</span>
                   <span class="star">★</span>
                 </div>
-                <span class="product-reviews-count-rhode-new">(89)</span>
+                <span class="product-reviews-count-rhode-new">({{ hero_products.1.id|add:50 }})</span>
               </div>
-              <h3 class="product-title-rhode-new">{{ hero_products.1.name|default:"SUMMER KIT" }}</h3>
-              <p class="product-subtitle-rhode-new">{{ hero_products.1.description|truncatewords:8|default:"Trois pièces essentielles pour un look parfait" }}</p>
-              <div class="product-price-rhode-new">€{{ hero_products.1.price|default:"97,00" }}</div>
+              <h3 class="product-title-rhode-new">{{ hero_products.1.name }}</h3>
+              <p class="product-subtitle-rhode-new">{{ hero_products.1.description|truncatewords:8 }}</p>
+              <div class="product-price-rhode-new">€{{ hero_products.1.price }}</div>
             </div>
           {% else %}
-            <!-- Demo Product 2 -->
+            <!-- Fallback si aucun produit -->
             <div class="product-badge-rhode-new new">new</div>
             <div class="product-image-wrapper-rhode-new">
               <div class="image-placeholder-rhode product-image-main" style="background: linear-gradient(135deg, #E74C3C, #C0392B); display: flex; align-items: center; justify-content: center;">
@@ -166,8 +166,8 @@
                 <i class="bi bi-handbag-fill" style="font-size: 4rem; color: white;"></i>
               </div>
               <!-- Bouton d'achat au hover -->
-              <a href="#" class="product-buy-button-hover">
-                Acheter - €75,00
+              <a href="{% url 'store:product_list' %}" class="product-buy-button-hover">
+                Découvrir - €75,00
               </a>
             </div>
             <div class="product-info-rhode-new">
@@ -182,415 +182,64 @@
                 </div>
                 <span class="product-reviews-count-rhode-new">(89)</span>
               </div>
-              <h3 class="product-title-rhode-new">sac tendance</h3>
-              <p class="product-subtitle-rhode-new">Trois accessoires essentiels pour votre style</p>
-              <div class="product-price-rhode-new">€75,00</div>
+              <h3 class="product-title-rhode-new">Explorez notre collection</h3>
+              <p class="product-subtitle-rhode-new">Styles uniques et tendances</p>
+              <div class="product-price-rhode-new">À partir de €75,00</div>
             </div>
           {% endif %}
         </div>
       </div>
     </div>
 
-    <!-- Grid Rows 2-9 - Product Grid 2x2 -->
-    {% for row in "12345" %}
+    <!-- Product Grid - Real Products Grid -->
+    {% if hero_products|length > 2 %}
     <div class="row g-4 mb-4">
-      {% for col in "123" %}
+      {% for product in hero_products|slice:"2:20" %}
         <div class="col-lg-4 col-md-6 col-sm-12">
           <div class="product-card-rhode-new">
-            {% with forloop.parentloop.counter0 as row_index %}
-            {% with forloop.counter0 as col_index %}
-              {% if row_index == 0 and col_index == 0 %}
-                <div class="product-image-wrapper-rhode-new">
-                  <div class="image-placeholder-rhode product-image-main" style="background: linear-gradient(135deg, #34495E, #2C3E50); display: flex; align-items: center; justify-content: center;">
-                    <i class="bi bi-shoe" style="font-size: 3rem; color: white;"></i>
-                  </div>
-                  <div class="image-placeholder-rhode product-image-hover" style="background: linear-gradient(135deg, #1ABC9C, #16A085); display: flex; align-items: center; justify-content: center;">
-                    <i class="bi bi-shoe-fill" style="font-size: 3rem; color: white;"></i>
-                  </div>
-                  <!-- Bouton d'achat au hover -->
-                  <a href="#" class="product-buy-button-hover">
-                    Acheter - €89,00
-                  </a>
-                </div>
-                <div class="product-info-rhode-new">
-                  <div class="product-rating-rhode-new">
-                    <div class="product-stars-rhode-new">
-                      <span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span>
-                    </div>
-                    <span class="product-reviews-count-rhode-new">(64)</span>
-                  </div>
-                  <h3 class="product-title-rhode-new">sneakers urbaines</h3>
-                  <p class="product-subtitle-rhode-new">Confort et style pour la ville</p>
-                  <div class="product-price-rhode-new">€89,00</div>
-                </div>
-              {% elif row_index == 0 and col_index == 1 %}
-                <div class="product-image-wrapper-rhode-new">
-                  <div class="image-placeholder-rhode product-image-main" style="background: linear-gradient(135deg, #E74C3C, #C0392B); display: flex; align-items: center; justify-content: center;">
-                    <i class="bi bi-flower1" style="font-size: 3rem; color: white;"></i>
-                  </div>
-                  <div class="image-placeholder-rhode product-image-hover" style="background: linear-gradient(135deg, #8E44AD, #7D3C98); display: flex; align-items: center; justify-content: center;">
-                    <i class="bi bi-flower2" style="font-size: 3rem; color: white;"></i>
-                  </div>
-                  <!-- Bouton d\'achat au hover -->
-                  <a href="#" class="product-buy-button-hover">
-                    Acheter - €65,00
-                  </a>
-                </div>
-                <div class="product-info-rhode-new">
-                  <div class="product-rating-rhode-new">
-                    <div class="product-stars-rhode-new">
-                      <span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span>
-                    </div>
-                    <span class="product-reviews-count-rhode-new">(92)</span>
-                  </div>
-                  <h3 class="product-title-rhode-new">robe florale</h3>
-                  <p class="product-subtitle-rhode-new">Élégance feminine</p>
-                  <div class="product-price-rhode-new">€65,00</div>
-                </div>
-              {% elif row_index == 0 and col_index == 2 %}
-                <div class="product-image-wrapper-rhode-new">
-                  <div class="image-placeholder-rhode product-image-main" style="background: linear-gradient(135deg, #F39C12, #E67E22); display: flex; align-items: center; justify-content: center;">
-                    <i class="bi bi-gem" style="font-size: 3rem; color: white;"></i>
-                  </div>
-                  <div class="image-placeholder-rhode product-image-hover" style="background: linear-gradient(135deg, #F4D03F, #F8C471); display: flex; align-items: center; justify-content: center;">
-                    <i class="bi bi-star-fill" style="font-size: 3rem; color: white;"></i>
-                  </div>
-                  <!-- Bouton d\'achat au hover -->
-                  <a href="#" class="product-buy-button-hover">
-                    Acheter - €45,00
-                  </a>
-                </div>
-                <div class="product-info-rhode-new">
-                  <div class="product-rating-rhode-new">
-                    <div class="product-stars-rhode-new">
-                      <span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span>
-                    </div>
-                    <span class="product-reviews-count-rhode-new">(128)</span>
-                  </div>
-                  <h3 class="product-title-rhode-new">bijoux dorés</h3>
-                  <p class="product-subtitle-rhode-new">Accessoires élégants</p>
-                  <div class="product-price-rhode-new">€45,00</div>
-                </div>
-              {% elif row_index == 1 and col_index == 0 %}
-                <div class="product-image-wrapper-rhode-new">
-                  <div class="image-placeholder-rhode product-image-main" style="background: linear-gradient(135deg, #2C3E50, #34495E); display: flex; align-items: center; justify-content: center;; display: flex; align-items: center; justify-content: center;">
-                    <i class="bi bi-person-workspace" style="font-size: 3rem; color: white;"></i>
-                  </div>
-                  <div class="image-placeholder-rhode product-image-hover" style="background: linear-gradient(45deg, #1ABC9C, #16A085); display: flex; align-items: center; justify-content: center;; display: flex; align-items: center; justify-content: center;">
-                    <i class="bi bi-suit-club-fill" style="font-size: 3rem; color: white;"></i>
-                  </div>
-                  <!-- Bouton d'achat au hover -->
-                  <a href="#" class="product-buy-button-hover">
-                    Acheter - €89,00
-                  </a>
-                </div>
-                <div class="product-info-rhode-new">
-                  <div class="product-rating-rhode-new">
-                    <div class="product-stars-rhode-new">
-                      <span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span>
-                    </div>
-                    <span class="product-reviews-count-rhode-new">(203)</span>
-                  </div>
-                  <h3 class="product-title-rhode-new">costume homme</h3>
-                  <p class="product-subtitle-rhode-new">Élégance professionnelle</p>
-                  <div class="product-price-rhode-new">€189,00</div>
-                </div>
-              {% elif row_index == 1 and col_index == 1 %}
-                <div class="product-image-wrapper-rhode-new">
-                  <div class="image-placeholder-rhode product-image-main" style="background: linear-gradient(135deg, #E74C3C, #C0392B); display: flex; align-items: center; justify-content: center;; display: flex; align-items: center; justify-content: center;">
-                    <i class="bi bi-bag" style="font-size: 3rem; color: white;"></i>
-                  </div>
-                  <div class="image-placeholder-rhode product-image-hover" style="background: linear-gradient(45deg, #E74C3C, #C0392B); display: flex; align-items: center; justify-content: center;; display: flex; align-items: center; justify-content: center;">
-                    <i class="bi bi-bag" style="font-size: 3rem; color: white;"></i>
-                  </div>
-                  <!-- Bouton d'achat au hover -->
-                  <a href="#" class="product-buy-button-hover">
-                    Acheter - €25,00
-                  </a>
-                </div>
-                <div class="product-info-rhode-new">
-                  <div class="product-rating-rhode-new">
-                    <div class="product-stars-rhode-new">
-                      <span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span>
-                    </div>
-                    <span class="product-reviews-count-rhode-new">(156)</span>
-                  </div>
-                  <h3 class="product-title-rhode-new">tinted balm</h3>
-                  <p class="product-subtitle-rhode-new">Style et confort réunis</p>
-                  <div class="product-price-rhode-new">€26,00</div>
-                </div>
-              {% elif row_index == 1 and col_index == 2 %}
-                <div class="product-image-wrapper-rhode-new">
-                  <div class="image-placeholder-rhode product-image-main" style="background: linear-gradient(135deg, #3498DB, #2980B9); display: flex; align-items: center; justify-content: center;; display: flex; align-items: center; justify-content: center;">
-                    <i class="bi bi-water" style="font-size: 3rem; color: white;"></i>
-                  </div>
-                  <div class="image-placeholder-rhode product-image-hover" style="background: linear-gradient(45deg, #3498DB, #2980B9); display: flex; align-items: center; justify-content: center;; display: flex; align-items: center; justify-content: center;">
-                    <i class="bi bi-water" style="font-size: 3rem; color: white;"></i>
-                  </div>
-                  <!-- Bouton d'achat au hover -->
-                  <a href="#" class="product-buy-button-hover">
-                    Acheter - €25,00
-                  </a>
-                </div>
-                <div class="product-info-rhode-new">
-                  <div class="product-rating-rhode-new">
-                    <div class="product-stars-rhode-new">
-                      <span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span>
-                    </div>
-                    <span class="product-reviews-count-rhode-new">(87)</span>
-                  </div>
-                  <h3 class="product-title-rhode-new">jean classique</h3>
-                  <p class="product-subtitle-rhode-new">Coupe intemporelle</p>
-                  <div class="product-price-rhode-new">€34,00</div>
-                </div>
-              {% elif row_index == 2 and col_index == 0 %}
-                <div class="product-image-wrapper-rhode-new">
-                  <div class="image-placeholder-rhode product-image-main" style="background: linear-gradient(135deg, #F39C12, #D68910); display: flex; align-items: center; justify-content: center;; display: flex; align-items: center; justify-content: center;">
-                    <i class="bi bi-brightness-high" style="font-size: 3rem; color: white;"></i>
-                  </div>
-                  <div class="image-placeholder-rhode product-image-hover" style="background: linear-gradient(45deg, #F39C12, #D68910); display: flex; align-items: center; justify-content: center;; display: flex; align-items: center; justify-content: center;">
-                    <i class="bi bi-brightness-high" style="font-size: 3rem; color: white;"></i>
-                  </div>
-                  <!-- Bouton d'achat au hover -->
-                  <a href="#" class="product-buy-button-hover">
-                    Acheter - €25,00
-                  </a>
-                </div>
-                <div class="product-info-rhode-new">
-                  <div class="product-rating-rhode-new">
-                    <div class="product-stars-rhode-new">
-                      <span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span>
-                    </div>
-                    <span class="product-reviews-count-rhode-new">(245)</span>
-                  </div>
-                  <h3 class="product-title-rhode-new">polo heritage</h3>
-                  <p class="product-subtitle-rhode-new">Brightening daily treatment</p>
-                  <div class="product-price-rhode-new">€48,00</div>
-                </div>
-              {% elif row_index == 2 and col_index == 1 %}
-                <div class="product-image-wrapper-rhode-new">
-                  <div class="image-placeholder-rhode product-image-main" style="background: linear-gradient(135deg, #27AE60, #229954); display: flex; align-items: center; justify-content: center;; display: flex; align-items: center; justify-content: center;">
-                    <i class="bi bi-leaf" style="font-size: 3rem; color: white;"></i>
-                  </div>
-                  <div class="image-placeholder-rhode product-image-hover" style="background: linear-gradient(45deg, #27AE60, #229954); display: flex; align-items: center; justify-content: center;; display: flex; align-items: center; justify-content: center;">
-                    <i class="bi bi-leaf" style="font-size: 3rem; color: white;"></i>
-                  </div>
-                  <!-- Bouton d'achat au hover -->
-                  <a href="#" class="product-buy-button-hover">
-                    Acheter - €25,00
-                  </a>
-                </div>
-                <div class="product-info-rhode-new">
-                  <div class="product-rating-rhode-new">
-                    <div class="product-stars-rhode-new">
-                      <span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span>
-                    </div>
-                    <span class="product-reviews-count-rhode-new">(167)</span>
-                  </div>
-                  <h3 class="product-title-rhode-new">green tea mask</h3>
-                  <p class="product-subtitle-rhode-new">Purifying weekly treatment</p>
-                  <div class="product-price-rhode-new">€38,00</div>
-                </div>
-              {% elif row_index == 2 and col_index == 2 %}
-                <div class="product-image-wrapper-rhode-new">
-                  <div class="image-placeholder-rhode product-image-main" style="background: linear-gradient(135deg, #E91E63, #AD1457); display: flex; align-items: center; justify-content: center;; display: flex; align-items: center; justify-content: center;">
-                    <i class="bi bi-flower1" style="font-size: 3rem; color: white;"></i>
-                  </div>
-                  <div class="image-placeholder-rhode product-image-hover" style="background: linear-gradient(45deg, #E91E63, #AD1457); display: flex; align-items: center; justify-content: center;; display: flex; align-items: center; justify-content: center;">
-                    <i class="bi bi-flower1" style="font-size: 3rem; color: white;"></i>
-                  </div>
-                  <!-- Bouton d'achat au hover -->
-                  <a href="#" class="product-buy-button-hover">
-                    Acheter - €25,00
-                  </a>
-                </div>
-                <div class="product-info-rhode-new">
-                  <div class="product-rating-rhode-new">
-                    <div class="product-stars-rhode-new">
-                      <span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span>
-                    </div>
-                    <span class="product-reviews-count-rhode-new">(312)</span>
-                  </div>
-                  <h3 class="product-title-rhode-new">rose oil</h3>
-                  <p class="product-subtitle-rhode-new">Luxurious facial oil</p>
-                  <div class="product-price-rhode-new">€65,00</div>
-                </div>
-              {% elif row_index == 3 and col_index == 0 %}
-                <div class="product-image-wrapper-rhode-new">
-                  <div class="image-placeholder-rhode product-image-main" style="background: linear-gradient(135deg, #17A2B8, #138496); display: flex; align-items: center; justify-content: center;; display: flex; align-items: center; justify-content: center;">
-                    <i class="bi bi-droplet-half" style="font-size: 3rem; color: white;"></i>
-                  </div>
-                  <div class="image-placeholder-rhode product-image-hover" style="background: linear-gradient(45deg, #17A2B8, #138496); display: flex; align-items: center; justify-content: center;; display: flex; align-items: center; justify-content: center;">
-                    <i class="bi bi-droplet-fill-half" style="font-size: 3rem; color: white;"></i>
-                  </div>
-                  <!-- Bouton d'achat au hover -->
-                  <a href="#" class="product-buy-button-hover">
-                    Acheter - €25,00
-                  </a>
-                </div>
-                <div class="product-info-rhode-new">
-                  <div class="product-rating-rhode-new">
-                    <div class="product-stars-rhode-new">
-                      <span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span>
-                    </div>
-                    <span class="product-reviews-count-rhode-new">(89)</span>
-                  </div>
-                  <h3 class="product-title-rhode-new">jean comfort</h3>
-                  <p class="product-subtitle-rhode-new">Qualité exceptionnelle</p>
-                  <div class="product-price-rhode-new">€42,00</div>
-                </div>
-              {% elif row_index == 3 and col_index == 1 %}
-                <div class="product-image-wrapper-rhode-new">
-                  <div class="image-placeholder-rhode product-image-main" style="background: linear-gradient(135deg, #6F42C1, #59359A); display: flex; align-items: center; justify-content: center;; display: flex; align-items: center; justify-content: center;">
-                    <i class="bi bi-eye" style="font-size: 3rem; color: white;"></i>
-                  </div>
-                  <div class="image-placeholder-rhode product-image-hover" style="background: linear-gradient(45deg, #6F42C1, #59359A); display: flex; align-items: center; justify-content: center;; display: flex; align-items: center; justify-content: center;">
-                    <i class="bi bi-eye" style="font-size: 3rem; color: white;"></i>
-                  </div>
-                  <!-- Bouton d'achat au hover -->
-                  <a href="#" class="product-buy-button-hover">
-                    Acheter - €25,00
-                  </a>
-                </div>
-                <div class="product-info-rhode-new">
-                  <div class="product-rating-rhode-new">
-                    <div class="product-stars-rhode-new">
-                      <span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span>
-                    </div>
-                    <span class="product-reviews-count-rhode-new">(234)</span>
-                  </div>
-                  <h3 class="product-title-rhode-new">sneakers mode</h3>
-                  <p class="product-subtitle-rhode-new">Design moderne</p>
-                  <div class="product-price-rhode-new">€55,00</div>
-                </div>
-              {% elif row_index == 3 and col_index == 2 %}
-                <div class="product-image-wrapper-rhode-new">
-                  <div class="image-placeholder-rhode product-image-main" style="background: linear-gradient(135deg, #FD7E14, #E55100); display: flex; align-items: center; justify-content: center;; display: flex; align-items: center; justify-content: center;">
-                    <i class="bi bi-sun" style="font-size: 3rem; color: white;"></i>
-                  </div>
-                  <div class="image-placeholder-rhode product-image-hover" style="background: linear-gradient(45deg, #FD7E14, #E55100); display: flex; align-items: center; justify-content: center;; display: flex; align-items: center; justify-content: center;">
-                    <i class="bi bi-sun" style="font-size: 3rem; color: white;"></i>
-                  </div>
-                  <!-- Bouton d'achat au hover -->
-                  <a href="#" class="product-buy-button-hover">
-                    Acheter - €25,00
-                  </a>
-                </div>
-                <div class="product-info-rhode-new">
-                  <div class="product-rating-rhode-new">
-                    <div class="product-stars-rhode-new">
-                      <span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span>
-                    </div>
-                    <span class="product-reviews-count-rhode-new">(145)</span>
-                  </div>
-                  <h3 class="product-title-rhode-new">sunscreen</h3>
-                  <p class="product-subtitle-rhode-new">Daily protection SPF 50</p>
-                  <div class="product-price-rhode-new">€29,00</div>
-                </div>
-              {% elif row_index == 4 and col_index == 0 %}
-                <div class="product-image-wrapper-rhode-new">
-                  <div class="image-placeholder-rhode product-image-main" style="background: linear-gradient(135deg, #20C997, #198754); display: flex; align-items: center; justify-content: center;; display: flex; align-items: center; justify-content: center;">
-                    <i class="bi bi-arrow-repeat" style="font-size: 3rem; color: white;"></i>
-                  </div>
-                  <div class="image-placeholder-rhode product-image-hover" style="background: linear-gradient(45deg, #20C997, #198754); display: flex; align-items: center; justify-content: center;; display: flex; align-items: center; justify-content: center;">
-                    <i class="bi bi-arrow-repeat" style="font-size: 3rem; color: white;"></i>
-                  </div>
-                  <!-- Bouton d'achat au hover -->
-                  <a href="#" class="product-buy-button-hover">
-                    Acheter - €25,00
-                  </a>
-                </div>
-                <div class="product-info-rhode-new">
-                  <div class="product-rating-rhode-new">
-                    <div class="product-stars-rhode-new">
-                      <span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span>
-                    </div>
-                    <span class="product-reviews-count-rhode-new">(78)</span>
-                  </div>
-                  <h3 class="product-title-rhode-new">exfoliating scrub</h3>
-                  <p class="product-subtitle-rhode-new">Weekly skin renewal</p>
-                  <div class="product-price-rhode-new">€36,00</div>
-                </div>
-              {% elif row_index == 4 and col_index == 1 %}
-                <div class="product-image-wrapper-rhode-new">
-                  <div class="image-placeholder-rhode product-image-main" style="background: linear-gradient(135deg, #FF6B6B, #EE5A52); display: flex; align-items: center; justify-content: center;; display: flex; align-items: center; justify-content: center;">
-                    <i class="bi bi-heart-fill" style="font-size: 3rem; color: white;"></i>
-                  </div>
-                  <div class="image-placeholder-rhode product-image-hover" style="background: linear-gradient(45deg, #FF6B6B, #EE5A52); display: flex; align-items: center; justify-content: center;; display: flex; align-items: center; justify-content: center;">
-                    <i class="bi bi-heart-fill-fill" style="font-size: 3rem; color: white;"></i>
-                  </div>
-                  <!-- Bouton d'achat au hover -->
-                  <a href="#" class="product-buy-button-hover">
-                    Acheter - €25,00
-                  </a>
-                </div>
-                <div class="product-info-rhode-new">
-                  <div class="product-rating-rhode-new">
-                    <div class="product-stars-rhode-new">
-                      <span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span>
-                    </div>
-                    <span class="product-reviews-count-rhode-new">(298)</span>
-                  </div>
-                  <h3 class="product-title-rhode-new">sac tendance</h3>
-                  <p class="product-subtitle-rhode-new">Accessoire indispensable</p>
-                  <div class="product-price-rhode-new">€22,00</div>
-                </div>
-              {% elif row_index == 4 and col_index == 2 %}
-                <div class="product-image-wrapper-rhode-new">
-                  <div class="image-placeholder-rhode product-image-main" style="background: linear-gradient(135deg, #4ECDC4, #45B7AF); display: flex; align-items: center; justify-content: center;; display: flex; align-items: center; justify-content: center;">
-                    <i class="bi bi-magic" style="font-size: 3rem; color: white;"></i>
-                  </div>
-                  <div class="image-placeholder-rhode product-image-hover" style="background: linear-gradient(45deg, #4ECDC4, #45B7AF); display: flex; align-items: center; justify-content: center;; display: flex; align-items: center; justify-content: center;">
-                    <i class="bi bi-magic" style="font-size: 3rem; color: white;"></i>
-                  </div>
-                  <!-- Bouton d'achat au hover -->
-                  <a href="#" class="product-buy-button-hover">
-                    Acheter - €25,00
-                  </a>
-                </div>
-                <div class="product-info-rhode-new">
-                  <div class="product-rating-rhode-new">
-                    <div class="product-stars-rhode-new">
-                      <span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span>
-                    </div>
-                    <span class="product-reviews-count-rhode-new">(187)</span>
-                  </div>
-                  <h3 class="product-title-rhode-new">pore minimizer</h3>
-                  <p class="product-subtitle-rhode-new">Finition impeccable</p>
-                  <div class="product-price-rhode-new">€41,00</div>
-                </div>
+            <div class="product-image-wrapper-rhode-new">
+              {% if product.thumbnail %}
+                <img src="{{ product.thumbnail.url }}" alt="{{ product.name }}" class="product-image-main">
+                <img src="{{ product.thumbnail.url }}" alt="{{ product.name }}" class="product-image-hover">
               {% else %}
-                <div class="product-image-wrapper-rhode-new">
-                  <div class="image-placeholder-rhode product-image-main" style="background: linear-gradient(135deg, #B0BEC5, #90A4AE); display: flex; align-items: center; justify-content: center;; display: flex; align-items: center; justify-content: center;">
-                    <i class="bi bi-box" style="font-size: 3rem; color: white;"></i>
-                  </div>
-                  <div class="image-placeholder-rhode product-image-hover" style="background: linear-gradient(45deg, #B0BEC5, #90A4AE); display: flex; align-items: center; justify-content: center;; display: flex; align-items: center; justify-content: center;">
-                    <i class="bi bi-box" style="font-size: 3rem; color: white;"></i>
-                  </div>
-                  <!-- Bouton d'achat au hover -->
-                  <a href="#" class="product-buy-button-hover">
-                    Acheter - €25,00
-                  </a>
+                <div class="image-placeholder-rhode product-image-main" style="background: linear-gradient(135deg, {% cycle '#34495E, #2C3E50' '#E74C3C, #C0392B' '#F39C12, #E67E22' '#3498DB, #2980B9' '#8E44AD, #7D3C98' '#1ABC9C, #16A085' %}); display: flex; align-items: center; justify-content: center;">
+                  <i class="bi bi-{% cycle 'shirt' 'bag' 'gem' 'water' 'flower1' 'star' %}" style="font-size: 3rem; color: white;"></i>
                 </div>
-                <div class="product-info-rhode-new">
-                  <div class="product-rating-rhode-new">
-                    <div class="product-stars-rhode-new">
-                      <span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span>
-                    </div>
-                    <span class="product-reviews-count-rhode-new">(156)</span>
-                  </div>
-                  <h3 class="product-title-rhode-new">chaussure élégante</h3>
-                  <p class="product-subtitle-rhode-new">Daily care essential</p>
-                  <div class="product-price-rhode-new">€35,00</div>
+                <div class="image-placeholder-rhode product-image-hover" style="background: linear-gradient(135deg, {% cycle '#1ABC9C, #16A085' '#8E44AD, #7D3C98' '#F4D03F, #F8C471' '#3498DB, #2980B9' '#E74C3C, #C0392B' '#F39C12, #D68910' %}); display: flex; align-items: center; justify-content: center;">
+                  <i class="bi bi-{% cycle 'suit-club-fill' 'handbag-fill' 'star-fill' 'droplet' 'flower2' 'brightness-high' %}" style="font-size: 3rem; color: white;"></i>
                 </div>
               {% endif %}
-            {% endwith %}
-            {% endwith %}
+              <!-- Bouton d'achat au hover -->
+              <a href="{% url 'store:product_detail' product.slug %}" class="product-buy-button-hover">
+                Acheter - €{{ product.price }}
+              </a>
+            </div>
+            <div class="product-info-rhode-new">
+              <div class="product-rating-rhode-new">
+                <div class="product-stars-rhode-new">
+                  <span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span>
+                </div>
+                <span class="product-reviews-count-rhode-new">({{ product.id|add:20 }})</span>
+              </div>
+              <h3 class="product-title-rhode-new">{{ product.name }}</h3>
+              <p class="product-subtitle-rhode-new">{{ product.description|truncatewords:5 }}</p>
+              <div class="product-price-rhode-new">€{{ product.price }}</div>
+            </div>
           </div>
         </div>
+        {% if forloop.counter|divisibleby:3 %}
+          </div><div class="row g-4 mb-4">
+        {% endif %}
       {% endfor %}
     </div>
-    {% endfor %}
+    {% endif %}
+
+    <!-- Call to Action -->
+    <div class="text-center mt-5">
+      <a href="{% url 'store:product_list' %}" class="btn-rhode" style="padding: 1rem 2rem; font-size: 1.1rem;">
+        voir tous les produits
+      </a>
+    </div>
   </div>
 </section>
 
@@ -722,11 +371,11 @@
   .product-card-rhode-new {
     min-height: 300px;
   }
-  
+
   .product-title-rhode-new {
     font-size: 1rem;
   }
-  
+
   .product-buy-button-hover {
     padding: 10px 20px;
     font-size: 13px;

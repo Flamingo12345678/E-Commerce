@@ -157,29 +157,42 @@ def index(request):
         featured_categories = list(featured_categories_qs)
         cache.set("featured_categories", featured_categories, 3600)  # 1h
 
-    # 2. Produits vedettes par section
+    # 2. Produits vedettes - récupérer plus de produits pour la grille
     hero_products = cache.get("hero_products")
     if hero_products is None:
-        # Temporairement sans filtre de variantes
+        # Récupérer 20 produits pour remplir toute la grille
         hero_products = (
             Product.objects.select_related("category")
             .filter(category__is_active=True)
             .annotate(rating_avg=Avg("rating"))
-            .order_by("-rating_avg", "-created_at")[:3]
+            .order_by("-rating_avg", "-created_at")[:20]
         )
         cache.set("hero_products", hero_products, 1800)  # 30min
 
-    # Temporairement sans filtre de variantes
+    # 3. Produits par catégorie pour diversité
+    products_by_category = cache.get("products_by_category")
+    if products_by_category is None:
+        products_by_category = {}
+        categories = Category.objects.filter(is_active=True)[:6]
+        for category in categories:
+            products_by_category[category.slug] = (
+                Product.objects.select_related("category")
+                .filter(category=category)
+                .order_by("-created_at")[:5]
+            )
+        cache.set("products_by_category", products_by_category, 1800)
+
+    # 4. Nouveautés et tendances
     new_arrivals = (
         Product.objects.select_related("category")
         .filter(category__is_active=True)
-        .order_by("-created_at")[:5]
+        .order_by("-created_at")[:8]
     )
 
     trending_products = (
         Product.objects.select_related("category")
         .filter(category__is_active=True)
-        .order_by("-id")[:5]
+        .order_by("-id")[:8]
     )
 
     # === STATISTIQUES DE LA BOUTIQUE ===
@@ -202,6 +215,7 @@ def index(request):
         "hero_products": hero_products,
         "new_arrivals": new_arrivals,
         "trending_products": trending_products,
+        "products_by_category": products_by_category,
         "shop_stats": shop_stats,
     }
     return render(request, "store/index.html", context)
