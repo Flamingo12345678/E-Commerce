@@ -42,8 +42,9 @@ from accounts.views import (
 
 
 urlpatterns = [
-    path("", index, name="index"),
+    # Admin doit être en premier pour éviter les conflits
     path("admin/", admin.site.urls),
+    path("", index, name="index"),
     # Include URLs from accounts app (authentication + payment)
     path("accounts/", include("accounts.urls", namespace="accounts")),
     # Include URLs from pages app (static pages)
