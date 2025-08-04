@@ -18,6 +18,25 @@ from django.urls import reverse_lazy
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+DEBUG = os.getenv("DEBUG", "True") == "True"
+
+ALLOWED_HOSTS = ['y-e-e.tech', 'www.y-e-e.tech', '.herokuapp.com']
+
+# Logger Heroku pour les erreurs
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'root': {
+        'handlers': ['console'],
+        'level': 'DEBUG',
+    },
+}
+
 # Initialize environment variables
 env = environ.Env(
     # set casting, default value
