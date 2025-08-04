@@ -1,4 +1,4 @@
-name: yee
+name: yee-ecommerce
 services:
 - name: web
   source_dir: /
@@ -13,59 +13,62 @@ services:
   instance_count: 1
   instance_size_slug: basic-xxs
 
-  http_port: 8000
+  http_port: 8080
+
+  health_check:
+    http_path: /
+    initial_delay_seconds: 20
+    period_seconds: 10
+    timeout_seconds: 5
+    success_threshold: 1
+    failure_threshold: 3
 
   envs:
   - key: DEBUG
     value: "False"
+  - key: DJANGO_SETTINGS_MODULE
+    value: "shop.settings"
   - key: ALLOWED_HOSTS
-    value: ".ondigitalocean.app"
+    value: "y-e-e.codes,www.y-e-e.codes,*.ondigitalocean.app"
+  - key: STATIC_ROOT
+    value: "/app/staticfiles"
+  - key: MEDIA_ROOT
+    value: "/app/media"
+  - key: SECURE_SSL_REDIRECT
+    value: "True"
+  - key: SECURE_PROXY_SSL_HEADER
+    value: "HTTP_X_FORWARDED_PROTO,https"
   - key: SECRET_KEY
-    value: "VOTRE_SECRET_KEY_PRODUCTION"
+    scope: RUN_TIME
     type: SECRET
-  - key: DB_ENGINE
-    value: "postgresql"
-  - key: DATABASE_URL
-    value: "${db.DATABASE_URL}"
   - key: STRIPE_PUBLISHABLE_KEY
-    value: "VOTRE_STRIPE_PUBLISHABLE_KEY"
+    scope: RUN_TIME
     type: SECRET
   - key: STRIPE_SECRET_KEY
-    value: "VOTRE_STRIPE_SECRET_KEY"
+    scope: RUN_TIME
     type: SECRET
   - key: STRIPE_WEBHOOK_SECRET
-    value: "VOTRE_STRIPE_WEBHOOK_SECRET"
+    scope: RUN_TIME
     type: SECRET
   - key: PAYPAL_CLIENT_ID
-    value: "VOTRE_PAYPAL_CLIENT_ID"
+    scope: RUN_TIME
     type: SECRET
   - key: PAYPAL_CLIENT_SECRET
-    value: "VOTRE_PAYPAL_CLIENT_SECRET"
+    scope: RUN_TIME
     type: SECRET
-  - key: PAYPAL_MODE
-    value: "sandbox"
   - key: EMAIL_HOST_USER
-    value: "votre@email.com"
+    scope: RUN_TIME
     type: SECRET
   - key: EMAIL_HOST_PASSWORD
-    value: "votre_mot_de_passe"
+    scope: RUN_TIME
     type: SECRET
-  - key: FIREBASE_API_KEY
-    value: "AIzaSyBwguAg6qxCZKqoQNGMVKDrbvPhhavcTo0"
-  - key: FIREBASE_AUTH_DOMAIN
-    value: "yee-ecommerce.firebaseapp.com"
-  - key: FIREBASE_PROJECT_ID
-    value: "yee-ecommerce"
-  - key: FIREBASE_STORAGE_BUCKET
-    value: "yee-ecommerce.firebasestorage.app"
-  - key: FIREBASE_MESSAGING_SENDER_ID
-    value: "503069643994"
-  - key: FIREBASE_APP_ID
-    value: "1:503069643994:web:64bda02a018266bed841e3"
-  - key: FIREBASE_DATABASE_URL
-    value: "https://yee-ecommerce-default-rtdb.europe-west1.firebasedatabase.app/"
+  - key: FIREBASE_CREDENTIALS
+    scope: RUN_TIME
+    type: SECRET
 
 databases:
-- name: db
+- name: yee
   engine: PG
   version: "14"
+  size: basic
+  num_nodes: 1

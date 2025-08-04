@@ -2,7 +2,7 @@
 
 ## Configuration Automatisée via GitHub
 
-Votre application est maintenant configurée pour se déployer automatiquement sur l'App Platform de Digital Ocean directement depuis votre repository GitHub.
+Votre application est maintenant configurée pour se déployer automatiquement sur l'App Platform de Digital Ocean directement depuis votre repository GitHub avec le domaine **y-e-e.codes**.
 
 ## 📋 Étapes de Déploiement
 
@@ -11,7 +11,7 @@ Votre application est maintenant configurée pour se déployer automatiquement s
 ```bash
 # Ajouter et pousser les derniers changements
 git add .
-git commit -m "Configuration App Platform Digital Ocean"
+git commit -m "Configuration App Platform Digital Ocean pour y-e-e.codes"
 git push origin main
 ```
 
@@ -23,13 +23,26 @@ git push origin main
 4. Sélectionnez **GitHub** comme source
 5. Choisissez votre repository **YEE E-Commerce**
 6. Sélectionnez la branche **main**
-7. **Utilisez le fichier app.yaml** détecté automatiquement
+7. **Utilisez le fichier app.yaml** détecté automatiquement dans `.do/app.yaml`
 
-### 3. Configuration des Variables d'Environnement
+### 3. Configuration DNS pour y-e-e.codes
+
+**Important :** Avant de déployer, vérifiez que vos DNS chez Name.com pointent correctement :
+
+#### Enregistrements DNS requis chez Name.com :
+```
+Type    Nom             Valeur                          TTL
+A       @               [IP fournie par DigitalOcean]   300
+CNAME   www             y-e-e.codes                     300
+```
+
+**Note :** L'IP sera fournie par DigitalOcean après la création de l'app.
+
+### 4. Configuration des Variables d'Environnement
 
 L'App Platform va automatiquement détecter le fichier `.do/app.yaml` qui contient toute la configuration. Vous devrez configurer les valeurs secrètes dans l'interface Digital Ocean :
 
-#### Variables Obligatoires à Configurer :
+#### Variables Obligatoires à Configurer dans l'interface DO :
 - `SECRET_KEY` : Générez une clé secrète Django sécurisée
 - `STRIPE_PUBLISHABLE_KEY` : Votre clé publique Stripe
 - `STRIPE_SECRET_KEY` : Votre clé secrète Stripe
@@ -38,20 +51,21 @@ L'App Platform va automatiquement détecter le fichier `.do/app.yaml` qui contie
 - `PAYPAL_CLIENT_SECRET` : Secret client PayPal
 - `EMAIL_HOST_USER` : Votre email pour l'envoi
 - `EMAIL_HOST_PASSWORD` : Mot de passe d'application email
+- `FIREBASE_CREDENTIALS` : Contenu du fichier firebase-credentials.json (en JSON)
 
-### 4. Base de Données PostgreSQL
+### 5. Base de Données PostgreSQL
 
 L'App Platform va automatiquement :
 - ✅ Créer une base PostgreSQL
 - ✅ Configurer la variable `DATABASE_URL`
 - ✅ Connecter votre application à la base
 
-### 5. Domaine Personnalisé (Optionnel)
+### 6. Configuration du Domaine y-e-e.codes
 
 1. Dans les paramètres de l'app, allez dans **"Domains"**
-2. Ajoutez votre domaine personnalisé
-3. Configurez les enregistrements DNS comme indiqué
-4. SSL sera automatiquement configuré
+2. Le domaine **y-e-e.codes** et **www.y-e-e.codes** sont déjà pré-configurés dans app.yaml
+3. Suivez les instructions pour configurer les DNS chez Name.com
+4. SSL sera automatiquement configuré par Let's Encrypt
 
 ## 🔧 Configuration Post-Déploiement
 
@@ -71,18 +85,19 @@ python manage.py createsuperuser
 ### 2. Tester l'Application
 
 Votre application sera accessible sur :
-- URL temporaire : `https://votre-app-xxxxx.ondigitalocean.app`
-- Domaine personnalisé : `https://votre-domaine.com` (si configuré)
+- URL temporaire : `https://yee-ecommerce-xxxxx.ondigitalocean.app`
+- Domaine personnalisé : `https://y-e-e.codes` (après configuration DNS)
+- Alias www : `https://www.y-e-e.codes`
 
 ### 3. Configuration des Webhooks
 
-Configurez les URLs de webhook dans vos comptes :
+Configurez les URLs de webhook dans vos comptes avec votre domaine y-e-e.codes :
 
 **Stripe :**
-- URL : `https://votre-domaine.com/accounts/stripe/webhook/`
+- URL : `https://y-e-e.codes/accounts/stripe/webhook/`
 
 **PayPal :**
-- URL : `https://votre-domaine.com/accounts/paypal/webhook/`
+- URL : `https://y-e-e.codes/accounts/paypal/webhook/`
 
 ## 📊 Surveillance et Maintenance
 
