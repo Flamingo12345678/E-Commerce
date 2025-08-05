@@ -700,6 +700,19 @@
             {% endif %}
           </div>
 
+          <!-- Panier Mobile - Visible uniquement sur mobile -->
+          <div class="position-relative d-lg-none">
+            {% get_cart_info user as cart_info %}
+            <a href="{% url 'store:cart' %}" class="mobile-cart-link d-flex align-items-center" style="color: var(--rhode-black); text-decoration: none;">
+              <i class="bi bi-bag" style="font-size: 1.2rem;"></i>
+              {% if cart_info.total_items > 0 %}
+                <span class="mobile-cart-badge position-absolute top-0 start-100 translate-middle badge rounded-pill bg-primary">
+                  {{ cart_info.total_items }}
+                </span>
+              {% endif %}
+            </a>
+          </div>
+
           <!-- NOUVEAU: Menu Burger Mobile -->
           <button class="mobile-menu-toggle d-lg-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileMenu" aria-controls="mobileMenu" aria-expanded="false" aria-label="Menu mobile">
             <span class="hamburger-line"></span>
@@ -787,15 +800,6 @@
             <span>ACCOUNT</span>
           </a>
         {% endif %}
-
-        <!-- Cart -->
-        <a href="{% url 'store:cart' %}" class="mobile-nav-item-link cart-link">
-          <span>CART</span>
-          {% get_cart_info user as cart_info %}
-          {% if cart_info.total_items > 0 %}
-            <span class="mobile-cart-badge">{{ cart_info.total_items }}</span>
-          {% endif %}
-        </a>
 
         <!-- Search -->
         <div class="mobile-nav-item">
@@ -1207,8 +1211,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
                     if (carouselId) {
                         // Masquer tous les carrousels
-                        const allCarousels = document.querySelectorAll('.product-carousel');
-                        allCarousels.forEach(carousel => {
+                        const allCarrousels = document.querySelectorAll('.product-carousel');
+                        allCarrousels.forEach(carousel => {
                             carousel.style.display = 'none';
                             carousel.style.opacity = '0';
                         });

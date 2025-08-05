@@ -254,6 +254,39 @@
 }
 
 /* ================================
+   PANIER MOBILE - HORS MENU BURGER
+   ================================ */
+
+/* Icône panier mobile visible à côté du menu burger */
+.mobile-cart-link {
+    position: relative;
+    transition: transform 0.2s ease;
+    padding: 8px;
+    border-radius: 50%;
+}
+
+.mobile-cart-link:hover {
+    transform: scale(1.1);
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+.mobile-cart-badge {
+    background: var(--rhode-black, #000) !important;
+    color: white;
+    border-radius: 50%;
+    padding: 0.2rem 0.4rem;
+    font-size: 0.65rem;
+    font-weight: 600;
+    min-width: 18px;
+    height: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid white;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* ================================
    RECHERCHE MOBILE
    ================================ */
 
