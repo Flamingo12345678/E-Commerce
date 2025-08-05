@@ -18,6 +18,7 @@ from django.contrib.auth.tokens import default_token_generator
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_str
 from django.template.loader import render_to_string
+from .email_services import EmailService
 
 # Django OTP imports
 from django_otp.plugins.otp_totp.models import TOTPDevice
@@ -147,6 +148,10 @@ def signup(request):
                     username=username, email=email if email else "", password=password
                 )
 
+                # Envoi de l'email de bienvenue si l'email est fourni
+                if email:
+                    EmailService.send_welcome_email(user)
+
                 # Gestion robuste de la session lors de la connexion
                 try:
                     # Assurer que la session est propre avant la connexion
@@ -201,7 +206,7 @@ def login_user(request):
 
         if user is not None:
             if user.is_active:
-                # Vérifier si l'utilisateur a la 2FA activée
+                # V��rifier si l'utilisateur a la 2FA activée
                 if getattr(user, "two_factor_enabled", False):
                     # Si le code TOTP n'est pas fourni, afficher le formulaire 2FA
                     if not totp_code:
@@ -414,8 +419,28 @@ def manage_payment_methods(request):
 @login_required
 @require_POST
 def update_notifications(request):
-    """Met à jour les notifications"""
-    messages.success(request, "Préférences de notification mises à jour.")
+    """Met à jour les préférences de notification de l'utilisateur"""
+    try:
+        shopper = request.user
+
+        # Récupération des données du formulaire
+        email_notifications = request.POST.get('email_notifications') == 'on'
+        sms_notifications = request.POST.get('sms_notifications') == 'on'
+        push_notifications = request.POST.get('push_notifications') == 'on'
+        newsletter_subscription = request.POST.get('newsletter_subscription') == 'on'
+
+        # Mise à jour des préférences
+        shopper.email_notifications = email_notifications
+        shopper.sms_notifications = sms_notifications
+        shopper.push_notifications = push_notifications
+        shopper.newsletter_subscription = newsletter_subscription
+        shopper.save()
+
+        messages.success(request, "✅ Vos préférences de notification ont été mises à jour avec succès.")
+
+    except Exception as e:
+        messages.error(request, f"❌ Erreur lors de la mise à jour des préférences : {str(e)}")
+
     return redirect("accounts:profile")
 
 

@@ -303,16 +303,39 @@ PAYMENT_CANCEL_URL = PAYMENT_HOST_URL + "/accounts/payment/cancelled/"
 PAYMENT_ENCRYPTION_KEY = env("PAYMENT_ENCRYPTION_KEY", default="default-key-change-me")
 
 # =============================================================================
-# EMAIL CONFIGURATION
+# EMAIL CONFIGURATION - GMAIL
 # =============================================================================
 EMAIL_BACKEND = env(
-    "EMAIL_BACKEND", default="django.core.mail.backends.console.EmailBackend"
+    "EMAIL_BACKEND", default="django.core.mail.backends.smtp.EmailBackend"
 )
+
+# Configuration Gmail SMTP
 EMAIL_HOST = env("EMAIL_HOST", default="smtp.gmail.com")
 EMAIL_PORT = env.int("EMAIL_PORT", default=587)
 EMAIL_USE_TLS = env.bool("EMAIL_USE_TLS", default=True)
-EMAIL_HOST_USER = env("EMAIL_HOST_USER", default="")
-EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD", default="")
+EMAIL_USE_SSL = env.bool("EMAIL_USE_SSL", default=False)
+EMAIL_HOST_USER = env("EMAIL_HOST_USER", default="")  # Votre adresse Gmail
+EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD", default="")  # Mot de passe d'application Gmail
+
+# Configuration des adresses email
+DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL", default="YEE Codes <noreply@gmail.com>")
+SERVER_EMAIL = env("SERVER_EMAIL", default="noreply@gmail.com")
+
+# Adresses email spécialisées pour différents types de notifications
+EMAIL_ADDRESSES = {
+    'welcome': env("EMAIL_WELCOME", default="Bienvenue chez YEE Codes <noreply@gmail.com>"),
+    'order_confirmation': env("EMAIL_ORDER_CONFIRMATION", default="Confirmation de Commande <noreply@gmail.com>"),
+    'newsletter': env("EMAIL_NEWSLETTER", default="Newsletter YEE Codes <noreply@gmail.com>"),
+    'contact': env("EMAIL_CONTACT", default="Support YEE Codes <noreply@gmail.com>"),
+    'admin': env("EMAIL_ADMIN", default="Administration YEE Codes <noreply@gmail.com>"),
+}
+
+# Configuration des templates d'email
+EMAIL_TEMPLATE_NAME = env("EMAIL_TEMPLATE_NAME", default="YEE Codes")
+EMAIL_SIGNATURE = env("EMAIL_SIGNATURE", default="L'équipe YEE Codes\nVotre boutique de codes et services numériques")
+
+# Configuration pour les réponses
+REPLY_TO_EMAIL = env("REPLY_TO_EMAIL", default="noreply@gmail.com")
 
 # =============================================================================
 # FIREBASE CONFIGURATION

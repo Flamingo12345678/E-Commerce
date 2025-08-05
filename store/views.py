@@ -10,6 +10,7 @@ from django.views.decorators.http import require_http_methods
 from store.models import Cart, Order, Product, Wishlist
 from .performance_utils import measure_performance
 import logging
+from accounts.email_services import EmailService
 
 # Configuration du logger pour le debug
 logger = logging.getLogger(__name__)

@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Confirmation de commande</title>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background: #000; color: white; padding: 20px; text-align: center; }
+        .content { padding: 20px; background: #f9f9f9; }
+        .order-details { background: white; padding: 15px; margin: 20px 0; border-left: 4px solid #000; }
+        .item { border-bottom: 1px solid #eee; padding: 10px 0; }
+        .total { font-weight: bold; font-size: 1.2em; color: #000; }
+        .footer { text-align: center; padding: 20px; color: #666; font-size: 0.9em; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>{{ site_name }}</h1>
+            <h2>Confirmation de votre commande</h2>
+        </div>
+
+        <div class="content">
+            <p>Bonjour {{ shopper.first_name|default:shopper.username }},</p>
+
+            <p>Nous avons bien reçu votre commande et nous vous remercions pour votre achat !</p>
+
+            <div class="order-details">
+                <h3>Détails de votre commande #{{ order.id }}</h3>
+                <p><strong>Date :</strong> {{ order.date_ordered|date:"d/m/Y à H:i" }}</p>
+                <p><strong>Email :</strong> {{ shopper.email }}</p>
+
+                <h4>Articles commandés :</h4>
+                {% for item in items %}
+                <div class="item">
+                    <strong>{{ item.product.name }}</strong>
+                    {% if item.size %}- Taille: {{ item.size }}{% endif %}
+                    <br>
+                    Quantité: {{ item.quantity }} × {{ item.product.price }}€ = {{ item.get_total }}€
+                </div>
+                {% endfor %}
+
+                <div class="total">
+                    <p>Total: {{ order.get_cart_total }}€</p>
+                </div>
+            </div>
+
+            <p>Votre commande sera traitée dans les plus brefs délais. Vous recevrez un email de confirmation d'expédition avec un numéro de suivi dès que votre colis sera envoyé.</p>
+
+            <p>Si vous avez des questions, n'hésitez pas à nous contacter.</p>
+
+            <p>Merci pour votre confiance !</p>
+            <p>L'équipe {{ site_name }}</p>
+        </div>
+
+        <div class="footer">
+            <p>Cet email a été envoyé automatiquement, merci de ne pas y répondre directement.</p>
+        </div>
+    </div>
+</body>
+</html>
+

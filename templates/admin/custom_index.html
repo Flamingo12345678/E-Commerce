@@ -1,0 +1,121 @@
+{% extends "admin/index.html" %}
+{% load static %}
+
+{% block extrahead %}
+{{ block.super }}
+<style>
+    .dashboard-container {
+        background: white;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 20px;
+        margin: 20px 0;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .notification-actions {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+        margin-top: 15px;
+    }
+    .notification-btn {
+        display: block;
+        background: #007cba;
+        color: white;
+        padding: 12px 20px;
+        text-decoration: none;
+        border-radius: 6px;
+        text-align: center;
+        transition: background 0.3s;
+        font-weight: bold;
+    }
+    .notification-btn:hover {
+        background: #005a8a;
+        color: white;
+    }
+    .btn-compose { background: #28a745; }
+    .btn-compose:hover { background: #1e7e34; }
+    .btn-stats { background: #17a2b8; }
+    .btn-stats:hover { background: #138496; }
+    .btn-subscribers { background: #ffc107; color: #212529; }
+    .btn-subscribers:hover { background: #e0a800; color: #212529; }
+    .btn-templates { background: #e83e8c; }
+    .btn-templates:hover { background: #d91a72; }
+</style>
+{% endblock %}
+
+{% block content %}
+<h1>Administration du site</h1>
+
+<div class="dashboard-container">
+    <h2>📧 Système de Notifications</h2>
+    <p>Gestion centralisée des notifications et newsletters YEE Codes</p>
+
+    <div class="notification-actions">
+        <a href="/admin/accounts/emailtemplate/" class="notification-btn btn-templates">
+            📝 Templates d'Emails<br>
+            <small>Gérer les templates HTML</small>
+        </a>
+
+        <a href="/admin/accounts/shopper/?newsletter_subscription__exact=1" class="notification-btn btn-subscribers">
+            👥 Abonnés Newsletter<br>
+            <small>Gérer les abonnements</small>
+        </a>
+
+        <a href="/admin/accounts/shopper/actions/" class="notification-btn btn-compose">
+            ✍️ Actions Groupées<br>
+            <small>Notifications en lot</small>
+        </a>
+
+        <a href="/admin/accounts/shopper/" class="notification-btn btn-stats">
+            📊 Utilisateurs<br>
+            <small>Gestion des notifications</small>
+        </a>
+
+        <a href="/admin/accounts/shopper/?email_notifications__exact=1" class="notification-btn">
+            📧 Notifications Actives<br>
+            <small>Utilisateurs avec emails</small>
+        </a>
+
+        <a href="/admin/accounts/emailtestsend/" class="notification-btn">
+            🧪 Tests d'Emails<br>
+            <small>Historique des tests</small>
+        </a>
+    </div>
+
+    <div style="margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 6px;">
+        <h4>📈 Accès Rapide</h4>
+        <ul style="margin: 0; padding-left: 20px;">
+            <li><a href="/admin/accounts/emailtemplate/">📝 Templates d'emails</a> - Éditer les templates HTML (bienvenue, confirmation, newsletter)</li>
+            <li><a href="/admin/accounts/shopper/">Gestion des utilisateurs</a> - Voir tous les utilisateurs avec options de notifications</li>
+            <li><a href="/admin/accounts/transaction/">Transactions</a> - Historique des paiements et commandes</li>
+            <li><a href="/admin/accounts/webhooklog/">Logs Webhooks</a> - Surveillance des paiements</li>
+            <li><a href="/admin/accounts/address/">Adresses</a> - Gestion des adresses de livraison</li>
+        </ul>
+    </div>
+
+    <div style="margin-top: 20px; padding: 15px; background: #e8f5e8; border-radius: 6px; border-left: 4px solid #28a745;">
+        <h4>🎯 Templates d'Emails Disponibles</h4>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 10px; margin-top: 10px;">
+            <div style="background: white; padding: 10px; border-radius: 4px; border: 1px solid #ddd;">
+                <strong>🎉 Email de Bienvenue</strong><br>
+                <small>Envoyé automatiquement lors de l'inscription</small>
+            </div>
+            <div style="background: white; padding: 10px; border-radius: 4px; border: 1px solid #ddd;">
+                <strong>📋 Confirmation de Commande</strong><br>
+                <small>Envoyé après chaque paiement réussi</small>
+            </div>
+            <div style="background: white; padding: 10px; border-radius: 4px; border: 1px solid #ddd;">
+                <strong>📦 Mise à Jour de Statut</strong><br>
+                <small>Notifications de suivi de commande</small>
+            </div>
+            <div style="background: white; padding: 10px; border-radius: 4px; border: 1px solid #ddd;">
+                <strong>📰 Newsletter</strong><br>
+                <small>Communications marketing périodiques</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+{{ block.super }}
+{% endblock %}

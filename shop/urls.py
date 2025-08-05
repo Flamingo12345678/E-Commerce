@@ -39,11 +39,42 @@ from accounts.views import (
     password_reset_request,
     password_reset_confirm,
 )
+from accounts.newsletter_admin import add_newsletter_admin_links
+from accounts.admin import ShopperAdmin
 
+
+# Ajouter les URLs personnalisées du dashboard de notifications à l'admin
+admin.site.index_template = "admin/custom_index.html"
 
 urlpatterns = [
-    # Admin doit être en premier pour éviter les conflits
+    # Admin avec URLs personnalisées pour notifications
     path("admin/", admin.site.urls),
+    # URLs du dashboard de notifications (accessible via l'admin)
+    path(
+        "admin/notifications/",
+        include(
+            [
+                path(
+                    "dashboard/",
+                    ShopperAdmin.notifications_dashboard,
+                    name="admin:notifications_dashboard",
+                ),
+                path(
+                    "compose/",
+                    ShopperAdmin.compose_newsletter,
+                    name="admin:compose_newsletter",
+                ),
+                path(
+                    "subscribers/",
+                    ShopperAdmin.view_subscribers,
+                    name="admin:view_subscribers",
+                ),
+                path(
+                    "stats/", ShopperAdmin.email_stats, name="admin:email_stats"
+                ),
+            ]
+        ),
+    ),
     # Redirection de /admin vers /admin/
     path("admin", RedirectView.as_view(url="/admin/", permanent=True)),
     path("", index, name="index"),
@@ -98,4 +129,7 @@ urlpatterns = [
         RedirectView.as_view(url="/static/favicon.svg", permanent=False),
         name="favicon",
     ),
+    # URLs pour la gestion des newsletters dans l'admin
+    path("admin/newsletter/compose/", add_newsletter_admin_links, name="compose_newsletter"),
+    path("admin/newsletter/subscribers/", add_newsletter_admin_links, name="view_subscribers"),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

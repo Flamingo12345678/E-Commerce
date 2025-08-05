@@ -1,9 +1,9 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.utils.html import format_html
-from django.urls import reverse
-from django.utils.safestring import mark_safe
-from django.db.models import Count, Sum
+from django.urls import path
+from django.shortcuts import render
+from django.db.models import Sum
 from accounts.models import (
     Shopper,
     Address,
@@ -11,10 +11,12 @@ from accounts.models import (
     Transaction,
     OrphanTransaction,
     WebhookLog,
+    EmailTemplate,
+    EmailTestSend,
 )
+from .email_services import EmailService
 
 # Import des modèles et interface d'administration pour les factures
-from .invoice_models import *
 from .invoice_admin import *
 
 
@@ -289,9 +291,194 @@ class TransactionAdmin(admin.ModelAdmin):
     metadata_display.short_description = "📋 Métadonnées"
 
 
+class NotificationDashboardAdmin:
+    """Dashboard centralisé pour la gestion des notifications"""
+
+    def get_urls(self):
+        urls = super().get_urls()
+        custom_urls = [
+            path(
+                "notifications/dashboard/",
+                self.admin_site.admin_view(self.notifications_dashboard),
+                name="notifications_dashboard",
+            ),
+            path(
+                "notifications/compose/",
+                self.admin_site.admin_view(self.compose_newsletter),
+                name="compose_newsletter",
+            ),
+            path(
+                "notifications/subscribers/",
+                self.admin_site.admin_view(self.view_subscribers),
+                name="view_subscribers",
+            ),
+            path(
+                "notifications/stats/",
+                self.admin_site.admin_view(self.email_stats),
+                name="email_stats",
+            ),
+        ]
+        return custom_urls + urls
+
+    def notifications_dashboard(self, request):
+        """Dashboard principal des notifications"""
+        stats = self.get_notification_stats()
+        context = {
+            "title": "Dashboard Notifications",
+            "stats": stats,
+            "has_permission": True,
+        }
+        return render(request, "admin/notifications_dashboard.html", context)
+
+    def compose_newsletter(self, request):
+        """Vue pour composer et envoyer une newsletter"""
+        from django.contrib import messages
+
+        if request.method == "POST":
+            subject = request.POST.get("subject", "").strip()
+            content = request.POST.get("content", "").strip()
+            send_test = request.POST.get("send_test", False)
+            test_email = request.POST.get("test_email", "").strip()
+
+            if not subject or not content:
+                messages.error(request, "Le sujet et le contenu sont obligatoires")
+                return render(request, "admin/newsletter_compose.html")
+
+            try:
+                if send_test and test_email:
+                    try:
+                        test_user = Shopper.objects.get(email=test_email)
+                        EmailService.send_newsletter(subject, content, [test_user])
+                        messages.success(
+                            request, f"Newsletter de test envoyée à {test_email}"
+                        )
+                    except Shopper.DoesNotExist:
+                        messages.error(
+                            request, f"Utilisateur avec l'email {test_email} non trouvé"
+                        )
+                else:
+                    recipients = Shopper.objects.filter(
+                        newsletter_subscription=True,
+                        email_notifications=True,
+                        is_active=True,
+                    )
+
+                    sent_count, error_count = EmailService.send_newsletter(
+                        subject, content, recipients
+                    )
+
+                    messages.success(
+                        request,
+                        f"Newsletter envoyée ! {sent_count} succès, {error_count} erreurs",
+                    )
+
+                    if error_count > 0:
+                        messages.warning(
+                            request, f"⚠️ {error_count} erreurs lors de l'envoi"
+                        )
+
+            except Exception as e:
+                messages.error(request, f"Erreur lors de l'envoi : {str(e)}")
+
+        # Statistiques pour l'affichage
+        total_users = Shopper.objects.filter(is_active=True).count()
+        newsletter_subscribers = Shopper.objects.filter(
+            newsletter_subscription=True,
+            email_notifications=True,
+            is_active=True,
+        ).count()
+
+        context = {
+            "title": "Composer une newsletter",
+            "total_users": total_users,
+            "newsletter_subscribers": newsletter_subscribers,
+        }
+
+        return render(request, "admin/newsletter_compose.html", context)
+
+    def view_subscribers(self, request):
+        """Vue pour voir les abonnés à la newsletter"""
+        subscribers = Shopper.objects.filter(
+            newsletter_subscription=True, is_active=True
+        ).order_by("-date_joined")
+
+        context = {
+            "title": "Abonnés à la newsletter",
+            "subscribers": subscribers,
+            "total_count": subscribers.count(),
+        }
+
+        return render(request, "admin/newsletter_subscribers.html", context)
+
+    def email_stats(self, request):
+        """Statistiques détaillées des emails"""
+        stats = self.get_detailed_stats()
+        context = {
+            "title": "Statistiques Email",
+            "stats": stats,
+        }
+        return render(request, "admin/email_stats.html", context)
+
+    def get_notification_stats(self):
+        """Récupère les statistiques de base des notifications"""
+        total_users = Shopper.objects.filter(is_active=True).count()
+        newsletter_subs = Shopper.objects.filter(
+            newsletter_subscription=True, is_active=True
+        ).count()
+        email_enabled = Shopper.objects.filter(
+            email_notifications=True, is_active=True
+        ).count()
+
+        return {
+            "total_users": total_users,
+            "newsletter_subscribers": newsletter_subs,
+            "email_notifications_enabled": email_enabled,
+            "newsletter_rate": round(
+                (newsletter_subs / total_users * 100) if total_users > 0 else 0, 1
+            ),
+            "email_rate": round((email_enabled / total_users * 100) if total_users > 0 else 0, 1),
+        }
+
+    def get_detailed_stats(self):
+        """Récupère des statistiques détaillées"""
+        base_stats = self.get_notification_stats()
+
+        # Statistiques par mois (utilisateurs récents)
+        from django.utils import timezone
+        from datetime import timedelta
+
+        now = timezone.now()
+        last_30_days = now - timedelta(days=30)
+
+        recent_users = Shopper.objects.filter(
+            date_joined__gte=last_30_days, is_active=True
+        ).count()
+
+        recent_newsletter_subs = Shopper.objects.filter(
+            date_joined__gte=last_30_days,
+            newsletter_subscription=True,
+            is_active=True,
+        ).count()
+
+        base_stats.update(
+            {
+                "recent_users_30d": recent_users,
+                "recent_newsletter_subs_30d": recent_newsletter_subs,
+                "recent_newsletter_rate": round(
+                    (recent_newsletter_subs / recent_users * 100)
+                    if recent_users > 0
+                    else 0,
+                    1,
+                ),
+            }
+        )
+
+        return base_stats
+
+
 @admin.register(Shopper)
-class ShopperAdmin(UserAdmin):
-    """Interface d'administration personnalisée pour les clients"""
+class ShopperAdmin(NotificationDashboardAdmin, UserAdmin):
+    """Interface d'administration personnalisée pour les clients avec dashboard de notifications intégré"""
 
     # Champs à afficher dans la liste
     list_display = (
@@ -862,3 +1049,208 @@ class WebhookLogAdmin(admin.ModelAdmin):
     def get_queryset(self, request):
         """Optimise les requêtes"""
         return super().get_queryset(request).order_by("-received_at")
+
+
+@admin.register(EmailTemplate)
+class EmailTemplateAdmin(admin.ModelAdmin):
+    """Interface d'administration pour les templates d'emails"""
+    
+    list_display = (
+        'template_badge',
+        'subject_display', 
+        'is_active_badge',
+        'last_modified',
+        'actions_links'
+    )
+    
+    list_filter = ('is_active', 'name', 'last_modified')
+    search_fields = ('subject', 'html_content')
+    
+    fieldsets = (
+        ('Configuration', {
+            'fields': ('name', 'subject', 'is_active')
+        }),
+        ('Contenu HTML', {
+            'fields': ('html_content',),
+            'classes': ('wide',)
+        }),
+        ('Informations', {
+            'fields': ('last_modified', 'created_at'),
+            'classes': ('collapse',)
+        })
+    )
+    
+    readonly_fields = ('last_modified', 'created_at')
+    
+    actions = ['load_templates_from_files', 'activate_templates']
+    
+    def template_badge(self, obj):
+        colors = {
+            'welcome': '#28a745',
+            'order_confirmation': '#007bff', 
+            'order_status_update': '#ffc107',
+            'newsletter': '#17a2b8'
+        }
+        icons = {
+            'welcome': '🎉',
+            'order_confirmation': '📋',
+            'order_status_update': '📦', 
+            'newsletter': '📰'
+        }
+        
+        return format_html(
+            '<span style="background: {}; color: white; padding: 4px 8px; '
+            'border-radius: 12px; font-size: 12px; font-weight: bold;">'
+            '{} {}</span>',
+            colors.get(obj.name, '#6c757d'),
+            icons.get(obj.name, '📧'),
+            obj.get_name_display()
+        )
+    
+    template_badge.short_description = "📧 Type"
+    
+    def subject_display(self, obj):
+        return format_html(
+            '<strong style="color: #333;">{}</strong>',
+            obj.subject[:60] + '...' if len(obj.subject) > 60 else obj.subject
+        )
+    
+    subject_display.short_description = "Sujet"
+    
+    def is_active_badge(self, obj):
+        if obj.is_active:
+            return format_html(
+                '<span style="background: #28a745; color: white; padding: 2px 8px; '
+                'border-radius: 12px; font-size: 11px;">✅ Actif</span>'
+            )
+        return format_html(
+            '<span style="background: #dc3545; color: white; padding: 2px 8px; '
+            'border-radius: 12px; font-size: 11px;">❌ Inactif</span>'
+        )
+    
+    is_active_badge.short_description = "Statut"
+    
+    def actions_links(self, obj):
+        return format_html(
+            '<a href="/admin/accounts/emailtemplate/{}/preview/" '
+            'style="background: #17a2b8; color: white; padding: 2px 6px; '
+            'border-radius: 4px; text-decoration: none; font-size: 10px; margin-right: 5px;">'
+            '👁️ Aperçu</a>'
+            '<a href="/admin/accounts/emailtemplate/{}/test/" '
+            'style="background: #ffc107; color: black; padding: 2px 6px; '
+            'border-radius: 4px; text-decoration: none; font-size: 10px;">'
+            '🧪 Test</a>',
+            obj.pk, obj.pk
+        )
+    
+    actions_links.short_description = "Actions"
+    
+    def load_templates_from_files(self, request, queryset):
+        """Action pour charger les templates depuis les fichiers"""
+        try:
+            loaded_count = self._load_existing_templates()
+            self.message_user(request, f"{loaded_count} template(s) chargé(s) depuis les fichiers avec succès!")
+        except Exception as e:
+            self.message_user(request, f"Erreur: {str(e)}", level=40)  # ERROR level
+    
+    load_templates_from_files.short_description = "🔄 Recharger depuis les fichiers"
+    
+    def activate_templates(self, request, queryset):
+        """Active les templates sélectionnés"""
+        updated = queryset.update(is_active=True)
+        self.message_user(request, f"{updated} template(s) activé(s)")
+    
+    activate_templates.short_description = "✅ Activer les templates"
+    
+    def _load_existing_templates(self):
+        """Charge les templates existants depuis les fichiers"""
+        import os
+        from django.conf import settings
+        
+        template_info = {
+            'welcome': {
+                'subject': '🎉 Bienvenue chez YEE Codes !',
+                'path': 'emails/welcome.html'
+            },
+            'order_confirmation': {
+                'subject': '✅ Confirmation de votre commande - YEE Codes',
+                'path': 'emails/order_confirmation.html'
+            },
+            'order_status_update': {
+                'subject': '📦 Mise à jour de votre commande - YEE Codes',
+                'path': 'emails/order_status_update.html'
+            },
+            'newsletter': {
+                'subject': '📰 Newsletter YEE Codes',
+                'path': 'emails/newsletter.html'
+            },
+        }
+        
+        loaded_count = 0
+        
+        for template_name, info in template_info.items():
+            template_path = os.path.join(settings.BASE_DIR, 'templates', info['path'])
+            
+            if os.path.exists(template_path):
+                try:
+                    with open(template_path, 'r', encoding='utf-8') as f:
+                        content = f.read()
+                    
+                    # Créer ou mettre à jour le template en base
+                    template_obj, created = EmailTemplate.objects.get_or_create(
+                        name=template_name,
+                        defaults={
+                            'subject': info['subject'],
+                            'html_content': content,
+                            'is_active': True
+                        }
+                    )
+                    
+                    if not created:
+                        # Mettre à jour le contenu s'il a changé
+                        template_obj.html_content = content
+                        template_obj.save()
+                    
+                    loaded_count += 1
+                        
+                except Exception as e:
+                    print(f"Erreur lors du chargement du template {template_name}: {e}")
+        
+        return loaded_count
+
+
+@admin.register(EmailTestSend)  
+class EmailTestSendAdmin(admin.ModelAdmin):
+    """Interface d'administration pour les tests d'emails"""
+    
+    list_display = (
+        'template_info',
+        'test_email', 
+        'success_badge',
+        'sent_at'
+    )
+    
+    list_filter = ('success', 'template__name', 'sent_at')
+    search_fields = ('test_email', 'error_message')
+    readonly_fields = ('sent_at', 'success', 'error_message')
+    
+    def template_info(self, obj):
+        return format_html(
+            '<strong>{}</strong>',
+            obj.template.get_name_display()
+        )
+    
+    template_info.short_description = "Template"
+    
+    def success_badge(self, obj):
+        if obj.success:
+            return format_html(
+                '<span style="background: #28a745; color: white; padding: 2px 8px; '
+                'border-radius: 12px; font-size: 11px;">✅ Succès</span>'
+            )
+        return format_html(
+            '<span style="background: #dc3545; color: white; padding: 2px 8px; '
+            'border-radius: 12px; font-size: 11px;">❌ Échec</span>'
+        )
+    
+    success_badge.short_description = "Résultat"
