@@ -2,9 +2,8 @@
    MENU BURGER MOBILE - YEE (CORRIGÉ)
    ================================ */
 
-/* Bouton hamburger personnalisé - VISIBLE */
+/* Bouton hamburger personnalisé - MOBILE UNIQUEMENT */
 .mobile-menu-toggle {
-    display: flex !important;
     flex-direction: column;
     justify-content: space-around;
     width: 32px;
@@ -16,6 +15,7 @@
     z-index: 10;
     transition: transform 0.3s ease;
     position: relative;
+    display: none; /* Caché par défaut */
 }
 
 .mobile-menu-toggle:hover {
@@ -32,12 +32,19 @@
     display: block;
 }
 
-/* S'assurer que le bouton est visible sur mobile */
-@media (max-width: 991px) {
+/* S'assurer que le bouton est visible UNIQUEMENT sur mobile */
+@media (max-width: 991.98px) {
     .mobile-menu-toggle {
         display: flex !important;
         visibility: visible !important;
         opacity: 1 !important;
+    }
+}
+
+/* S'assurer que le bouton est caché sur desktop */
+@media (min-width: 992px) {
+    .mobile-menu-toggle {
+        display: none !important;
     }
 }
 
