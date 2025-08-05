@@ -143,19 +143,37 @@ import dj_database_url
 # Configuration pour App Platform Digital Ocean
 database_url = env("DATABASE_URL", default=None)
 
-DATABASES = {
-    'default': dj_database_url.config(conn_max_age=600, ssl_require=True)
-}
-
-    'default': dj_database_url.config(conn_max_age=600, ssl_require=True)
-}
-
+# Configuration optimisée pour éviter les problèmes de connexion
 if database_url and database_url.startswith(('postgres://', 'postgresql://')):
     # Configuration automatique via DATABASE_URL (App Platform)
-            conn_max_age=600,
+    DATABASES = {
         'default': dj_database_url.parse(
+            database_url,
+            conn_max_age=300,  # Réduire la durée de vie des connexions
+            conn_health_checks=True,
+            options={
+                'MAX_CONNS': 10,  # Limiter le nombre de connexions
+                'connect_timeout': 30,
+                'application_name': 'ecommerce_app',
+            }
+        )
+    }
+
+    # Optimisations supplémentaires pour PostgreSQL
+    DATABASES['default']['OPTIONS'] = {
+        'connect_timeout': 30,
+        'options': '-c default_transaction_isolation=read committed'
+    }
+
 elif database_url and ("sqlite" in database_url or database_url == "sqlite:///:memory:"):
     # Check if DATABASE_URL is set (for CI/testing with SQLite)
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": ":memory:" if database_url == "sqlite:///:memory:" else BASE_DIR / "db.sqlite3",
+        }
+    }
+else:
     # Configuration de base de données basée sur DB_ENGINE
     db_engine = env("DB_ENGINE", default="mysql")
 
