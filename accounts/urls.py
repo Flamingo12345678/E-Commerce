@@ -81,7 +81,7 @@ urlpatterns = [
     ),
     path(
         "payment/stripe/confirm/",
-        payment_views.stripe_confirm_payment,
+        payment_views.confirm_stripe_payment,
         name="stripe_confirm_payment",
     ),
     path(

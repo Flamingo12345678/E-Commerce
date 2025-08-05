@@ -146,6 +146,14 @@
                             finaliser la commande
                         </a>
 
+                        <a href="{% url 'store:wishlist' %}"
+                           style="background: transparent; color: #dc3545; border: 1px solid #dc3545; padding: 0.875rem 1.5rem; font-weight: 500; text-decoration: none; text-transform: lowercase; letter-spacing: 0.3px; text-align: center; transition: all 0.2s ease; border-radius: 0; display: flex; align-items: center; justify-content: center; gap: 0.5rem;"
+                           onmouseover="this.style.background='#dc3545'; this.style.color='white';"
+                           onmouseout="this.style.background='transparent'; this.style.color='#dc3545';">
+                            <i class="bi bi-heart-fill"></i>
+                            voir ma liste de souhaits
+                        </a>
+
                         <form method="POST" action="{% url 'store:delete_cart' %}" onsubmit="return confirm('vider le panier ?')">
                             {% csrf_token %}
                             <button type="submit"
@@ -185,6 +193,17 @@
                onmouseout="this.style.background='var(--rhode-black, #000)';">
                 découvrir la boutique
             </a>
+
+            <!-- Lien vers la wishlist -->
+            <div class="mt-4">
+                <a href="{% url 'store:wishlist' %}"
+                   style="color: #dc3545; font-weight: 500; text-decoration: none; text-transform: lowercase; letter-spacing: 0.3px; transition: color 0.2s ease;"
+                   onmouseover="this.style.color='#c82333';"
+                   onmouseout="this.style.color='#dc3545';">
+                    <i class="bi bi-heart-fill"></i>
+                    voir ma liste de souhaits
+                </a>
+            </div>
         </div>
     {% endif %}
 </div>

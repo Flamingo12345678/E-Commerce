@@ -842,9 +842,10 @@ def reorder(request, order_id):
 
             product = original_order.product
             quantity = original_order.quantity
+            size = getattr(original_order, 'size', None)  # Récupérer la taille si elle existe
 
             # Vérifier la disponibilité du stock
-            stock_check = check_stock_availability(product, quantity)
+            stock_check = check_stock_availability(product, quantity, size)
             if not stock_check["available"]:
                 messages.error(
                     request,
@@ -857,22 +858,31 @@ def reorder(request, order_id):
             current_cart_quantity = get_user_cart_quantity(request.user, product)
             total_quantity = current_cart_quantity + quantity
 
-            if total_quantity > product.stock:
+            # Utiliser le stock total du produit via ses variantes
+            max_stock = product.total_stock if hasattr(product, 'total_stock') else 0
+            if size:
+                # Si une taille spécifique, vérifier le stock de cette variante
+                variant = product.get_variant_by_size(size)
+                max_stock = variant.stock if variant else 0
+
+            if total_quantity > max_stock:
                 messages.warning(
                     request,
                     f"Impossible d'ajouter {quantity} '{product.name}'. "
                     f"Vous avez déjà {current_cart_quantity} dans votre panier "
-                    f"et le stock total est de {product.stock}.",
+                    f"et le stock total est de {max_stock}.",
                 )
                 return redirect("accounts:order_history")
 
             # Créer ou récupérer le panier
             cart_obj, _ = Cart.objects.get_or_create(user=request.user)
 
-            # Chercher une commande existante pour ce produit
-            existing_order = cart_obj.orders.filter(
-                product=product, ordered=False
-            ).first()
+            # Chercher une commande existante pour ce produit avec la même taille
+            existing_order_filter = {'product': product, 'ordered': False}
+            if size:
+                existing_order_filter['size'] = size
+
+            existing_order = cart_obj.orders.filter(**existing_order_filter).first()
 
             if existing_order:
                 # Augmenter la quantité
@@ -885,9 +895,16 @@ def reorder(request, order_id):
                 )
             else:
                 # Créer une nouvelle commande
-                new_order = Order.objects.create(
-                    user=request.user, product=product, quantity=quantity, ordered=False
-                )
+                order_data = {
+                    'user': request.user,
+                    'product': product,
+                    'quantity': quantity,
+                    'ordered': False
+                }
+                if size:
+                    order_data['size'] = size
+
+                new_order = Order.objects.create(**order_data)
                 cart_obj.orders.add(new_order)
                 messages.success(
                     request, f"{quantity} '{product.name}' ajouté(s) à votre panier !"
@@ -897,7 +914,7 @@ def reorder(request, order_id):
         messages.error(request, "Erreur lors de la repasse de commande.")
         logger.error(f"Erreur reorder: {e}")
 
-    return redirect("cart")
+    return redirect("store:cart")
 
 
 # Vue pour annuler une commande
@@ -1016,7 +1033,8 @@ def add_to_wishlist(request):
 def remove_from_wishlist(request):
     """Retirer un produit de la liste de souhaits"""
     if not request.user.is_authenticated:
-        return JsonResponse({"success": False, "message": "Vous devez être connecté"})
+        messages.error(request, "Vous devez être connecté pour gérer votre liste de souhaits")
+        return redirect('accounts:login')
 
     try:
         product_id = request.POST.get("product_id")
@@ -1028,30 +1046,49 @@ def remove_from_wishlist(request):
         ).delete()
 
         if deleted_count > 0:
-            return JsonResponse(
-                {
-                    "success": True,
-                    "message": f"{product.name} retiré de votre liste de souhaits",
-                    "in_wishlist": False,
-                }
-            )
+            # Utiliser un nom de produit plus propre
+            product_name = product.name
+
+            # Détection améliorée des noms de fichiers ou noms générés automatiquement
+            suspicious_patterns = [
+                'unsplash', 'jpg', 'png', 'jpeg', '.', '_',
+                'cktj', 'tgrks', 'cv', 'wl', 'xl', 'ha'  # Patterns typiques d'Unsplash
+            ]
+
+            # Vérifier si le nom contient des caractères suspects ou des patterns Unsplash
+            has_suspicious_pattern = any(pattern in product_name.lower() for pattern in suspicious_patterns)
+            has_random_chars = any(char.isdigit() and char.isupper() for char in product_name[-10:])  # Caractères aléatoires à la fin
+
+            # Si le nom semble être un nom de fichier ou contient des patterns suspects
+            if has_suspicious_pattern or len(product_name) > 30 or has_random_chars:
+                # Essayer d'extraire un nom plus propre du début
+                clean_name_parts = []
+                words = product_name.split()
+
+                for word in words:
+                    # Arrêter si on trouve un mot suspect
+                    if any(pattern in word.lower() for pattern in suspicious_patterns):
+                        break
+                    # Arrêter si le mot contient beaucoup de caractères mélangés
+                    if len(word) > 8 and sum(c.isupper() for c in word) > 2:
+                        break
+                    clean_name_parts.append(word)
+
+                if clean_name_parts and len(' '.join(clean_name_parts)) > 3:
+                    product_name = ' '.join(clean_name_parts)
+                else:
+                    product_name = f"Produit #{product.id}"
+
+            messages.success(request, f"{product_name} a été retiré de votre liste de souhaits")
         else:
-            return JsonResponse(
-                {
-                    "success": False,
-                    "message": f"{product.name} n'était pas dans votre liste de souhaits",
-                    "in_wishlist": False,
-                }
-            )
+            messages.warning(request, "Ce produit n'était pas dans votre liste de souhaits")
+
+        return redirect('store:wishlist')
 
     except Exception as e:
         logger.error(f"Erreur remove_from_wishlist: {e}")
-        return JsonResponse(
-            {
-                "success": False,
-                "message": "Erreur lors de la suppression de la liste de souhaits",
-            }
-        )
+        messages.error(request, "Erreur lors de la suppression de la liste de souhaits")
+        return redirect('store:wishlist')
 
 
 def wishlist_view(request):
@@ -1077,7 +1114,7 @@ def wishlist_view(request):
     except Exception as e:
         logger.error(f"Erreur wishlist_view: {e}")
         messages.error(request, "Erreur lors du chargement de votre liste de souhaits")
-        return redirect("store")
+        return redirect("index")
 
 
 def check_wishlist_status(request):

@@ -178,12 +178,44 @@ def confirm_stripe_payment(request):
         # Configuration Stripe
         stripe.api_key = settings.STRIPE_SECRET_KEY
 
-        # Parser les données JSON
-        data = json.loads(request.body)
-        payment_intent_id = data.get("payment_intent_id")
+        # Debug: Afficher les données reçues
+        logger.info(f"Content-Type: {request.content_type}")
+        logger.info(f"POST data: {dict(request.POST)}")
+        logger.info(f"Body: {request.body[:200]}")  # Premiers 200 caractères
+
+        # Essayer de parser les données JSON ou récupérer depuis le formulaire
+        payment_intent_id = None
+
+        # Vérifier si c'est du JSON
+        if request.content_type == 'application/json' or (request.body and request.body.startswith(b'{')):
+            try:
+                data = json.loads(request.body)
+                payment_intent_id = data.get("payment_intent_id")
+                logger.info(f"JSON payment_intent_id: {payment_intent_id}")
+            except json.JSONDecodeError as e:
+                logger.warning(f"Échec parsing JSON: {e}")
+
+        # Si pas de JSON ou échec du parsing, essayer les données de formulaire
+        if not payment_intent_id:
+            payment_intent_id = request.POST.get("payment_intent_id")
+            logger.info(f"Form payment_intent_id: {payment_intent_id}")
+
+        # Si toujours pas d'ID, essayer de récupérer le token Stripe (ancien système)
+        stripe_token = request.POST.get("stripeToken")
+        amount = request.POST.get("amount")
+
+        logger.info(f"Stripe token: {stripe_token}")
+        logger.info(f"Amount: {amount}")
+
+        if stripe_token and amount:
+            # Traitement avec token Stripe (compatibilité ancienne API)
+            logger.info("Utilisation du token Stripe pour le paiement")
+            return process_stripe_token_payment(request, stripe_token, amount)
 
         if not payment_intent_id:
-            return JsonResponse({"error": "Payment Intent ID manquant"}, status=400)
+            logger.error("Aucun Payment Intent ID ou token Stripe trouvé")
+            logger.error(f"POST keys: {list(request.POST.keys())}")
+            return JsonResponse({"error": "Données de paiement manquantes"}, status=400)
 
         logger.info(f"Confirmation paiement Stripe: {payment_intent_id}")
 
@@ -221,8 +253,14 @@ def confirm_stripe_payment(request):
             # Créer ou récupérer la méthode de paiement
             payment_method, created = PaymentMethod.objects.get_or_create(
                 user=request.user,
-                provider="stripe",
-                defaults={"type": "card", "is_default": False},
+                card_type="other",
+                last4="0000",  # Placeholder pour Stripe
+                defaults={
+                    "cardholder_name": f"Stripe - {request.user.username}",
+                    "expiry_month": 12,
+                    "expiry_year": 2030,
+                    "card_number_hash": "stripe_managed",
+                },
             )
 
             # Créer la transaction
@@ -233,16 +271,16 @@ def confirm_stripe_payment(request):
                 amount=amount_decimal,
                 status="succeeded",
                 transaction_id=payment_intent.id,
+                provider="stripe",
                 order_id=order_ids_str,
-                provider_response=json.dumps(
-                    {
-                        "payment_intent_id": payment_intent.id,
-                        "amount": payment_intent.amount,
-                        "currency": payment_intent.currency,
-                        "status": payment_intent.status,
-                        "created": payment_intent.created,
-                    }
-                ),
+                description=f"Paiement Stripe - {len(cart_orders)} articles",
+                metadata={
+                    "payment_intent_id": payment_intent.id,
+                    "amount": payment_intent.amount,
+                    "currency": payment_intent.currency,
+                    "status": payment_intent.status,
+                    "created": payment_intent.created,
+                },
             )
 
             # Marquer les commandes comme payées et mettre à jour le stock
@@ -716,7 +754,7 @@ def stripe_confirm_payment(request):
             payment_method, _ = PaymentMethod.objects.get_or_create(
                 user=request.user,
                 card_type="other",
-                last4="0000",  # Placeholder, les vraies infos sont chez Stripe
+                last4="0000",  # Placeholder pour Stripe
                 defaults={
                     "cardholder_name": f"Stripe - {request.user.username}",
                     "expiry_month": 12,
@@ -829,3 +867,128 @@ def stripe_cancel_payment(request):
         return JsonResponse({"error": str(e)}, status=400)
     except Exception:
         return JsonResponse({"error": "Erreur serveur"}, status=500)
+
+
+def process_stripe_token_payment(request, stripe_token, amount):
+    """Traite un paiement avec token Stripe (fallback pour ancienne API)"""
+    import json
+    import logging
+    from decimal import Decimal
+    from django.utils import timezone
+    from django.db import transaction as db_transaction
+
+    logger = logging.getLogger(__name__)
+
+    try:
+        # Configuration Stripe
+        stripe.api_key = settings.STRIPE_SECRET_KEY
+
+        # Convertir le montant
+        amount_decimal = Decimal(str(amount).replace(",", "."))
+        amount_cents = int(amount_decimal * 100)
+
+        # Récupérer les commandes du panier
+        cart_orders = Order.objects.filter(user=request.user, ordered=False)
+        if not cart_orders.exists():
+            return JsonResponse({"error": "Panier vide"}, status=400)
+
+        # Calculer le total réel
+        total_amount = sum(order.quantity * order.product.price for order in cart_orders)
+
+        # Vérifier la cohérence du montant
+        if abs(amount_decimal - total_amount) > Decimal("0.01"):
+            logger.error(f"Montant incohérent: Formulaire={amount_decimal}, Panier={total_amount}")
+            return JsonResponse({"error": "Montant incohérent"}, status=400)
+
+        # Créer le paiement avec Stripe
+        charge = stripe.Charge.create(
+            amount=amount_cents,
+            currency='eur',
+            source=stripe_token,
+            description=f'Commande YEE E-Commerce - {len(cart_orders)} articles',
+            metadata={
+                'user_id': str(request.user.id),
+                'email': request.user.email,
+                'order_ids': ','.join(str(order.id) for order in cart_orders)
+            }
+        )
+
+        # Vérifier que le paiement a réussi
+        if charge.status != 'succeeded':
+            logger.error(f"Charge Stripe échoué: {charge.status}")
+            return JsonResponse({"error": f"Paiement échoué: {charge.status}"}, status=400)
+
+        # Traitement en transaction atomique
+        with db_transaction.atomic():
+            # Créer ou récupérer la méthode de paiement
+            payment_method, created = PaymentMethod.objects.get_or_create(
+                user=request.user,
+                card_type="other",
+                last4="0000",  # Placeholder pour Stripe
+                defaults={
+                    "cardholder_name": f"Stripe - {request.user.username}",
+                    "expiry_month": 12,
+                    "expiry_year": 2030,
+                    "card_number_hash": "stripe_managed",
+                },
+            )
+
+            # Créer la transaction
+            transaction = Transaction.objects.create(
+                user=request.user,
+                payment_method=payment_method,
+                amount=amount_decimal,
+                status="succeeded",
+                transaction_id=charge.id,
+                order_id=','.join(str(order.id) for order in cart_orders),
+                metadata={
+                    "charge_id": charge.id,
+                    "amount": charge.amount,
+                    "currency": charge.currency,
+                    "status": charge.status,
+                    "created": charge.created,
+                }
+            )
+
+            # Marquer les commandes comme payées
+            for order in cart_orders:
+                order.ordered = True
+                order.date_ordered = timezone.now()
+                order.save()
+
+                # Diminuer le stock
+                product = order.product
+                if not product.reduce_stock(order.size, order.quantity):
+                    logger.warning(
+                        f"Stock insuffisant pour {product.name} "
+                        f"taille {order.size or 'unique'}, quantité demandée: {order.quantity}"
+                    )
+
+            logger.info(f"Paiement par token réussi - Transaction: {transaction.id}")
+
+            # URL de redirection
+            success_url = (
+                f"/accounts/payment/success/"
+                f"?transaction_id={transaction.id}"
+                f"&amount={float(amount_decimal):.2f}"
+                f"&method=stripe"
+            )
+
+            # Retourner une réponse appropriée selon le type de requête
+            if request.headers.get('Accept', '').startswith('application/json'):
+                return JsonResponse({
+                    "success": True,
+                    "redirect_url": success_url,
+                    "transaction_id": transaction.id,
+                    "amount": float(amount_decimal),
+                })
+            else:
+                # Redirection directe pour les formulaires HTML
+                return redirect(success_url)
+
+    except stripe.error.StripeError as e:
+        logger.error(f"Erreur Stripe lors du paiement par token: {e}")
+        return JsonResponse({"error": f"Erreur Stripe: {str(e)}"}, status=500)
+    except Exception as e:
+        logger.error(f"Erreur lors du paiement par token: {e}", exc_info=True)
+        return JsonResponse({"error": f"Erreur système: {str(e)}"}, status=500)

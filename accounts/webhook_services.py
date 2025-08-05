@@ -185,7 +185,7 @@ class StripeWebhookService:
                     "charges": payment_intent.get("charges", {}).get("data", []),
                     "webhook_timestamp": timezone.now().isoformat(),
                 }
-                transaction.provider_response = json.dumps(stripe_data)
+                transaction.metadata = stripe_data
                 transaction.save()
 
                 # Finaliser les commandes
@@ -246,7 +246,7 @@ class StripeWebhookService:
                 ),
                 "webhook_timestamp": timezone.now().isoformat(),
             }
-            transaction.provider_response = json.dumps(failure_data)
+            transaction.metadata = failure_data
             transaction.save()
 
             logger.info(f"Paiement Stripe échoué: {transaction.id}")
@@ -492,7 +492,7 @@ class PayPalWebhookService:
                     "webhook_timestamp": timezone.now().isoformat(),
                     "payer_email": resource.get("payer", {}).get("email_address"),
                 }
-                transaction.provider_response = json.dumps(paypal_data)
+                transaction.metadata = paypal_data
                 transaction.save()
 
                 # Finaliser les commandes
@@ -542,7 +542,7 @@ class PayPalWebhookService:
                 "reason_code": resource.get("status_details", {}).get("reason"),
                 "webhook_timestamp": timezone.now().isoformat(),
             }
-            transaction.provider_response = json.dumps(denial_data)
+            transaction.metadata = denial_data
             transaction.save()
 
             logger.info(f"Paiement PayPal refusé: {transaction.id}")

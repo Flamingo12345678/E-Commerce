@@ -95,10 +95,10 @@ EXEMPLES D'OVERRIDES ACTIFS - Modifiez selon vos besoins
 
 /* Exemple : Changer la couleur des boutons */
 .btn-rhode {
-  background: #28a745 !important;
+  /*background: #28a745 !important;
   border-color: #28a745 !important;
   color: white !important;
-}
+}*/
 
 .btn-rhode:hover {
   background: #218838 !important;

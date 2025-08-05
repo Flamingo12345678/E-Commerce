@@ -1,4 +1,3 @@
-
 /**
  * Product Detail Page - JavaScript functionality
  * Gestion de la page de détail produit avec sélection de taille, quantité, wishlist, etc.
@@ -221,23 +220,6 @@ function initImageGallery() {
 }
 
 /**
- * Vérifie le statut de la wishlist
- */
-function checkWishlistStatus() {
-    const wishlistBtn = document.querySelector('.wishlist-btn');
-    if (!wishlistBtn || !productConfig.urls.checkWishlistStatus) return;
-    
-    const productId = wishlistBtn.dataset.productId;
-    
-    fetch(`${productConfig.urls.checkWishlistStatus}?product_id=${productId}`)
-        .then(response => response.json())
-        .then(data => {
-            updateWishlistButton(data.in_wishlist);
-        })
-        .catch(error => console.error('Erreur:', error));
-}
-
-/**
  * Ajoute un produit à la wishlist
  */
 function addToWishlist(productId) {
@@ -342,26 +324,165 @@ function showToast(message, type) {
 /**
  * Initialise la fonctionnalité wishlist
  */
-function initWishlist() {
-    const wishlistBtn = document.querySelector('.wishlist-btn');
-    if (wishlistBtn) {
-        // Vérifier le statut initial de la wishlist
-        checkWishlistStatus();
-        
-        wishlistBtn.addEventListener('click', function() {
-            const productId = this.dataset.productId;
-            const icon = this.querySelector('i');
-            const isInWishlist = icon.classList.contains('fa-heart') && !icon.classList.contains('far');
-            
-            if (isInWishlist) {
-                // Retirer de la wishlist
-                removeFromWishlist(productId);
-            } else {
-                // Ajouter à la wishlist
-                addToWishlist(productId);
-            }
+function initWishlistFunctionality() {
+    const wishlistBtn = document.querySelector('.action-button.secondary[data-product-id]');
+
+    if (!wishlistBtn) return;
+
+    const productId = wishlistBtn.getAttribute('data-product-id');
+
+    // Vérifier le statut initial de la wishlist
+    checkWishlistStatus(productId);
+
+    // Ajouter l'événement de clic
+    wishlistBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        toggleWishlist(productId, this);
+    });
+}
+
+/**
+ * Vérifie si le produit est dans la wishlist
+ */
+function checkWishlistStatus(productId) {
+    if (!productConfig.urls.checkWishlistStatus || !productId) return;
+
+    fetch(`${productConfig.urls.checkWishlistStatus}?product_id=${productId}`)
+        .then(response => response.json())
+        .then(data => {
+            updateWishlistButton(data.in_wishlist);
+        })
+        .catch(error => {
+            console.log('Erreur lors de la vérification de la wishlist:', error);
         });
+}
+
+/**
+ * Ajoute ou retire le produit de la wishlist
+ */
+function toggleWishlist(productId, button) {
+    const isInWishlist = button.classList.contains('in-wishlist');
+    const url = isInWishlist ? productConfig.urls.removeFromWishlist : productConfig.urls.addToWishlist;
+
+    if (!url || !productId) return;
+
+    // Désactiver le bouton pendant la requête
+    button.disabled = true;
+    const originalText = button.innerHTML;
+    button.innerHTML = '<i class="bi bi-hourglass-split me-2"></i>En cours...';
+
+    // Préparer les données du formulaire
+    const formData = new FormData();
+    formData.append('product_id', productId);
+
+    // Récupérer le token CSRF
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+    fetch(url, {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-CSRFToken': csrfToken
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            updateWishlistButton(data.in_wishlist);
+
+            // Afficher un message de succès
+            showWishlistMessage(data.message, 'success');
+        } else {
+            // Afficher un message d'erreur
+            showWishlistMessage(data.message || 'Une erreur est survenue', 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Erreur wishlist:', error);
+        showWishlistMessage('Erreur de connexion', 'error');
+    })
+    .finally(() => {
+        // Réactiver le bouton
+        button.disabled = false;
+        if (!button.classList.contains('in-wishlist') && !button.classList.contains('not-in-wishlist')) {
+            button.innerHTML = originalText;
+        }
+    });
+}
+
+/**
+ * Met à jour l'apparence du bouton wishlist
+ */
+function updateWishlistButton(inWishlist) {
+    const wishlistBtn = document.querySelector('.action-button.secondary[data-product-id]');
+    if (!wishlistBtn) return;
+
+    wishlistBtn.classList.remove('in-wishlist', 'not-in-wishlist');
+
+    if (inWishlist) {
+        wishlistBtn.classList.add('in-wishlist');
+        wishlistBtn.innerHTML = '<i class="bi bi-heart-fill me-2" style="color: #dc3545;"></i>dans la wishlist';
+        wishlistBtn.style.background = '#fff5f5';
+        wishlistBtn.style.borderColor = '#dc3545';
+        wishlistBtn.style.color = '#dc3545';
+    } else {
+        wishlistBtn.classList.add('not-in-wishlist');
+        wishlistBtn.innerHTML = '<i class="bi bi-heart me-2"></i>ajouter à la wishlist';
+        wishlistBtn.style.background = '#fff';
+        wishlistBtn.style.borderColor = '#000';
+        wishlistBtn.style.color = '#000';
     }
+}
+
+/**
+ * Affiche un message temporaire pour les actions wishlist
+ */
+function showWishlistMessage(message, type) {
+    // Créer l'élément de message
+    const messageEl = document.createElement('div');
+    messageEl.className = `wishlist-message ${type}`;
+    messageEl.textContent = message;
+
+    // Styles du message
+    Object.assign(messageEl.style, {
+        position: 'fixed',
+        top: '20px',
+        right: '20px',
+        padding: '12px 20px',
+        borderRadius: '8px',
+        color: '#fff',
+        fontSize: '14px',
+        fontWeight: '500',
+        zIndex: '10000',
+        boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+        transform: 'translateX(100%)',
+        transition: 'transform 0.3s ease',
+        maxWidth: '300px'
+    });
+
+    if (type === 'success') {
+        messageEl.style.background = '#22c55e';
+    } else {
+        messageEl.style.background = '#ef4444';
+    }
+
+    // Ajouter au DOM
+    document.body.appendChild(messageEl);
+
+    // Animer l'entrée
+    setTimeout(() => {
+        messageEl.style.transform = 'translateX(0)';
+    }, 100);
+
+    // Supprimer après 3 secondes
+    setTimeout(() => {
+        messageEl.style.transform = 'translateX(100%)';
+        setTimeout(() => {
+            if (messageEl.parentNode) {
+                messageEl.parentNode.removeChild(messageEl);
+            }
+        }, 300);
+    }, 3000);
 }
 
 /**
@@ -448,7 +569,7 @@ function initProductDetail() {
     // Initialiser les différents modules
     initQuantityControls();
     initImageGallery();
-    initWishlist();
+    initWishlistFunctionality();
     initFormValidation();
 
     // Initialize first size if only one available

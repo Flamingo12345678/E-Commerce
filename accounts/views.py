@@ -147,9 +147,27 @@ def signup(request):
                     username=username, email=email if email else "", password=password
                 )
 
-                login(request, user)
-                messages.success(request, "Votre compte a été créé avec succès.")
-                return redirect("store:product_list")
+                # Gestion robuste de la session lors de la connexion
+                try:
+                    # Assurer que la session est propre avant la connexion
+                    if hasattr(request, 'session') and request.session.session_key:
+                        request.session.flush()
+
+                    login(request, user)
+
+                    # Force la sauvegarde de la session
+                    request.session.save()
+
+                    messages.success(request, "Votre compte a été créé avec succès.")
+                    return redirect("store:product_list")
+
+                except Exception as session_error:
+                    # En cas d'erreur de session, créer l'utilisateur mais ne pas le connecter automatiquement
+                    messages.success(
+                        request,
+                        "Votre compte a été créé avec succès. Veuillez vous connecter."
+                    )
+                    return redirect("accounts:login")
 
         except IntegrityError:
             messages.error(
@@ -424,9 +442,31 @@ def connect_social_account(request):
 @login_required
 def profile_edit_modal(request):
     """Édition rapide du profil"""
+    if not request.user.is_authenticated:
+        return JsonResponse({"success": False, "error": "Vous devez être connecté"})
+
     if request.method == "POST":
-        return JsonResponse({"success": True, "message": "Profil mis à jour"})
-    return JsonResponse({"success": False, "error": "Méthode non autorisée"})
+        # Traitement du formulaire
+        try:
+            user = request.user
+            user.first_name = request.POST.get("first_name", "").strip()
+            user.last_name = request.POST.get("last_name", "").strip()
+            user.email = request.POST.get("email", "").strip()
+
+            if user.email:
+                user.save()
+                return JsonResponse({"success": True, "message": "Profil mis à jour avec succès"})
+            else:
+                return JsonResponse({"success": False, "error": "L'email est obligatoire"})
+
+        except Exception as e:
+            return JsonResponse({"success": False, "error": "Erreur lors de la mise à jour"})
+
+    # Affichage du formulaire (GET)
+    context = {
+        'user': request.user
+    }
+    return render(request, "accounts/profile_edit_modal.html", context)
 
 
 def password_reset_request(request):

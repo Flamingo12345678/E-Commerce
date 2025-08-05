@@ -106,6 +106,7 @@ MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",  # Pour servir les fichiers statiques
     "django.contrib.sessions.middleware.SessionMiddleware",
+    "accounts.middleware_session.SessionErrorHandlerMiddleware",  # Gestion des erreurs de session
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django_otp.middleware.OTPMiddleware",  # OTP middleware
@@ -395,3 +396,21 @@ LOGGING = {
         },
     },
 }
+
+# =============================================================================
+# SESSION CONFIGURATION
+# =============================================================================
+# Configuration robuste des sessions pour éviter les erreurs SessionInterrupted
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'
+SESSION_COOKIE_AGE = 86400  # 24 heures
+SESSION_SAVE_EVERY_REQUEST = False  # Évite les sauvegardes inutiles
+SESSION_EXPIRE_AT_BROWSER_CLOSE = False
+SESSION_COOKIE_HTTPONLY = True
+SESSION_COOKIE_SECURE = not DEBUG  # HTTPS uniquement en production
+SESSION_COOKIE_SAMESITE = 'Lax'
+SESSION_SERIALIZER = 'django.contrib.sessions.serializers.JSONSerializer'
+
+# Gestion des collisions de session
+SESSION_COOKIE_NAME = 'sessionid'
+CSRF_COOKIE_NAME = 'csrftoken'
+CSRF_COOKIE_HTTPONLY = False

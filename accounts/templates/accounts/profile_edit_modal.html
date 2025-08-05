@@ -1,0 +1,266 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Modifier mon profil - YEE Store{% endblock %}
+
+{% block extra_css %}
+<style>
+.profile-edit-rhode {
+    background: var(--rhode-neutral-light, #FAF9F6);
+    min-height: 100vh;
+    padding: 2rem 0;
+}
+
+.edit-card-rhode {
+    background: var(--rhode-white, #fff);
+    border-radius: var(--border-radius-xl, 16px);
+    box-shadow: var(--rhode-shadow, 0 4px 20px rgba(0, 0, 0, 0.1));
+    padding: 2rem;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.edit-title-rhode {
+    font-family: var(--font-primary, Inter, sans-serif);
+    font-weight: var(--font-weight-bold, 700);
+    color: var(--rhode-black, #000);
+    font-size: 2rem;
+    margin-bottom: 2rem;
+    text-align: center;
+    text-transform: lowercase;
+}
+
+.form-group-rhode {
+    margin-bottom: 1.5rem;
+}
+
+.form-label-rhode {
+    display: block;
+    color: var(--rhode-black, #000);
+    font-size: 0.875rem;
+    font-weight: var(--font-weight-medium, 500);
+    margin-bottom: 0.5rem;
+    text-transform: lowercase;
+}
+
+.form-input-rhode {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--rhode-border, #E8E8E8);
+    border-radius: var(--border-radius-md, 8px);
+    font-size: 1rem;
+    font-family: var(--font-primary, Inter, sans-serif);
+    background: var(--rhode-white, #fff);
+    transition: all 0.3s ease;
+}
+
+.form-input-rhode:focus {
+    outline: none;
+    border-color: var(--rhode-black, #000);
+    box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.1);
+}
+
+.btn-rhode {
+    background: var(--rhode-black, #000);
+    color: var(--rhode-white, #fff);
+    border: none;
+    padding: 0.75rem 2rem;
+    border-radius: var(--border-radius-md, 8px);
+    font-weight: var(--font-weight-medium, 500);
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    text-transform: lowercase;
+    width: 100%;
+    justify-content: center;
+    font-size: 1rem;
+}
+
+.btn-rhode:hover {
+    background: var(--rhode-gray-dark, #2D2D2D);
+    color: var(--rhode-white, #fff);
+    transform: translateY(-2px);
+    box-shadow: var(--rhode-shadow-hover, 0 8px 30px rgba(0, 0, 0, 0.15));
+}
+
+.btn-rhode-outline {
+    background: transparent;
+    color: var(--rhode-black, #000);
+    border: 1px solid var(--rhode-border, #E8E8E8);
+    padding: 0.75rem 2rem;
+    border-radius: var(--border-radius-md, 8px);
+    font-weight: var(--font-weight-medium, 500);
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    text-transform: lowercase;
+    width: 100%;
+    justify-content: center;
+    margin-top: 1rem;
+}
+
+.btn-rhode-outline:hover {
+    background: var(--rhode-black, #000);
+    color: var(--rhode-white, #fff);
+    border-color: var(--rhode-black, #000);
+}
+
+.breadcrumb-rhode {
+    background: transparent;
+    padding: 0;
+    margin: 0 0 2rem 0;
+}
+
+.breadcrumb-rhode .breadcrumb-item a {
+    color: var(--rhode-gray-medium, #8E8E8E);
+    text-decoration: none;
+    font-size: 0.875rem;
+}
+
+.breadcrumb-rhode .breadcrumb-item.active {
+    color: var(--rhode-black, #000);
+    font-weight: var(--font-weight-medium, 500);
+}
+
+.form-actions-rhode {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-top: 2rem;
+}
+
+@media (max-width: 768px) {
+    .edit-card-rhode {
+        margin: 1rem;
+        padding: 1.5rem;
+    }
+
+    .edit-title-rhode {
+        font-size: 1.5rem;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="profile-edit-rhode">
+    <div class="container">
+        <!-- Breadcrumb -->
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb breadcrumb-rhode">
+                <li class="breadcrumb-item"><a href="{% url 'index' %}">accueil</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'accounts:profile' %}">mon profil</a></li>
+                <li class="breadcrumb-item active" aria-current="page">modifier le profil</li>
+            </ol>
+        </nav>
+
+        <!-- Form Card -->
+        <div class="edit-card-rhode">
+            <h1 class="edit-title-rhode">modifier mon profil</h1>
+
+            <form method="post" id="profile-edit-form">
+                {% csrf_token %}
+
+                <div class="form-group-rhode">
+                    <label for="first_name" class="form-label-rhode">prénom</label>
+                    <input type="text"
+                           id="first_name"
+                           name="first_name"
+                           class="form-input-rhode"
+                           value="{{ user.first_name }}"
+                           placeholder="Votre prénom">
+                </div>
+
+                <div class="form-group-rhode">
+                    <label for="last_name" class="form-label-rhode">nom</label>
+                    <input type="text"
+                           id="last_name"
+                           name="last_name"
+                           class="form-input-rhode"
+                           value="{{ user.last_name }}"
+                           placeholder="Votre nom">
+                </div>
+
+                <div class="form-group-rhode">
+                    <label for="email" class="form-label-rhode">email *</label>
+                    <input type="email"
+                           id="email"
+                           name="email"
+                           class="form-input-rhode"
+                           value="{{ user.email }}"
+                           placeholder="votre@email.com"
+                           required>
+                </div>
+
+                <div class="form-actions-rhode">
+                    <button type="submit" class="btn-rhode">
+                        <i class="bi bi-check-circle"></i>
+                        sauvegarder les modifications
+                    </button>
+
+                    <a href="{% url 'accounts:profile' %}" class="btn-rhode-outline">
+                        <i class="bi bi-arrow-left"></i>
+                        retour au profil
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('profile-edit-form');
+
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const formData = new FormData(form);
+        const submitBtn = form.querySelector('button[type="submit"]');
+        const originalText = submitBtn.innerHTML;
+
+        // Afficher le loading
+        submitBtn.innerHTML = '<i class="bi bi-hourglass-split"></i> sauvegarde en cours...';
+        submitBtn.disabled = true;
+
+        fetch('{% url "accounts:profile_edit_modal" %}', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Succès
+                submitBtn.innerHTML = '<i class="bi bi-check-circle"></i> sauvegardé !';
+                submitBtn.style.background = '#22c55e';
+
+                // Rediriger après 1 seconde
+                setTimeout(() => {
+                    window.location.href = '{% url "accounts:profile" %}';
+                }, 1000);
+            } else {
+                // Erreur
+                alert('Erreur: ' + (data.error || 'Une erreur est survenue'));
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+            }
+        })
+        .catch(error => {
+            console.error('Erreur:', error);
+            alert('Une erreur est survenue lors de la sauvegarde');
+            submitBtn.innerHTML = originalText;
+            submitBtn.disabled = false;
+        });
+    });
+});
+</script>
+{% endblock %}
