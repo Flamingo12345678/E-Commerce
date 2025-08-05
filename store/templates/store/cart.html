@@ -2,94 +2,213 @@
 {% load cart_tags %}
 
 {% block content %}
-<div class="container my-4">
-    <h1 class="mb-4">
-        Mon Panier 
+<div class="container" style="padding: 2rem 0;">
+    <!-- En-tête Rhode Style -->
+    <div class="text-center mb-5">
+        <h1 style="font-size: 2.5rem; font-weight: 600; color: var(--rhode-black, #000); text-transform: lowercase; letter-spacing: -0.02em; margin-bottom: 0.5rem;">
+            votre panier
+        </h1>
         {% if not is_empty %}
-            <span class="badge bg-primary">{{ total_items }}</span>
+            <p style="color: var(--rhode-gray-medium, #666); font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.5px;">
+                {{ total_items }} article{{ total_items|pluralize }} sélectionné{{ total_items|pluralize }}
+            </p>
         {% endif %}
-    </h1>
+    </div>
 
     {% if not is_empty %}
-        {% for order in orders %}
-            <div class="card mb-4">
-                <div class="row g-0">
-                    <div class="col-md-4">
-                        {% if order.product.thumbnail %}
-                            <img src="{{ order.product.thumbnail.url }}" alt="{{ order.product.name }}" class="img-fluid rounded-start w-100" style="height: 200px; object-fit: cover;">
-                        {% else %}
-                            <div class="bg-light rounded-start d-flex align-items-center justify-content-center" style="height: 200px;">
-                                <i class="bi bi-image text-muted" style="font-size: 3rem;"></i>
+        <!-- Articles du panier -->
+        <div class="row">
+            <div class="col-lg-8">
+                {% for order in orders %}
+                    <div class="cart-item-rhode mb-4" style="background: var(--rhode-white, #fff); border: 1px solid var(--rhode-gray-light, #e5e5e5); border-radius: 0; padding: 1.5rem; transition: all 0.2s ease;">
+                        <div class="row g-0 align-items-center">
+                            <div class="col-md-4">
+                                {% if order.product.thumbnail %}
+                                    <img src="{{ order.product.thumbnail.url }}" alt="{{ order.product.name }}"
+                                         class="img-fluid"
+                                         style="width: 100%; height: 200px; object-fit: contain; background: #f8f8f8; border-radius: 0; padding: 0.5rem;">
+                                {% else %}
+                                    <div class="bg-light d-flex align-items-center justify-content-center"
+                                         style="height: 200px; border-radius: 0;">
+                                        <i class="bi bi-image" style="font-size: 2rem; color: var(--rhode-gray-medium, #666);"></i>
+                                    </div>
+                                {% endif %}
                             </div>
-                        {% endif %}
-                    </div>
-                    <div class="col-md-8">
-                        <div class="card-body">
-                            <h5 class="card-title">{{ order.product.name }}</h5>
-                            <p class="card-text">{{ order.product.description }}</p>
-                            <p class="card-text text-muted">{{ order.product.stock }} en stock</p>
-                            <p class="card-text fw-bold">Prix unitaire : {{ order.product.price }} €</p>
+                            <div class="col-md-8">
+                                <div class="ps-md-4">
+                                    <!-- Nom du produit -->
+                                    <h5 style="font-size: 1.1rem; font-weight: 500; color: var(--rhode-black, #000); text-transform: lowercase; letter-spacing: -0.01em; margin-bottom: 0.5rem;">
+                                        {{ order.product.name }}
+                                    </h5>
 
-                            <!-- Gestion des quantités -->
-                            <div class="d-flex align-items-center my-3 gap-2">
-                                <!-- Diminuer -->
-                                <form method="POST" action="{% url 'store:decrease_quantity' order.id %}">
-                                    {% csrf_token %}
-                                    <button class="btn btn-danger btn-sm" aria-label="Diminuer la quantité">-</button>
-                                </form>
+                                    <!-- Description -->
+                                    <p style="color: var(--rhode-gray-medium, #666); font-size: 0.85rem; margin-bottom: 1rem; line-height: 1.4;">
+                                        {{ order.product.description|truncatechars:100 }}
+                                    </p>
 
-                                <span class="fw-bold">{{ order.quantity }}</span>
+                                    <!-- Prix et quantité -->
+                                    <div class="d-flex align-items-center justify-content-between flex-wrap">
+                                        <!-- Gestion des quantités -->
+                                        <div class="d-flex align-items-center gap-3">
+                                            <span style="color: var(--rhode-gray-medium, #666); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px;">
+                                                qty
+                                            </span>
+                                            <div class="d-flex align-items-center gap-2">
+                                                <!-- Diminuer -->
+                                                <form method="POST" action="{% url 'store:decrease_quantity' order.id %}">
+                                                    {% csrf_token %}
+                                                    <button class="cart-btn-rhode" type="submit"
+                                                            style="width: 32px; height: 32px; border: 1px solid var(--rhode-gray-medium, #666); background: transparent; color: var(--rhode-black, #000); font-size: 0.9rem; border-radius: 0; transition: all 0.2s ease;"
+                                                            onmouseover="this.style.background='var(--rhode-black, #000)'; this.style.color='white';"
+                                                            onmouseout="this.style.background='transparent'; this.style.color='var(--rhode-black, #000)';">
+                                                        −
+                                                    </button>
+                                                </form>
 
-                                <!-- Augmenter -->
-                                <form method="POST" action="{% url 'store:increase_quantity' order.id %}">
-                                    {% csrf_token %}
-                                    <button class="btn btn-success btn-sm" aria-label="Augmenter la quantité">+</button>
-                                </form>
+                                                <span style="font-weight: 500; color: var(--rhode-black, #000); min-width: 30px; text-align: center;">
+                                                    {{ order.quantity }}
+                                                </span>
 
-                                <!-- Supprimer -->
-                                <form method="POST" action="{% url 'store:remove_from_cart' order.id %}" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce produit ?')">
-                                    {% csrf_token %}
-                                    <button class="btn btn-secondary btn-sm ms-3" aria-label="Supprimer le produit">🗑️ Supprimer</button>
-                                </form>
+                                                <!-- Augmenter -->
+                                                <form method="POST" action="{% url 'store:increase_quantity' order.id %}">
+                                                    {% csrf_token %}
+                                                    <button class="cart-btn-rhode" type="submit"
+                                                            style="width: 32px; height: 32px; border: 1px solid var(--rhode-gray-medium, #666); background: transparent; color: var(--rhode-black, #000); font-size: 0.9rem; border-radius: 0; transition: all 0.2s ease;"
+                                                            onmouseover="this.style.background='var(--rhode-black, #000)'; this.style.color='white';"
+                                                            onmouseout="this.style.background='transparent'; this.style.color='var(--rhode-black, #000)';">
+                                                        +
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </div>
+
+                                        <!-- Prix -->
+                                        <div class="text-end">
+                                            <p style="color: var(--rhode-gray-medium, #666); font-size: 0.8rem; margin-bottom: 0.25rem; text-transform: uppercase; letter-spacing: 0.5px;">
+                                                {{ order.product.price }} € × {{ order.quantity }}
+                                            </p>
+                                            <p style="font-weight: 600; color: var(--rhode-black, #000); font-size: 1.1rem; margin-bottom: 0;">
+                                                {{ order.product.price|multiply:order.quantity }} €
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    <!-- Supprimer -->
+                                    <div class="mt-3 text-end">
+                                        <form method="POST" action="{% url 'store:remove_from_cart' order.id %}"
+                                              onsubmit="return confirm('supprimer cet article ?')" class="d-inline">
+                                            {% csrf_token %}
+                                            <button type="submit"
+                                                    style="background: none; border: none; color: var(--rhode-gray-medium, #666); font-size: 0.8rem; text-decoration: underline; text-transform: lowercase; letter-spacing: 0.3px; transition: color 0.2s ease;"
+                                                    onmouseover="this.style.color='var(--rhode-black, #000)';"
+                                                    onmouseout="this.style.color='var(--rhode-gray-medium, #666)';">
+                                                supprimer
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
                             </div>
-
-                            <!-- Sous-total -->
-                            <p class="fw-semibold">
-                                Sous-total : {{ order.quantity }} × {{ order.product.price }} € = 
-                                {{ order.product.price|multiply:order.quantity }} €
-                            </p>
                         </div>
                     </div>
-                </div>
+                {% endfor %}
             </div>
-        {% endfor %}
 
-        <!-- Résumé panier -->
-        <div class="border-top pt-3 mt-4 text-end">
-            <h4>Total du panier : <span class="text-primary">{{ total }} €</span></h4>
-            <p class="text-muted">Nombre total d'articles : {{ total_items }}</p>
+            <!-- Résumé du panier -->
+            <div class="col-lg-4">
+                <div class="cart-summary-rhode" style="background: var(--rhode-cream, #f8f8f8); padding: 2rem; border-radius: 0; position: sticky; top: 2rem;">
+                    <h4 style="font-size: 1.3rem; font-weight: 600; color: var(--rhode-black, #000); text-transform: lowercase; letter-spacing: -0.01em; margin-bottom: 1.5rem;">
+                        résumé
+                    </h4>
 
-            <div class="d-flex justify-content-end gap-3 mt-3">
-                <a href="{% url 'index' %}" class="btn btn-outline-secondary">Continuer les achats</a>
+                    <!-- Détails -->
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span style="color: var(--rhode-gray-medium, #666); font-size: 0.9rem;">articles ({{ total_items }})</span>
+                            <span style="color: var(--rhode-black, #000); font-weight: 500;">{{ total }} €</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span style="color: var(--rhode-gray-medium, #666); font-size: 0.9rem;">livraison</span>
+                            <span style="color: var(--rhode-black, #000); font-weight: 500;">gratuite</span>
+                        </div>
+                        <hr style="border-color: var(--rhode-gray-light, #e5e5e5); margin: 1rem 0;">
+                        <div class="d-flex justify-content-between">
+                            <span style="color: var(--rhode-black, #000); font-weight: 600; font-size: 1.1rem; text-transform: lowercase;">total</span>
+                            <span style="color: var(--rhode-black, #000); font-weight: 600; font-size: 1.1rem;">{{ total }} €</span>
+                        </div>
+                    </div>
 
-                <form method="POST" action="{% url 'store:delete_cart' %}" onsubmit="return confirm('Vider tout le panier ?')">
-                    {% csrf_token %}
-                    <button type="submit" class="btn btn-danger">Vider le panier</button>
-                </form>
+                    <!-- Boutons d'action -->
+                    <div class="d-grid gap-3 mt-4">
+                        <a href="{% url 'store:checkout' %}"
+                           style="background: var(--rhode-black, #000); color: white; border: none; padding: 0.875rem 1.5rem; font-weight: 500; text-decoration: none; text-transform: lowercase; letter-spacing: 0.3px; text-align: center; transition: all 0.2s ease; border-radius: 0;"
+                           onmouseover="this.style.background='#333';"
+                           onmouseout="this.style.background='var(--rhode-black, #000)';">
+                            finaliser la commande
+                        </a>
 
-                <a href="{% url 'store:checkout' %}" class="btn btn-success">
-                    🛒 Valider la commande
-                </a>
+                        <form method="POST" action="{% url 'store:delete_cart' %}" onsubmit="return confirm('vider le panier ?')">
+                            {% csrf_token %}
+                            <button type="submit"
+                                    style="width: 100%; background: transparent; color: var(--rhode-gray-medium, #666); border: 1px solid var(--rhode-gray-medium, #666); padding: 0.875rem 1.5rem; font-weight: 500; text-transform: lowercase; letter-spacing: 0.3px; transition: all 0.2s ease; border-radius: 0;"
+                                    onmouseover="this.style.background='var(--rhode-gray-medium, #666)'; this.style.color='white';"
+                                    onmouseout="this.style.background='transparent'; this.style.color='var(--rhode-gray-medium, #666)';">
+                                vider le panier
+                            </button>
+                        </form>
+
+                        <a href="{% url 'store:product_list' %}"
+                           style="background: transparent; color: var(--rhode-black, #000); border: none; padding: 0.5rem; font-size: 0.85rem; text-decoration: underline; text-transform: lowercase; letter-spacing: 0.3px; text-align: center; transition: color 0.2s ease;"
+                           onmouseover="this.style.color='var(--rhode-gray-medium, #666)';"
+                           onmouseout="this.style.color='var(--rhode-black, #000)';">
+                            continuer les achats
+                        </a>
+                    </div>
+                </div>
             </div>
         </div>
 
     {% else %}
-        <!-- Panier vide -->
-        <div class="text-center py-5">
-            <h2 class="mb-3">Votre panier est vide</h2>
-            <p>Commencez vos achats en ajoutant des produits !</p>
-            <a href="{% url 'index' %}" class="btn btn-primary">Continuer les achats</a>
+        <!-- Panier vide Rhode Style -->
+        <div class="text-center" style="padding: 4rem 0;">
+            <div style="margin-bottom: 2rem;">
+                <i class="bi bi-bag" style="font-size: 4rem; color: var(--rhode-gray-light, #e5e5e5);"></i>
+            </div>
+            <h2 style="font-size: 1.8rem; font-weight: 500; color: var(--rhode-black, #000); text-transform: lowercase; letter-spacing: -0.01em; margin-bottom: 1rem;">
+                votre panier est vide
+            </h2>
+            <p style="color: var(--rhode-gray-medium, #666); font-size: 0.9rem; margin-bottom: 2rem;">
+                découvrez notre collection et ajoutez vos articles préférés
+            </p>
+            <a href="{% url 'store:product_list' %}"
+               style="background: var(--rhode-black, #000); color: white; border: none; padding: 0.875rem 2rem; font-weight: 500; text-decoration: none; text-transform: lowercase; letter-spacing: 0.3px; transition: all 0.2s ease; border-radius: 0; display: inline-block;"
+               onmouseover="this.style.background='#333';"
+               onmouseout="this.style.background='var(--rhode-black, #000)';">
+                découvrir la boutique
+            </a>
         </div>
     {% endif %}
 </div>
+
+<!-- CSS additionnels pour le panier Rhode -->
+<style>
+.cart-item-rhode:hover {
+    border-color: var(--rhode-gray-medium, #666) !important;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+@media (max-width: 768px) {
+    .cart-summary-rhode {
+        position: static !important;
+        margin-top: 2rem;
+    }
+
+    .cart-item-rhode .row .col-md-3 {
+        margin-bottom: 1rem;
+    }
+
+    .cart-item-rhode .ps-md-4 {
+        padding-left: 0 !important;
+    }
+}
+</style>
 {% endblock %}

@@ -2,129 +2,211 @@
 {% load cart_tags %}
 
 {% block content %}
-<div class="container my-4">
+<div class="container" style="padding: 2rem 0;">
+    <!-- En-tête Rhode Style -->
+    <div class="text-center mb-5">
+        <h1 style="font-size: 2.5rem; font-weight: 600; color: var(--rhode-black, #000); text-transform: lowercase; letter-spacing: -0.02em; margin-bottom: 0.5rem;">
+            finaliser votre commande
+        </h1>
+        <p style="color: var(--rhode-gray-medium, #666); font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.5px;">
+            {{ total_items }} article{{ total_items|pluralize }} • {{ total }} €
+        </p>
+    </div>
+
     <div class="row">
         <div class="col-lg-8">
-            <h1 class="mb-4">Finaliser ma commande</h1>
-            
-            <!-- Récapitulatif des produits -->
-            <div class="card mb-4">
-                <div class="card-header">
-                    <h5 class="mb-0">Récapitulatif de votre commande</h5>
-                </div>
-                <div class="card-body">
-                    {% for order in orders %}
-                        <div class="row align-items-center border-bottom py-3">
-                            <div class="col-md-2">
-                                {% if order.product.thumbnail %}
-                                    <img src="{{ order.product.thumbnail.url }}" alt="{{ order.product.name }}" class="img-fluid rounded">
-                                {% else %}
-                                    <div class="bg-light rounded d-flex align-items-center justify-content-center" style="height: 60px;">
-                                        <i class="bi bi-image text-muted"></i>
-                                    </div>
-                                {% endif %}
-                            </div>
-                            <div class="col-md-5">
-                                <h6 class="mb-1">{{ order.product.name }}</h6>
-                                <small class="text-muted">{{ order.product.price }} € l'unité</small>
-                            </div>
-                            <div class="col-md-2 text-center">
-                                <span class="fw-bold">× {{ order.quantity }}</span>
-                            </div>
-                            <div class="col-md-3 text-end">
-                                <span class="fw-bold">{{ order.product.price|multiply:order.quantity }} €</span>
-                            </div>
+            <!-- Récapitulatif des produits Rhode Style -->
+            <div class="checkout-section-rhode mb-5" style="background: var(--rhode-white, #fff); border: 1px solid var(--rhode-gray-light, #e5e5e5); border-radius: 0; padding: 2rem;">
+                <h3 style="font-size: 1.2rem; font-weight: 500; color: var(--rhode-black, #000); text-transform: lowercase; letter-spacing: -0.01em; margin-bottom: 1.5rem; border-bottom: 1px solid var(--rhode-gray-light, #e5e5e5); padding-bottom: 0.75rem;">
+                    récapitulatif
+                </h3>
+
+                {% for order in orders %}
+                    <div class="checkout-item-rhode d-flex align-items-center py-3" style="border-bottom: 1px solid var(--rhode-gray-light, #e5e5e5);">
+                        <div class="me-4">
+                            {% if order.product.thumbnail %}
+                                <img src="{{ order.product.thumbnail.url }}" alt="{{ order.product.name }}"
+                                     style="width: 100px; height: 100px; object-fit: contain; background: #f8f8f8; border-radius: 0; padding: 0.5rem;">
+                            {% else %}
+                                <div class="bg-light d-flex align-items-center justify-content-center"
+                                     style="width: 100px; height: 100px; border-radius: 0;">
+                                    <i class="bi bi-image" style="font-size: 2rem; color: var(--rhode-gray-medium, #666);"></i>
+                                </div>
+                            {% endif %}
                         </div>
-                    {% endfor %}
-                </div>
+                        <div class="flex-grow-1">
+                            <h6 style="font-size: 0.95rem; font-weight: 500; color: var(--rhode-black, #000); text-transform: lowercase; letter-spacing: -0.01em; margin-bottom: 0.25rem;">
+                                {{ order.product.name }}
+                            </h6>
+                            <small style="color: var(--rhode-gray-medium, #666); font-size: 0.8rem;">
+                                {{ order.product.price }} € × {{ order.quantity }}
+                            </small>
+                        </div>
+                        <div class="text-end">
+                            <span style="font-weight: 600; color: var(--rhode-black, #000); font-size: 1rem;">
+                                {{ order.product.price|multiply:order.quantity }} €
+                            </span>
+                        </div>
+                    </div>
+                {% endfor %}
             </div>
 
-            <!-- Informations de livraison (simulation) -->
-            <div class="card mb-4">
-                <div class="card-header">
-                    <h5 class="mb-0">Informations de livraison</h5>
-                </div>
-                <div class="card-body">
-                    <form id="checkout-form" method="POST">
-                        {% csrf_token %}
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label for="first_name" class="form-label">Prénom *</label>
-                                <input type="text" class="form-control" id="first_name" name="first_name" required>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="last_name" class="form-label">Nom *</label>
-                                <input type="text" class="form-control" id="last_name" name="last_name" required>
-                            </div>
+            <!-- Informations de livraison Rhode Style -->
+            <div class="checkout-section-rhode" style="background: var(--rhode-white, #fff); border: 1px solid var(--rhode-gray-light, #e5e5e5); border-radius: 0; padding: 2rem;">
+                <h3 style="font-size: 1.2rem; font-weight: 500; color: var(--rhode-black, #000); text-transform: lowercase; letter-spacing: -0.01em; margin-bottom: 1.5rem; border-bottom: 1px solid var(--rhode-gray-light, #e5e5e5); padding-bottom: 0.75rem;">
+                    informations de livraison
+                </h3>
+
+                <form id="checkout-form" method="POST">
+                    {% csrf_token %}
+                    <div class="row">
+                        <div class="col-md-6 mb-4">
+                            <label for="first_name" style="color: var(--rhode-black, #000); font-size: 0.85rem; font-weight: 500; text-transform: lowercase; letter-spacing: 0.3px; margin-bottom: 0.5rem; display: block;">
+                                prénom *
+                            </label>
+                            <input type="text" class="form-control-rhode" id="first_name" name="first_name" required
+                                   style="width: 100%; border: 1px solid var(--rhode-gray-medium, #666); border-radius: 0; padding: 0.875rem 1rem; font-size: 0.9rem; background: var(--rhode-white, #fff); color: var(--rhode-black, #000); transition: border-color 0.2s ease;"
+                                   onfocus="this.style.borderColor='var(--rhode-black, #000)'"
+                                   onblur="this.style.borderColor='var(--rhode-gray-medium, #666)'">
                         </div>
-                        <div class="mb-3">
-                            <label for="email" class="form-label">Email *</label>
-                            <input type="email" class="form-control" id="email" name="email" value="{{ user.email }}" required>
+                        <div class="col-md-6 mb-4">
+                            <label for="last_name" style="color: var(--rhode-black, #000); font-size: 0.85rem; font-weight: 500; text-transform: lowercase; letter-spacing: 0.3px; margin-bottom: 0.5rem; display: block;">
+                                nom *
+                            </label>
+                            <input type="text" class="form-control-rhode" id="last_name" name="last_name" required
+                                   style="width: 100%; border: 1px solid var(--rhode-gray-medium, #666); border-radius: 0; padding: 0.875rem 1rem; font-size: 0.9rem; background: var(--rhode-white, #fff); color: var(--rhode-black, #000); transition: border-color 0.2s ease;"
+                                   onfocus="this.style.borderColor='var(--rhode-black, #000)'"
+                                   onblur="this.style.borderColor='var(--rhode-gray-medium, #666)'">
                         </div>
-                        <div class="mb-3">
-                            <label for="address" class="form-label">Adresse *</label>
-                            <input type="text" class="form-control" id="address" name="address" required>
+                    </div>
+                    <div class="mb-4">
+                        <label for="email" style="color: var(--rhode-black, #000); font-size: 0.85rem; font-weight: 500; text-transform: lowercase; letter-spacing: 0.3px; margin-bottom: 0.5rem; display: block;">
+                            email *
+                        </label>
+                        <input type="email" class="form-control-rhode" id="email" name="email" value="{{ user.email }}" required
+                               style="width: 100%; border: 1px solid var(--rhode-gray-medium, #666); border-radius: 0; padding: 0.875rem 1rem; font-size: 0.9rem; background: var(--rhode-white, #fff); color: var(--rhode-black, #000); transition: border-color 0.2s ease;"
+                               onfocus="this.style.borderColor='var(--rhode-black, #000)'"
+                               onblur="this.style.borderColor='var(--rhode-gray-medium, #666)'">
+                    </div>
+                    <div class="mb-4">
+                        <label for="address" style="color: var(--rhode-black, #000); font-size: 0.85rem; font-weight: 500; text-transform: lowercase; letter-spacing: 0.3px; margin-bottom: 0.5rem; display: block;">
+                            adresse *
+                        </label>
+                        <input type="text" class="form-control-rhode" id="address" name="address" required
+                               style="width: 100%; border: 1px solid var(--rhode-gray-medium, #666); border-radius: 0; padding: 0.875rem 1rem; font-size: 0.9rem; background: var(--rhode-white, #fff); color: var(--rhode-black, #000); transition: border-color 0.2s ease;"
+                               onfocus="this.style.borderColor='var(--rhode-black, #000)'"
+                               onblur="this.style.borderColor='var(--rhode-gray-medium, #666)'">
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4 mb-4">
+                            <label for="postal_code" style="color: var(--rhode-black, #000); font-size: 0.85rem; font-weight: 500; text-transform: lowercase; letter-spacing: 0.3px; margin-bottom: 0.5rem; display: block;">
+                                code postal *
+                            </label>
+                            <input type="text" class="form-control-rhode" id="postal_code" name="postal_code" required
+                                   style="width: 100%; border: 1px solid var(--rhode-gray-medium, #666); border-radius: 0; padding: 0.875rem 1rem; font-size: 0.9rem; background: var(--rhode-white, #fff); color: var(--rhode-black, #000); transition: border-color 0.2s ease;"
+                                   onfocus="this.style.borderColor='var(--rhode-black, #000)'"
+                                   onblur="this.style.borderColor='var(--rhode-gray-medium, #666)'">
                         </div>
-                        <div class="row">
-                            <div class="col-md-4 mb-3">
-                                <label for="postal_code" class="form-label">Code postal *</label>
-                                <input type="text" class="form-control" id="postal_code" name="postal_code" required>
-                            </div>
-                            <div class="col-md-8 mb-3">
-                                <label for="city" class="form-label">Ville *</label>
-                                <input type="text" class="form-control" id="city" name="city" required>
-                            </div>
+                        <div class="col-md-8 mb-4">
+                            <label for="city" style="color: var(--rhode-black, #000); font-size: 0.85rem; font-weight: 500; text-transform: lowercase; letter-spacing: 0.3px; margin-bottom: 0.5rem; display: block;">
+                                ville *
+                            </label>
+                            <input type="text" class="form-control-rhode" id="city" name="city" required
+                                   style="width: 100%; border: 1px solid var(--rhode-gray-medium, #666); border-radius: 0; padding: 0.875rem 1rem; font-size: 0.9rem; background: var(--rhode-white, #fff); color: var(--rhode-black, #000); transition: border-color 0.2s ease;"
+                                   onfocus="this.style.borderColor='var(--rhode-black, #000)'"
+                                   onblur="this.style.borderColor='var(--rhode-gray-medium, #666)'">
                         </div>
-                    </form>
-                </div>
+                    </div>
+                </form>
             </div>
         </div>
 
+        <!-- Résumé de la commande Rhode Style -->
         <div class="col-lg-4">
-            <!-- Résumé de la commande -->
-            <div class="card position-sticky" style="top: 2rem;">
-                <div class="card-header">
-                    <h5 class="mb-0">Résumé</h5>
+            <div class="checkout-summary-rhode" style="background: var(--rhode-cream, #f8f8f8); padding: 2rem; border-radius: 0; position: sticky; top: 2rem;">
+                <h4 style="font-size: 1.3rem; font-weight: 600; color: var(--rhode-black, #000); text-transform: lowercase; letter-spacing: -0.01em; margin-bottom: 1.5rem;">
+                    résumé
+                </h4>
+
+                <!-- Détails de la commande -->
+                <div class="mb-4">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span style="color: var(--rhode-gray-medium, #666); font-size: 0.9rem;">sous-total ({{ total_items }} articles)</span>
+                        <span style="color: var(--rhode-black, #000); font-weight: 500;">{{ total }} €</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span style="color: var(--rhode-gray-medium, #666); font-size: 0.9rem;">livraison</span>
+                        <span style="color: var(--rhode-black, #000); font-weight: 500;">gratuite</span>
+                    </div>
+                    <hr style="border-color: var(--rhode-gray-light, #e5e5e5); margin: 1rem 0;">
+                    <div class="d-flex justify-content-between">
+                        <span style="color: var(--rhode-black, #000); font-weight: 600; font-size: 1.1rem; text-transform: lowercase;">total</span>
+                        <span style="color: var(--rhode-black, #000); font-weight: 600; font-size: 1.1rem;">{{ total }} €</span>
+                    </div>
                 </div>
-                <div class="card-body">
-                    <div class="d-flex justify-content-between mb-2">
-                        <span>Sous-total ({{ total_items }} articles)</span>
-                        <span>{{ total }} €</span>
-                    </div>
-                    <div class="d-flex justify-content-between mb-2">
-                        <span>Livraison</span>
-                        <span class="text-success">Gratuite</span>
-                    </div>
-                    <hr>
-                    <div class="d-flex justify-content-between mb-3">
-                        <strong>Total</strong>
-                        <strong class="text-primary">{{ total }} €</strong>
-                    </div>
 
-                    <!-- Note de redirection vers paiement -->
-                    <div class="alert alert-info">
-                        <small>
-                            <i class="bi bi-info-circle"></i>
-                            Après validation, vous serez redirigé vers notre page de paiement sécurisé
-                        </small>
-                    </div>
+                <!-- Note d'information -->
+                <div style="background: rgba(0,0,0,0.02); border: 1px solid var(--rhode-gray-light, #e5e5e5); padding: 1rem; margin-bottom: 1.5rem;">
+                    <small style="color: var(--rhode-gray-medium, #666); font-size: 0.8rem; line-height: 1.4;">
+                        <i class="bi bi-info-circle me-1"></i>
+                        après validation, vous serez redirigé vers notre page de paiement sécurisé
+                    </small>
+                </div>
 
-                    <div class="d-grid gap-2">
-                        <button type="submit" form="checkout-form" class="btn btn-success btn-lg">
-                            🛒 Continuer vers le paiement
-                        </button>
-                        <a href="{% url 'store:cart' %}" class="btn btn-outline-secondary">
-                            ← Retour au panier
-                        </a>
-                    </div>
+                <!-- Boutons d'action -->
+                <div class="d-grid gap-3">
+                    <button type="submit" form="checkout-form"
+                            style="background: var(--rhode-black, #000); color: white; border: none; padding: 1rem 1.5rem; font-weight: 500; text-transform: lowercase; letter-spacing: 0.3px; transition: all 0.2s ease; border-radius: 0; font-size: 0.95rem;"
+                            onmouseover="this.style.background='#333';"
+                            onmouseout="this.style.background='var(--rhode-black, #000)';">
+                        continuer vers le paiement
+                    </button>
 
-                    <small class="text-muted mt-3 d-block">
-                        🔒 Paiement 100% sécurisé<br>
-                        En cliquant sur "Continuer vers le paiement", vous acceptez nos conditions de vente.
+                    <a href="{% url 'store:cart' %}"
+                       style="background: transparent; color: var(--rhode-gray-medium, #666); border: 1px solid var(--rhode-gray-medium, #666); padding: 0.875rem 1.5rem; font-weight: 500; text-decoration: none; text-transform: lowercase; letter-spacing: 0.3px; text-align: center; transition: all 0.2s ease; border-radius: 0; display: block;"
+                       onmouseover="this.style.background='var(--rhode-gray-medium, #666)'; this.style.color='white';"
+                       onmouseout="this.style.background='transparent'; this.style.color='var(--rhode-gray-medium, #666)';">
+                        retour au panier
+                    </a>
+                </div>
+
+                <!-- Note de sécurité -->
+                <div class="text-center mt-4">
+                    <small style="color: var(--rhode-gray-medium, #666); font-size: 0.75rem; line-height: 1.4;">
+                        🔒 paiement 100% sécurisé<br>
+                        en continuant, vous acceptez nos conditions de vente
                     </small>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<!-- CSS additionnels pour le checkout Rhode -->
+<style>
+.checkout-section-rhode:hover {
+    border-color: var(--rhode-gray-medium, #666) !important;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.checkout-item-rhode:last-child {
+    border-bottom: none !important;
+}
+
+.form-control-rhode:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(0,0,0,0.1);
+}
+
+@media (max-width: 768px) {
+    .checkout-summary-rhode {
+        position: static !important;
+        margin-top: 2rem;
+    }
+
+    .checkout-section-rhode {
+        padding: 1.5rem !important;
+    }
+}
+</style>
 {% endblock %}

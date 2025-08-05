@@ -1,149 +1,182 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Options de Paiement - YEE E-Commerce{% endblock %}
+{% block title %}Paiement - YEE E-Commerce{% endblock %}
 
 {% block content %}
-<div class="container my-4">
+<div class="container" style="padding: 2rem 0;">
+    <!-- En-tête Rhode Style -->
+    <div class="text-center mb-5">
+        <h1 style="font-size: 2.5rem; font-weight: 600; color: var(--rhode-black, #000); text-transform: lowercase; letter-spacing: -0.02em; margin-bottom: 0.5rem;">
+            finaliser votre paiement
+        </h1>
+        <p style="color: var(--rhode-gray-medium, #666); font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.5px;">
+            paiement sécurisé • {{ total }} €
+        </p>
+    </div>
+
     <div class="row">
         <div class="col-lg-8">
-            <h1 class="mb-4">💳 Choisir votre mode de paiement</h1>
-            
-            <!-- Récapitulatif de la commande -->
-            <div class="card mb-4">
-                <div class="card-header bg-light">
-                    <h5 class="mb-0"><i class="bi bi-cart-check"></i> Récapitulatif de votre commande</h5>
-                </div>
-                <div class="card-body">
-                    {% for item in order_items %}
-                        <div class="row align-items-center border-bottom py-2">
-                            <div class="col-md-6">
-                                <h6 class="mb-1">{{ item.product.name }}</h6>
-                                <small class="text-muted">{{ item.unit_price }} € × {{ item.quantity }}</small>
-                            </div>
-                            <div class="col-md-6 text-end">
-                                <strong>{{ item.item_total }} €</strong>
-                            </div>
+            <!-- Récapitulatif de la commande Rhode Style -->
+            <div class="payment-section-rhode mb-5" style="background: var(--rhode-white, #fff); border: 1px solid var(--rhode-gray-light, #e5e5e5); border-radius: 0; padding: 2rem;">
+                <h3 style="font-size: 1.2rem; font-weight: 500; color: var(--rhode-black, #000); text-transform: lowercase; letter-spacing: -0.01em; margin-bottom: 1.5rem; border-bottom: 1px solid var(--rhode-gray-light, #e5e5e5); padding-bottom: 0.75rem;">
+                    récapitulatif de commande
+                </h3>
+
+                {% for item in order_items %}
+                    <div class="payment-item-rhode d-flex align-items-center py-3" style="border-bottom: 1px solid var(--rhode-gray-light, #e5e5e5);">
+                        <div class="flex-grow-1">
+                            <h6 style="font-size: 0.95rem; font-weight: 500; color: var(--rhode-black, #000); text-transform: lowercase; letter-spacing: -0.01em; margin-bottom: 0.25rem;">
+                                {{ item.product.name }}
+                            </h6>
+                            <small style="color: var(--rhode-gray-medium, #666); font-size: 0.8rem;">
+                                {{ item.unit_price }} € × {{ item.quantity }}
+                            </small>
                         </div>
-                    {% endfor %}
-                    <div class="row mt-3">
-                        <div class="col-md-6">
-                            <strong>Total à payer :</strong>
-                        </div>
-                        <div class="col-md-6 text-end">
-                            <h4 class="text-primary"><strong>{{ total }} €</strong></h4>
+                        <div class="text-end">
+                            <span style="font-weight: 600; color: var(--rhode-black, #000); font-size: 1rem;">
+                                {{ item.item_total }} €
+                            </span>
                         </div>
                     </div>
+                {% endfor %}
+
+                <div class="d-flex justify-content-between align-items-center pt-3">
+                    <span style="color: var(--rhode-black, #000); font-weight: 600; font-size: 1.1rem; text-transform: lowercase;">
+                        total à payer
+                    </span>
+                    <span style="color: var(--rhode-black, #000); font-weight: 600; font-size: 1.3rem;">
+                        {{ total }} €
+                    </span>
                 </div>
             </div>
             
-            <!-- Sélection du mode de paiement -->
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="mb-0"><i class="bi bi-credit-card"></i> Mode de paiement</h5>
+            <!-- Modes de paiement Rhode Style -->
+            <div class="payment-section-rhode" style="background: var(--rhode-white, #fff); border: 1px solid var(--rhode-gray-light, #e5e5e5); border-radius: 0; padding: 2rem;">
+                <h3 style="font-size: 1.2rem; font-weight: 500; color: var(--rhode-black, #000); text-transform: lowercase; letter-spacing: -0.01em; margin-bottom: 1.5rem; border-bottom: 1px solid var(--rhode-gray-light, #e5e5e5); padding-bottom: 0.75rem;">
+                    méthode de paiement
+                </h3>
+
+                <!-- Navigation des onglets Rhode Style -->
+                <div class="payment-tabs-rhode mb-4">
+                    <button class="payment-tab-rhode active" id="stripe-tab" data-tab="stripe"
+                            style="background: transparent; border: 1px solid var(--rhode-black, #000); color: var(--rhode-black, #000); padding: 0.875rem 1.5rem; font-weight: 500; text-transform: lowercase; letter-spacing: 0.3px; border-radius: 0; margin-right: 1rem; transition: all 0.2s ease;">
+                        Stripe
+                    </button>
+                    <button class="payment-tab-rhode" id="paypal-tab" data-tab="paypal"
+                            style="background: transparent; border: 1px solid var(--rhode-gray-medium, #666); color: var(--rhode-gray-medium, #666); padding: 0.875rem 1.5rem; font-weight: 500; text-transform: lowercase; letter-spacing: 0.3px; border-radius: 0; transition: all 0.2s ease;">
+                        paypal
+                    </button>
                 </div>
-                <div class="card-body">
-                    <!-- Onglets de paiement -->
-                    <ul class="nav nav-tabs" id="paymentTabs" role="tablist">
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link active" id="stripe-tab" data-bs-toggle="tab" data-bs-target="#stripe-pane" type="button" role="tab">
-                                <i class="bi bi-credit-card"></i> Carte Bancaire
-                            </button>
-                        </li>
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link" id="paypal-tab" data-bs-toggle="tab" data-bs-target="#paypal-pane" type="button" role="tab">
-                                <i class="bi bi-paypal text-primary"></i> PayPal
-                            </button>
-                        </li>
-                    </ul>
-                    
-                    <div class="tab-content mt-3" id="paymentTabsContent">
-                        <!-- Onglet Stripe -->
-                        <div class="tab-pane fade show active" id="stripe-pane" role="tabpanel">
-                            <form id="stripe-payment-form" method="POST" action="{% url 'accounts:stripe_confirm_payment' %}">
-                                {% csrf_token %}
-                                <input type="hidden" name="amount" value="{{ total }}">
-                                
-                                <!-- Zone Stripe Elements -->
-                                <div class="mb-3">
-                                    <label class="form-label">Informations de la carte</label>
-                                    <div id="card-element" class="form-control" style="height: 40px; padding: 10px;">
-                                        <!-- Stripe Elements insérera le formulaire ici -->
-                                    </div>
-                                    <div id="card-errors" class="text-danger mt-2" role="alert"></div>
+
+                <!-- Contenu des onglets -->
+                <div class="payment-content-rhode">
+                    <!-- Paiement par carte Stripe -->
+                    <div class="payment-pane active" id="stripe-pane">
+                        <form id="stripe-payment-form" method="POST" action="{% url 'accounts:stripe_confirm_payment' %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="amount" value="{{ total }}">
+
+                            <div class="mb-4">
+                                <label style="color: var(--rhode-black, #000); font-size: 0.85rem; font-weight: 500; text-transform: lowercase; letter-spacing: 0.3px; margin-bottom: 0.75rem; display: block;">
+                                    informations de la carte *
+                                </label>
+                                <div id="card-element" class="payment-card-element"
+                                     style="border: 1px solid var(--rhode-gray-medium, #666); border-radius: 0; padding: 1rem; background: var(--rhode-white, #fff); min-height: 50px; transition: border-color 0.2s ease;">
+                                    <!-- Stripe Elements insérera le formulaire ici -->
                                 </div>
-                                
-                                <!-- Bouton de paiement Stripe -->
-                                <button id="stripe-submit" class="btn btn-success btn-lg w-100" type="submit">
-                                    <span id="stripe-button-text">
-                                        <i class="bi bi-lock"></i> Payer {{ total }} € par carte
-                                    </span>
-                                    <div id="stripe-spinner" class="spinner-border spinner-border-sm ms-2 d-none" role="status">
-                                        <span class="visually-hidden">Traitement...</span>
-                                    </div>
-                                </button>
-                                
-                                <small class="text-muted d-block mt-2">
-                                    🔒 Paiement sécurisé par Stripe • Vos données sont protégées
-                                </small>
-                            </form>
-                        </div>
-                        
-                        <!-- Onglet PayPal -->
-                        <div class="tab-pane fade" id="paypal-pane" role="tabpanel">
-                            <div class="text-center py-4">
-                                <p class="mb-4">Payez en toute sécurité avec votre compte PayPal</p>
-                                
-                                <form method="POST" action="{% url 'accounts:process_paypal_payment' %}">
-                                    {% csrf_token %}
-                                    <button type="submit" class="btn btn-primary btn-lg">
-                                        <i class="bi bi-paypal"></i> Payer avec PayPal ({{ total }} €)
-                                    </button>
-                                </form>
-                                
-                                <small class="text-muted d-block mt-3">
-                                    Vous serez redirigé vers PayPal pour finaliser le paiement
-                                </small>
+                                <div id="card-errors" style="color: #dc3545; font-size: 0.8rem; margin-top: 0.5rem;" role="alert"></div>
                             </div>
+
+                            <button id="stripe-submit" type="submit"
+                                    style="width: 100%; background: var(--rhode-black, #000); color: white; border: none; padding: 1rem 1.5rem; font-weight: 500; text-transform: lowercase; letter-spacing: 0.3px; border-radius: 0; font-size: 0.95rem; transition: all 0.2s ease;"
+                                    onmouseover="this.style.background='#333';"
+                                    onmouseout="this.style.background='var(--rhode-black, #000)';">
+                                <span id="stripe-button-text">
+                                    payer {{ total }} € par carte
+                                </span>
+                                <div id="stripe-spinner" class="spinner-border spinner-border-sm ms-2 d-none" role="status">
+                                    <span class="visually-hidden">traitement...</span>
+                                </div>
+                            </button>
+
+                            <p style="color: var(--rhode-gray-medium, #666); font-size: 0.75rem; text-align: center; margin-top: 1rem; line-height: 1.4;">
+                                🔒 paiement sécurisé par stripe • vos données sont protégées
+                            </p>
+                        </form>
+                    </div>
+
+                    <!-- Paiement PayPal -->
+                    <div class="payment-pane" id="paypal-pane" style="display: none;">
+                        <div class="text-center py-4">
+                            <p style="color: var(--rhode-gray-medium, #666); font-size: 0.9rem; margin-bottom: 2rem;">
+                                payez en toute sécurité avec votre compte paypal
+                            </p>
+
+                            <form method="POST" action="{% url 'accounts:process_paypal_payment' %}">
+                                {% csrf_token %}
+                                <button type="submit"
+                                        style="background: #0070ba; color: white; border: none; padding: 1rem 2rem; font-weight: 500; text-transform: lowercase; letter-spacing: 0.3px; border-radius: 0; font-size: 0.95rem; transition: all 0.2s ease;"
+                                        onmouseover="this.style.background='#005ea6';"
+                                        onmouseout="this.style.background='#0070ba';">
+                                    payer avec paypal ({{ total }} €)
+                                </button>
+                            </form>
+
+                            <p style="color: var(--rhode-gray-medium, #666); font-size: 0.75rem; margin-top: 1rem;">
+                                vous serez redirigé vers paypal pour finaliser le paiement
+                            </p>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
         
-        <!-- Sidebar sécurité et aide -->
+        <!-- Sidebar sécurité Rhode Style -->
         <div class="col-lg-4">
-            <div class="card mb-4">
-                <div class="card-header bg-success text-white">
-                    <h6 class="mb-0"><i class="bi bi-shield-check"></i> Paiement 100% Sécurisé</h6>
-                </div>
-                <div class="card-body">
-                    <div class="d-flex align-items-center mb-2">
-                        <i class="bi bi-lock-fill text-success me-2"></i>
-                        <span>Chiffrement SSL 256 bits</span>
+            <div class="payment-sidebar-rhode mb-4" style="background: var(--rhode-cream, #f8f8f8); padding: 2rem; border-radius: 0;">
+                <h4 style="font-size: 1.1rem; font-weight: 600; color: var(--rhode-black, #000); text-transform: lowercase; letter-spacing: -0.01em; margin-bottom: 1.5rem;">
+                    paiement sécurisé
+                </h4>
+
+                <div class="security-features">
+                    <div class="d-flex align-items-center mb-3">
+                        <i class="bi bi-lock-fill me-3" style="color: var(--rhode-black, #000); font-size: 1.1rem;"></i>
+                        <span style="color: var(--rhode-gray-medium, #666); font-size: 0.85rem;">chiffrement ssl 256 bits</span>
                     </div>
-                    <div class="d-flex align-items-center mb-2">
-                        <i class="bi bi-shield-fill-check text-success me-2"></i>
-                        <span>Conformité PCI DSS</span>
+                    <div class="d-flex align-items-center mb-3">
+                        <i class="bi bi-shield-fill-check me-3" style="color: var(--rhode-black, #000); font-size: 1.1rem;"></i>
+                        <span style="color: var(--rhode-gray-medium, #666); font-size: 0.85rem;">conformité pci dss</span>
                     </div>
                     <div class="d-flex align-items-center">
-                        <i class="bi bi-eye-slash-fill text-success me-2"></i>
-                        <span>Aucune donnée stockée</span>
+                        <i class="bi bi-eye-slash-fill me-3" style="color: var(--rhode-black, #000); font-size: 1.1rem;"></i>
+                        <span style="color: var(--rhode-gray-medium, #666); font-size: 0.85rem;">aucune donnée stockée</span>
                     </div>
                 </div>
             </div>
             
-            <div class="card">
-                <div class="card-header">
-                    <h6 class="mb-0"><i class="bi bi-question-circle"></i> Besoin d'aide ?</h6>
-                </div>
-                <div class="card-body">
-                    <p class="small mb-2">Problème avec votre paiement ?</p>
-                    <a href="#" class="btn btn-outline-secondary btn-sm w-100 mb-2">
-                        <i class="bi bi-headset"></i> Contacter le support
+            <div class="payment-sidebar-rhode" style="background: var(--rhode-white, #fff); border: 1px solid var(--rhode-gray-light, #e5e5e5); padding: 2rem; border-radius: 0;">
+                <h4 style="font-size: 1.1rem; font-weight: 600; color: var(--rhode-black, #000); text-transform: lowercase; letter-spacing: -0.01em; margin-bottom: 1.5rem;">
+                    besoin d'aide ?
+                </h4>
+
+                <p style="color: var(--rhode-gray-medium, #666); font-size: 0.85rem; margin-bottom: 1.5rem;">
+                    problème avec votre paiement ?
+                </p>
+
+                <div class="d-grid gap-3">
+                    <a href="#"
+                       style="background: transparent; color: var(--rhode-gray-medium, #666); border: 1px solid var(--rhode-gray-medium, #666); padding: 0.75rem 1rem; font-weight: 500; text-decoration: none; text-transform: lowercase; letter-spacing: 0.3px; text-align: center; transition: all 0.2s ease; border-radius: 0; display: block;"
+                       onmouseover="this.style.background='var(--rhode-gray-medium, #666)'; this.style.color='white';"
+                       onmouseout="this.style.background='transparent'; this.style.color='var(--rhode-gray-medium, #666)';">
+                        contacter le support
                     </a>
-                    <a href="{% url 'store:cart' %}" class="btn btn-outline-secondary btn-sm w-100">
-                        <i class="bi bi-arrow-left"></i> Retour au panier
+
+                    <a href="{% url 'store:cart' %}"
+                       style="background: transparent; color: var(--rhode-black, #000); border: none; padding: 0.5rem; font-size: 0.85rem; text-decoration: underline; text-transform: lowercase; letter-spacing: 0.3px; text-align: center; transition: color 0.2s ease;"
+                       onmouseover="this.style.color='var(--rhode-gray-medium, #666)';"
+                       onmouseout="this.style.color='var(--rhode-black, #000)';">
+                        retour au panier
                     </a>
                 </div>
             </div>
@@ -151,142 +184,156 @@
     </div>
 </div>
 
-<!-- Scripts Stripe -->
-<script src="https://js.stripe.com/v3/"></script>
+<!-- CSS et JavaScript pour les onglets Rhode Style -->
+<style>
+.payment-section-rhode:hover {
+    border-color: var(--rhode-gray-medium, #666) !important;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.payment-item-rhode:last-child {
+    border-bottom: none !important;
+}
+
+.payment-tab-rhode.active {
+    background: var(--rhode-black, #000) !important;
+    color: white !important;
+    border-color: var(--rhode-black, #000) !important;
+}
+
+.payment-tab-rhode:hover {
+    background: var(--rhode-black, #000);
+    color: white;
+    border-color: var(--rhode-black, #000);
+}
+
+.payment-card-element:focus-within {
+    border-color: var(--rhode-black, #000) !important;
+    box-shadow: 0 0 0 2px rgba(0,0,0,0.1);
+}
+
+@media (max-width: 768px) {
+    .payment-sidebar-rhode {
+        margin-top: 2rem;
+    }
+
+    .payment-section-rhode {
+        padding: 1.5rem !important;
+    }
+
+    .payment-tab-rhode {
+        display: block !important;
+        width: 100% !important;
+        margin: 0 0 0.5rem 0 !important;
+    }
+}
+</style>
+
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Debug de la clé Stripe
-    const stripeKey = '{{ stripe_public_key }}';
-    console.log('Clé Stripe:', stripeKey);
-    
-    if (!stripeKey || stripeKey === 'None' || stripeKey.length < 10) {
-        console.error('Clé Stripe manquante ou invalide');
-        document.getElementById('card-element').innerHTML = '<div class="alert alert-danger">Erreur: Configuration Stripe manquante</div>';
-        return;
-    }
-    
-    // Initialiser Stripe
-    try {
-        const stripe = Stripe(stripeKey);
-        const elements = stripe.elements();
-    
-    // Créer l'élément carte
-    const cardElement = elements.create('card', {
-        style: {
-            base: {
-                fontSize: '16px',
-                color: '#424770',
-                '::placeholder': {
-                    color: '#aab7c4',
-                },
-            },
-        },
+    // Gestion des onglets de paiement
+    const tabs = document.querySelectorAll('.payment-tab-rhode');
+    const panes = document.querySelectorAll('.payment-pane');
+
+    tabs.forEach(tab => {
+        tab.addEventListener('click', function() {
+            const targetTab = this.dataset.tab;
+
+            // Retirer la classe active de tous les onglets
+            tabs.forEach(t => {
+                t.classList.remove('active');
+                t.style.background = 'transparent';
+                t.style.color = 'var(--rhode-gray-medium, #666)';
+                t.style.borderColor = 'var(--rhode-gray-medium, #666)';
+            });
+
+            // Ajouter la classe active à l'onglet cliqué
+            this.classList.add('active');
+            this.style.background = 'var(--rhode-black, #000)';
+            this.style.color = 'white';
+            this.style.borderColor = 'var(--rhode-black, #000)';
+
+            // Masquer tous les panneaux
+            panes.forEach(pane => {
+                pane.style.display = 'none';
+                pane.classList.remove('active');
+            });
+
+            // Afficher le panneau correspondant
+            const targetPane = document.getElementById(targetTab + '-pane');
+            if (targetPane) {
+                targetPane.style.display = 'block';
+                targetPane.classList.add('active');
+            }
+        });
     });
-    
-    cardElement.mount('#card-element');
-    
-    // Gérer les erreurs en temps réel
-    cardElement.on('change', function(event) {
-        const displayError = document.getElementById('card-errors');
-        if (event.error) {
-            displayError.textContent = event.error.message;
-        } else {
-            displayError.textContent = '';
+});
+</script>
+
+<!-- Stripe Elements JavaScript (si nécessaire) -->
+{% if stripe_public_key %}
+<script src="https://js.stripe.com/v3/"></script>
+<script>
+// Configuration Stripe avec le style Rhode
+const stripe = Stripe('{{ stripe_public_key }}');
+const elements = stripe.elements({
+    appearance: {
+        theme: 'flat',
+        variables: {
+            colorPrimary: '#000000',
+            colorBackground: '#ffffff',
+            colorText: '#000000',
+            colorDanger: '#dc3545',
+            fontFamily: 'Inter, system-ui, sans-serif',
+            spacingUnit: '4px',
+            borderRadius: '0px',
         }
-    });
-    
-    // Gérer la soumission du formulaire
-    const form = document.getElementById('stripe-payment-form');
+    }
+});
+
+const cardElement = elements.create('card');
+cardElement.mount('#card-element');
+
+// Gestion des erreurs
+cardElement.on('change', function(event) {
+    const displayError = document.getElementById('card-errors');
+    if (event.error) {
+        displayError.textContent = event.error.message;
+    } else {
+        displayError.textContent = '';
+    }
+});
+
+// Soumission du formulaire
+const form = document.getElementById('stripe-payment-form');
+form.addEventListener('submit', async function(event) {
+    event.preventDefault();
+
     const submitButton = document.getElementById('stripe-submit');
     const buttonText = document.getElementById('stripe-button-text');
     const spinner = document.getElementById('stripe-spinner');
     
-    form.addEventListener('submit', async function(event) {
-        event.preventDefault();
-        // Désactiver le bouton et afficher le spinner
-        submitButton.disabled = true;
-        buttonText.style.display = 'none';
-        spinner.classList.remove('d-none');
+    submitButton.disabled = true;
+    buttonText.style.display = 'none';
+    spinner.classList.remove('d-none');
 
-        // Créer le PaymentIntent
-        const formData = new FormData();
-        formData.append('amount', '{{ total }}');
+    const {token, error} = await stripe.createToken(cardElement);
 
-        const response = await fetch("{% url 'accounts:create_stripe_payment_intent' %}", {
-            method: 'POST',
-            headers: {
-                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
-            },
-            body: formData
-        });
-
-        const data = await response.json();
-        const client_secret = data.client_secret;
-        const backend_redirect_url = data.redirect_url;
-        const error = data.error;
-
-        if (error) {
-            showError(error);
-            resetButton();
-            return;
-        }
-
-        // Confirmer le paiement
-        const {error: stripeError, paymentIntent} = await stripe.confirmCardPayment(client_secret, {
-            payment_method: {
-                card: cardElement,
-            }
-        });
-
-        if (stripeError) {
-            showError(stripeError.message);
-            resetButton();
-        } else if (paymentIntent.status === 'succeeded') {
-            // Paiement réussi, appeler le backend pour finaliser la commande
-            fetch("{% url 'accounts:stripe_confirm_payment' %}", {
-                method: 'POST',
-                headers: {
-                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    payment_intent_id: paymentIntent.id
-                })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success && data.redirect_url) {
-                    window.location.href = data.redirect_url;
-                } else if (data.error) {
-                    showError(data.error);
-                    resetButton();
-                } else {
-                    window.location.href = '{% url "accounts:payment_success" %}';
-                }
-            })
-            .catch(error => {
-                console.error('Erreur lors de la confirmation:', error);
-                showError('Erreur de connexion. Veuillez réessayer.');
-                resetButton();
-            });
-        }
-    });
-    
-    function showError(message) {
-        const errorElement = document.getElementById('card-errors');
-        errorElement.textContent = message;
-    }
-    
-    function resetButton() {
+    if (error) {
+        document.getElementById('card-errors').textContent = error.message;
         submitButton.disabled = false;
         buttonText.style.display = 'inline';
         spinner.classList.add('d-none');
-    }
-    
-    } catch (error) {
-        console.error('Erreur Stripe:', error);
-        document.getElementById('card-element').innerHTML = '<div class="alert alert-danger">Erreur: Impossible d\'initialiser Stripe</div>';
+    } else {
+        // Ajouter le token au formulaire et le soumettre
+        const hiddenInput = document.createElement('input');
+        hiddenInput.setAttribute('type', 'hidden');
+        hiddenInput.setAttribute('name', 'stripeToken');
+        hiddenInput.setAttribute('value', token.id);
+        form.appendChild(hiddenInput);
+        form.submit();
     }
 });
 </script>
+{% endif %}
 {% endblock %}
