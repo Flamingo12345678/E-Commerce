@@ -157,7 +157,6 @@ if database_url and database_url.startswith(('postgres://', 'postgresql://')):
     # Optimisations supplémentaires pour PostgreSQL
     DATABASES['default']['OPTIONS'] = {
         'connect_timeout': 30,
-        'options': '-c default_transaction_isolation=read committed'
     }
 
 elif database_url and ("sqlite" in database_url or database_url == "sqlite:///:memory:"):
