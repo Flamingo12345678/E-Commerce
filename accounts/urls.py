@@ -4,10 +4,20 @@ from . import payment_views
 from . import admin_views
 # from . import debug_webhook
 from . import firebase_views
+from . import views_firebase_unified
 
 app_name = "accounts"
 
 urlpatterns = [
+    # URLs unifiées (nouvelles)
+    path("auth/", views_firebase_unified.UnifiedAuthView.as_view(), name="unified_auth"),
+    path("auth/signup/", views_firebase_unified.UnifiedSignupView.as_view(), name="unified_signup"),
+    path("auth/logout/", views_firebase_unified.unified_logout, name="unified_logout"),
+    path("auth/profile/", views_firebase_unified.unified_profile, name="unified_profile"),
+    path("auth/status/", views_firebase_unified.check_auth_status, name="auth_status"),
+    path("auth/link-accounts/", views_firebase_unified.link_accounts, name="link_accounts"),
+
+    # URLs Django traditionnelles (maintenues pour compatibilité)
     path("signup/", views.signup, name="signup"),
     path("login/", views.login_user, name="login"),
     path("logout/", views.logout_user, name="logout"),

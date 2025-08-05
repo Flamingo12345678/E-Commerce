@@ -254,159 +254,171 @@ function hideError() {
 }
 
 // Fonction pour afficher/masquer le loading
-function setLoading(isLoading) {
-    loading.style.display = isLoading ? 'block' : 'none';
+function showLoading(show) {
+    loading.style.display = show ? 'block' : 'none';
 }
 
-// Fonction pour envoyer le token au backend Django
-async function sendTokenToBackend(idToken) {
+// Configuration des providers Firebase
+const googleProvider = new firebase.auth.GoogleAuthProvider();
+googleProvider.addScope('email');
+googleProvider.addScope('profile');
+
+const facebookProvider = new firebase.auth.FacebookAuthProvider();
+facebookProvider.addScope('email');
+
+// Fonction pour gérer l'authentification Firebase
+async function handleFirebaseAuth(idToken) {
     try {
-        const response = await fetch('{% url "accounts:firebase_login" %}', {
+        const formData = new FormData();
+        formData.append('auth_type', 'firebase');
+        formData.append('idToken', idToken);
+        formData.append('csrfmiddlewaretoken', document.querySelector('[name=csrfmiddlewaretoken]').value);
+
+        const response = await fetch('{% url "accounts:unified_auth" %}', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
-            },
-            body: JSON.stringify({
-                idToken: idToken
-            })
+            body: formData
         });
 
         const data = await response.json();
         
         if (data.success) {
-            // Succès - rediriger vers la page d'accueil
-            window.location.href = '{% url "store:product_list" %}';
+            // Redirection vers la page d'origine ou l'accueil
+            window.location.href = data.redirect_url || '{% url "store:product_list" %}';
         } else {
-            showError(data.error || 'Erreur de connexion');
-            setLoading(false);
+            showError(data.error || 'Erreur lors de l\'authentification');
         }
     } catch (error) {
         console.error('Erreur:', error);
-        showError('Erreur de communication avec le serveur');
-        setLoading(false);
-    }
-}
-
-// Fonction générique pour l'authentification (popup ou redirect)
-async function authenticateWithProvider(provider, providerName) {
-    hideError();
-    setLoading(true);
-
-    try {
-        let result;
-
-        if (isMobileDevice()) {
-            // Sur mobile, utiliser la redirection
-            console.log(`Redirection ${providerName} en cours...`);
-            // IMPORTANT: Stocker le type de provider pour le retour de redirection
-            localStorage.setItem('firebase_auth_provider', providerName);
-            await auth.signInWithRedirect(provider);
-            // La gestion du résultat se fera dans getRedirectResult au rechargement de la page
-            return;
-        } else {
-            // Sur desktop, utiliser la popup
-            result = await auth.signInWithPopup(provider);
-        }
-
-        const idToken = await result.user.getIdToken();
-        await sendTokenToBackend(idToken);
-    } catch (error) {
-        console.error(`Erreur ${providerName}:`, error);
-        setLoading(false);
-
-        if (error.code === 'auth/popup-closed-by-user') {
-            showError('Connexion annulée');
-        } else if (error.code === 'auth/popup-blocked') {
-            showError('Popup bloquée. Redirection en cours...');
-            // Essayer avec redirect si popup échoue
-            try {
-                localStorage.setItem('firebase_auth_provider', providerName);
-                await auth.signInWithRedirect(provider);
-                return;
-            } catch (redirectError) {
-                showError(`Erreur de connexion ${providerName}: ${redirectError.message}`);
-            }
-        } else {
-            showError(`Erreur de connexion ${providerName}: ${error.message}`);
-        }
+        showError('Erreur lors de l\'authentification');
+    } finally {
+        showLoading(false);
     }
 }
 
 // Connexion Google
-googleBtn.addEventListener('click', async (e) => {
-    e.preventDefault();
+googleBtn.addEventListener('click', async function() {
+    try {
+        hideError();
+        showLoading(true);
 
-    const provider = new firebase.auth.GoogleAuthProvider();
-    provider.addScope('email');
-    provider.addScope('profile');
+        let result;
+        if (isMobileDevice()) {
+            // Sur mobile, utiliser la redirection
+            await auth.signInWithRedirect(googleProvider);
+            return; // La redirection va gérer la suite
+        } else {
+            // Sur desktop, utiliser popup
+            result = await auth.signInWithPopup(googleProvider);
+        }
 
-    await authenticateWithProvider(provider, 'Google');
+        const idToken = await result.user.getIdToken();
+        await handleFirebaseAuth(idToken);
+
+    } catch (error) {
+        console.error('Erreur Google Auth:', error);
+        showLoading(false);
+
+        if (error.code === 'auth/popup-closed-by-user') {
+            showError('Connexion annulée');
+        } else if (error.code === 'auth/popup-blocked') {
+            showError('Pop-up bloqué. Veuillez autoriser les pop-ups pour ce site.');
+        } else {
+            showError('Erreur lors de la connexion avec Google: ' + error.message);
+        }
+    }
 });
 
 // Connexion Facebook
-facebookBtn.addEventListener('click', async (e) => {
-    e.preventDefault();
+facebookBtn.addEventListener('click', async function() {
+    try {
+        hideError();
+        showLoading(true);
 
-    const provider = new firebase.auth.FacebookAuthProvider();
-    provider.addScope('email');
+        let result;
+        if (isMobileDevice()) {
+            // Sur mobile, utiliser la redirection
+            await auth.signInWithRedirect(facebookProvider);
+            return; // La redirection va gérer la suite
+        } else {
+            // Sur desktop, utiliser popup
+            result = await auth.signInWithPopup(facebookProvider);
+        }
 
-    await authenticateWithProvider(provider, 'Facebook');
-});
+        const idToken = await result.user.getIdToken();
+        await handleFirebaseAuth(idToken);
 
-// Gérer le résultat de la redirection (pour mobile)
-auth.getRedirectResult().then(async (result) => {
-    if (result.user) {
-        console.log('Connexion par redirection réussie:', result.user.email);
-        setLoading(true);
+    } catch (error) {
+        console.error('Erreur Facebook Auth:', error);
+        showLoading(false);
 
-        try {
-            const idToken = await result.user.getIdToken();
-            await sendTokenToBackend(idToken);
-        } catch (error) {
-            console.error('Erreur lors du traitement de la redirection:', error);
-            showError('Erreur lors de la connexion');
-            setLoading(false);
+        if (error.code === 'auth/popup-closed-by-user') {
+            showError('Connexion annulée');
+        } else if (error.code === 'auth/popup-blocked') {
+            showError('Pop-up bloqué. Veuillez autoriser les pop-ups pour ce site.');
+        } else {
+            showError('Erreur lors de la connexion avec Facebook: ' + error.message);
         }
     }
-}).catch((error) => {
-    console.error('Erreur de redirection:', error);
-    showError('Erreur de redirection: ' + error.message);
-    setLoading(false);
+});
+
+// Gérer le résultat de redirection (mobile)
+auth.getRedirectResult().then(async function(result) {
+    if (result.user) {
+        showLoading(true);
+        const idToken = await result.user.getIdToken();
+        await handleFirebaseAuth(idToken);
+    }
+}).catch(function(error) {
+    console.error('Erreur redirection:', error);
+    showError('Erreur lors de la connexion: ' + error.message);
+});
+
+// Modifier le formulaire Django pour utiliser le système unifié
+document.querySelector('form').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    hideError();
+    showLoading(true);
+
+    const formData = new FormData(this);
+    formData.append('auth_type', 'django');
+
+    try {
+        const response = await fetch('{% url "accounts:unified_auth" %}', {
+            method: 'POST',
+            body: formData
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            window.location.href = data.redirect_url || '{% url "store:product_list" %}';
+        } else {
+            if (data.errors) {
+                // Afficher les erreurs spécifiques aux champs
+                let errorMsg = '';
+                Object.values(data.errors).forEach(errors => {
+                    errorMsg += errors.join(', ') + ' ';
+                });
+                showError(errorMsg.trim());
+            } else {
+                showError(data.error || 'Erreur lors de la connexion');
+            }
+        }
+    } catch (error) {
+        console.error('Erreur:', error);
+        showError('Erreur lors de la connexion');
+    } finally {
+        showLoading(false);
+    }
 });
 
 // Vérifier l'état d'authentification au chargement
-auth.onAuthStateChanged(async (user) => {
-    console.log('État d\'authentification changé:', user ? user.email : 'non connecté');
-    console.log('Chemin actuel:', window.location.pathname);
-    console.log('URL complète:', window.location.href);
-
-    if (user) {
-        // Si l'utilisateur est connecté mais qu'on est sur la page de connexion
-        // cela signifie qu'on revient probablement d'une redirection
-        const currentPath = window.location.pathname;
-        const isLoginPage = currentPath.includes('/login') || currentPath.endsWith('/login/') || currentPath === '/login';
-
-        console.log('Est-ce une page de connexion?', isLoginPage);
-
-        if (isLoginPage) {
-            console.log('Utilisateur connecté détecté sur la page de connexion - traitement automatique...');
-            setLoading(true);
-
-            try {
-                const idToken = await user.getIdToken();
-                console.log('Token récupéré automatiquement, envoi au backend...');
-                console.log('Longueur du token:', idToken.length);
-                await sendTokenToBackend(idToken);
-            } catch (error) {
-                console.error('Erreur lors de la récupération automatique du token:', error);
-                showError('Erreur de connexion automatique');
-                setLoading(false);
-            }
-        } else {
-            console.log('Utilisateur connecté mais pas sur la page de connexion, pas d\'action automatique');
+document.addEventListener('DOMContentLoaded', function() {
+    auth.onAuthStateChanged(function(user) {
+        if (user) {
+            console.log('Utilisateur Firebase connecté:', user.email);
         }
-    }
+    });
 });
 </script>
 
