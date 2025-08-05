@@ -147,24 +147,15 @@ DATABASES = {
     'default': dj_database_url.config(conn_max_age=600, ssl_require=True)
 }
 
+    'default': dj_database_url.config(conn_max_age=600, ssl_require=True)
+}
+
 if database_url and database_url.startswith(('postgres://', 'postgresql://')):
     # Configuration automatique via DATABASE_URL (App Platform)
-    DATABASES = {
-        'default': dj_database_url.parse(
-            database_url,
             conn_max_age=600,
-            conn_health_checks=True,
-        )
-    }
+        'default': dj_database_url.parse(
 elif database_url and ("sqlite" in database_url or database_url == "sqlite:///:memory:"):
     # Check if DATABASE_URL is set (for CI/testing with SQLite)
-    DATABASES = {
-        "default": {
-            "ENGINE": "django.db.backends.sqlite3",
-            "NAME": ":memory:" if database_url == "sqlite:///:memory:" else BASE_DIR / "db.sqlite3",
-        }
-    }
-else:
     # Configuration de base de données basée sur DB_ENGINE
     db_engine = env("DB_ENGINE", default="mysql")
 

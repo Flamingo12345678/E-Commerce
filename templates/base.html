@@ -21,12 +21,14 @@
 
     <!-- Custom CSS - Order matters! -->
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/mobile-navigation.css' %}">
     <link rel="stylesheet" href="{% static 'css/landing.css' %}">
     <link rel="stylesheet" href="{% static 'css/landing-fashion.css' %}">
     <link rel="stylesheet" href="{% static 'css/rhode-inspired.css' %}">
     <link rel="stylesheet" href="{% static 'css/rhode-landing.css' %}">
     <link rel="stylesheet" href="{% static 'css/product-detail.css' %}">
     <link rel="stylesheet" href="{% static 'css/image-optimization.css' %}">
+    <link rel="stylesheet" href="{% static 'css/mobile-navigation.css' %}">
 
     <!-- Custom overrides - Load last to ensure priority -->
     <link rel="stylesheet" href="{% static 'css/custom-overrides.css' %}">
@@ -118,7 +120,7 @@
 </head>
 <body class="d-flex flex-column min-vh-100">
 
-<!-- 🔝 Navbar Rhode Skin Inspired -->
+<!-- 🔝 Navbar Rhode Skin Inspired avec Menu Burger -->
 <header>
   <nav class="navbar-rhode">
     <div class="container">
@@ -653,90 +655,162 @@
             </li>
           </ul>
         </div>
-        
+
         <!-- Logo central -->
         <a class="navbar-brand-rhode" href="{% url 'index' %}" style="font-size: 1.5rem; font-weight: 400; color: var(--rhode-black); text-decoration: none; letter-spacing: -0.02em; text-transform: lowercase;">
           yee
         </a>
-        
-        <!-- Navigation droite -->
+
+        <!-- Navigation droite + Menu Burger -->
         <div class="d-flex align-items-center gap-4">
-          <!-- Recherche minimaliste -->
-          <button class="d-none d-lg-block" type="button" style="background: none; border: none; color: var(--rhode-black); font-size: 0.9rem; font-weight: 400; text-transform: uppercase; letter-spacing: 0.5px;">
-            SEARCH
-          </button>
+          <!-- Menu Desktop (existant) -->
+          <div class="d-none d-lg-flex align-items-center gap-4">
+            <!-- Recherche minimaliste -->
+            <button class="d-none d-lg-block" type="button" style="background: none; border: none; color: var(--rhode-black); font-size: 0.9rem; font-weight: 400; text-transform: uppercase; letter-spacing: 0.5px;">
+              SEARCH
+            </button>
 
-          {% if user.is_authenticated %}
-            <!-- Compte utilisateur -->
-            <div class="dropdown d-none d-lg-block">
-              <button class="dropdown-toggle" type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false" style="background: none; border: none; color: var(--rhode-black); font-size: 0.9rem; font-weight: 400; text-transform: uppercase; letter-spacing: 0.5px;">
-                ACCOUNT
-              </button>
-              <ul class="dropdown-menu dropdown-menu-end shadow-sm" aria-labelledby="userDropdown" style="border: 1px solid var(--rhode-gray-light); border-radius: var(--border-radius-lg); min-width: 200px;">
-                <li><span class="dropdown-item-text" style="color: var(--rhode-gray-medium); font-size: 0.85rem;">{{ user.get_full_name|default:user.username }}</span></li>
-                <li><hr class="dropdown-divider" style="margin: 0.5rem 0;"></li>
-                <li><a class="dropdown-item nav-link-rhode" href="{% url 'profile' %}" style="padding: 0.5rem 1rem; font-size: 0.9rem;">profile</a></li>
-                <li><a class="dropdown-item nav-link-rhode" href="{% url 'accounts:order_history' %}" style="padding: 0.5rem 1rem; font-size: 0.9rem;">orders</a></li>
-                <li><hr class="dropdown-divider" style="margin: 0.5rem 0;"></li>
-                <li><a class="dropdown-item nav-link-rhode" href="{% url 'logout' %}" style="padding: 0.5rem 1rem; font-size: 0.9rem; color: var(--rhode-gray-medium);">sign out</a></li>
-              </ul>
-            </div>
-            
-            <!-- Panier avec compteur -->
-            <div class="position-relative d-none d-lg-block">
-              {% get_cart_info user as cart_info %}
-              <a href="{% url 'store:cart' %}" style="background: none; border: none; color: var(--rhode-black); text-decoration: none; font-size: 0.9rem; font-weight: 400; text-transform: uppercase; letter-spacing: 0.5px;">
-                CART ({{ cart_info.total_items }})
-              </a>
-            </div>
-          {% else %}
-            <a href="{% url 'login' %}" style="background: none; border: none; color: var(--rhode-black); text-decoration: none; font-size: 0.9rem; font-weight: 400; text-transform: uppercase; letter-spacing: 0.5px;" class="d-none d-lg-block">
-              ACCOUNT
-            </a>
-          {% endif %}
-
-          <!-- Menu mobile accordion pour SHOP -->
-          <div class="accordion d-lg-none" id="mobileShopAccordion">
-            <div class="accordion-item" style="border: none; background: transparent;">
-              <h2 class="accordion-header" id="shopHeading">
-                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#shopCollapse" aria-expanded="false" aria-controls="shopCollapse"
-                        style="background: transparent; border: none; padding: 0; box-shadow: none; font-size: 0.9rem; font-weight: 500; color: var(--rhode-black); text-transform: uppercase; letter-spacing: 0.5px;">
-                  SHOP
+            {% if user.is_authenticated %}
+              <!-- Compte utilisateur -->
+              <div class="dropdown d-none d-lg-block">
+                <button class="dropdown-toggle" type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false" style="background: none; border: none; color: var(--rhode-black); font-size: 0.9rem; font-weight: 400; text-transform: uppercase; letter-spacing: 0.5px;">
+                  ACCOUNT
                 </button>
-              </h2>
-              <div id="shopCollapse" class="accordion-collapse collapse" aria-labelledby="shopHeading" data-bs-parent="#mobileShopAccordion">
-                <div class="accordion-body" style="padding: 1rem 0 0 1rem;">
-                  <div class="d-flex flex-column gap-2">
-                    <a href="{% url 'store:product_list' %}" class="text-decoration-none"
-                       style="font-size: 0.85rem; color: var(--rhode-gray-medium); padding: 0.3rem 0;">
-                      <i class="bi bi-grid-3x3-gap me-2"></i>Tous les produits</a>
-                    <a href="{% url 'store:product_list' %}?category=men" class="text-decoration-none"
-                       style="font-size: 0.85rem; color: var(--rhode-gray-medium); padding: 0.3rem 0;">
-                      <i class="bi bi-person me-2"></i>Homme</a>
-                    <a href="{% url 'store:product_list' %}?category=women" class="text-decoration-none"
-                       style="font-size: 0.85rem; color: var(--rhode-gray-medium); padding: 0.3rem 0;">
-                      <i class="bi bi-person-dress me-2"></i>Femme</a>
-                    <a href="{% url 'store:product_list' %}?category=kids" class="text-decoration-none"
-                       style="font-size: 0.85rem; color: var(--rhode-gray-medium); padding: 0.3rem 0;">
-                      <i class="bi bi-star me-2"></i>Enfant</a>
-                    <a href="{% url 'store:product_list' %}?category=shoes" class="text-decoration-none"
-                       style="font-size: 0.85rem; color: var(--rhode-gray-medium); padding: 0.3rem 0;">
-                      <i class="bi bi-shoe me-2"></i>Chaussures</a>
-                    <a href="{% url 'store:product_list' %}?category=accessories" class="text-decoration-none"
-                       style="font-size: 0.85rem; color: var(--rhode-gray-medium); padding: 0.3rem 0;">
-                      <i class="bi bi-handbag me-2"></i>Accessoires</a>
-                    <a href="{% url 'store:product_list' %}?featured=true" class="text-decoration-none"
-                       style="font-size: 0.85rem; color: var(--rhode-accent); font-weight: 500; padding: 0.3rem 0;">
-                      <i class="bi bi-award me-2"></i>Nouveautés</a>
-                  </div>
-                </div>
+                <ul class="dropdown-menu dropdown-menu-end shadow-sm" aria-labelledby="userDropdown" style="border: 1px solid var(--rhode-gray-light); border-radius: var(--border-radius-lg); min-width: 200px;">
+                  <li><span class="dropdown-item-text" style="color: var(--rhode-gray-medium); font-size: 0.85rem;">{{ user.get_full_name|default:user.username }}</span></li>
+                  <li><hr class="dropdown-divider" style="margin: 0.5rem 0;"></li>
+                  <li><a class="dropdown-item nav-link-rhode" href="{% url 'profile' %}" style="padding: 0.5rem 1rem; font-size: 0.9rem;">profile</a></li>
+                  <li><a class="dropdown-item nav-link-rhode" href="{% url 'accounts:order_history' %}" style="padding: 0.5rem 1rem; font-size: 0.9rem;">orders</a></li>
+                  <li><hr class="dropdown-divider" style="margin: 0.5rem 0;"></li>
+                  <li><a class="dropdown-item nav-link-rhode" href="{% url 'logout' %}" style="padding: 0.5rem 1rem; font-size: 0.9rem; color: var(--rhode-gray-medium);">sign out</a></li>
+                </ul>
               </div>
-            </div>
+
+              <!-- Panier avec compteur -->
+              <div class="position-relative d-none d-lg-block">
+                {% get_cart_info user as cart_info %}
+                <a href="{% url 'store:cart' %}" style="background: none; border: none; color: var(--rhode-black); text-decoration: none; font-size: 0.9rem; font-weight: 400; text-transform: uppercase; letter-spacing: 0.5px;">
+                  CART ({{ cart_info.total_items }})
+                </a>
+              </div>
+            {% else %}
+              <a href="{% url 'login' %}" style="background: none; border: none; color: var(--rhode-black); text-decoration: none; font-size: 0.9rem; font-weight: 400; text-transform: uppercase; letter-spacing: 0.5px;" class="d-none d-lg-block">
+                ACCOUNT
+              </a>
+            {% endif %}
           </div>
+
+          <!-- NOUVEAU: Menu Burger Mobile -->
+          <button class="mobile-menu-toggle d-lg-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileMenu" aria-controls="mobileMenu" aria-expanded="false" aria-label="Menu mobile">
+            <span class="hamburger-line"></span>
+            <span class="hamburger-line"></span>
+            <span class="hamburger-line"></span>
+          </button>
         </div>
       </div>
     </div>
   </nav>
+
+  <!-- NOUVEAU: Menu Mobile Offcanvas -->
+  <div class="offcanvas offcanvas-end" tabindex="-1" id="mobileMenu" aria-labelledby="mobileMenuLabel">
+    <div class="offcanvas-header">
+      <h5 class="offcanvas-title" id="mobileMenuLabel" style="font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Menu</h5>
+      <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body p-0">
+      <div class="mobile-nav-list">
+        <!-- Shop avec sous-menu -->
+        <div class="mobile-nav-item">
+          <div class="mobile-nav-header" data-bs-toggle="collapse" data-bs-target="#mobileShopMenu" aria-expanded="false">
+            <span>SHOP</span>
+            <i class="bi bi-chevron-down"></i>
+          </div>
+          <div class="collapse" id="mobileShopMenu">
+            <div class="mobile-submenu">
+              <a href="{% url 'store:product_list' %}" class="mobile-nav-subitem">
+                <i class="bi bi-grid-3x3-gap me-2"></i>Tous les produits
+              </a>
+              <a href="{% url 'store:product_list' %}?category=men" class="mobile-nav-subitem">
+                <i class="bi bi-person me-2"></i>Homme
+              </a>
+              <a href="{% url 'store:product_list' %}?category=women" class="mobile-nav-subitem">
+                <i class="bi bi-person-dress me-2"></i>Femme
+              </a>
+              <a href="{% url 'store:product_list' %}?category=kids" class="mobile-nav-subitem">
+                <i class="bi bi-star me-2"></i>Enfant
+              </a>
+              <a href="{% url 'store:product_list' %}?category=shoes" class="mobile-nav-subitem">
+                <i class="bi bi-shoe me-2"></i>Chaussures
+              </a>
+              <a href="{% url 'store:product_list' %}?category=accessories" class="mobile-nav-subitem">
+                <i class="bi bi-handbag me-2"></i>Accessoires
+              </a>
+              <a href="{% url 'store:product_list' %}?featured=true" class="mobile-nav-subitem featured">
+                <i class="bi bi-award me-2"></i>Nouveautés
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Liens directs -->
+        <a href="{% url 'pages:about' %}" class="mobile-nav-item-link">
+          <span>ABOUT</span>
+        </a>
+        <a href="{% url 'pages:contact' %}" class="mobile-nav-item-link">
+          <span>CONTACT</span>
+        </a>
+
+        <!-- Account -->
+        {% if user.is_authenticated %}
+          <div class="mobile-nav-item">
+            <div class="mobile-nav-header" data-bs-toggle="collapse" data-bs-target="#mobileAccountMenu" aria-expanded="false">
+              <span>ACCOUNT</span>
+              <i class="bi bi-chevron-down"></i>
+            </div>
+            <div class="collapse" id="mobileAccountMenu">
+              <div class="mobile-submenu">
+                <span class="mobile-nav-user">{{ user.get_full_name|default:user.username }}</span>
+                <a href="{% url 'profile' %}" class="mobile-nav-subitem">
+                  <i class="bi bi-person me-2"></i>Mon Profil
+                </a>
+                <a href="{% url 'accounts:order_history' %}" class="mobile-nav-subitem">
+                  <i class="bi bi-bag me-2"></i>Mes Commandes
+                </a>
+                <a href="{% url 'logout' %}" class="mobile-nav-subitem danger">
+                  <i class="bi bi-box-arrow-right me-2"></i>Déconnexion
+                </a>
+              </div>
+            </div>
+          </div>
+        {% else %}
+          <a href="{% url 'login' %}" class="mobile-nav-item-link">
+            <span>ACCOUNT</span>
+          </a>
+        {% endif %}
+
+        <!-- Cart -->
+        <a href="{% url 'store:cart' %}" class="mobile-nav-item-link cart-link">
+          <span>CART</span>
+          {% get_cart_info user as cart_info %}
+          {% if cart_info.total_items > 0 %}
+            <span class="mobile-cart-badge">{{ cart_info.total_items }}</span>
+          {% endif %}
+        </a>
+
+        <!-- Search -->
+        <div class="mobile-nav-item">
+          <div class="mobile-search">
+            <form class="d-flex" action="{% url 'store:product_list' %}" method="GET">
+              <input class="form-control" type="search" name="search" placeholder="Rechercher..." aria-label="Search">
+              <button class="btn btn-outline-dark" type="submit">
+                <i class="bi bi-search"></i>
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </header>
 
 <!-- 📢 Messages Django -->

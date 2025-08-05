@@ -10,28 +10,67 @@
                 <ul class="navbar-nav" role="menubar">
                     <!-- Mega Menu SHOP -->
                     <li class="nav-item mega-menu-item" role="none">
-                        <a class="nav-link-rhode" 
-                           href="{% url 'store:product_list' %}" 
+                    <li class="nav-item mega-menu-item" role="none">
+                        <a class="nav-link-rhode"
                            id="shopMegaMenu"
                            role="menuitem"
                            aria-haspopup="true"
                            aria-expanded="false"
                            data-mega-menu="shop">
-                            SHOP
-                        </a>
+                           id="shopMegaMenu"
+                           role="menuitem"
                         <!-- Mega Menu Dropdown -->
-                        <div class="mega-menu-dropdown" 
-                             id="shopDropdown" 
+                        <div class="mega-menu-dropdown"
+                             id="shopDropdown"
                              role="menu"
                              aria-labelledby="shopMegaMenu"
                              data-dropdown="shop">
                             {% include 'components/mega_menu_shop.html' %}
                         </div>
-                    </li>
-                    
+                           aria-haspopup="true"
+
                     <!-- About -->
                     <li class="nav-item mega-menu-item" role="none">
-                        <a class="nav-link-rhode" 
+                           data-mega-menu="shop">
+                            SHOP
+                           id="aboutMegaMenu"
+                           role="menuitem"
+                           aria-haspopup="true"
+                           aria-expanded="false"
+                           data-mega-menu="about">
+                        <!-- Mega Menu Dropdown -->
+                        <div class="mega-menu-dropdown"
+                        <div class="mega-menu-dropdown"
+                             id="aboutDropdown"
+                             role="menu"
+                             aria-labelledby="aboutMegaMenu"
+                             data-dropdown="about">
+                            {% include 'components/mega_menu_about.html' %}
+                        </div>
+                             id="shopDropdown"
+
+                    <!-- Futures -->
+                    <li class="nav-item mega-menu-item" role="none">
+                             aria-labelledby="shopMegaMenu"
+                             data-dropdown="shop">
+                           id="futuresMegaMenu"
+                           role="menuitem"
+                           aria-haspopup="true"
+                           aria-expanded="false"
+                           data-mega-menu="futures">
+                        </div>
+                    </li>
+                        <div class="mega-menu-dropdown"
+                             id="futuresDropdown"
+                             role="menu"
+                             aria-labelledby="futuresMegaMenu"
+                             data-dropdown="futures">
+                            {% include 'components/mega_menu_futures.html' %}
+                        </div>
+
+                    <!-- About -->
+                    <li class="nav-item mega-menu-item" role="none">
+                        <a class="nav-link-rhode"
                            href="{% url 'pages:about' %}" 
                            id="aboutMegaMenu"
                            role="menuitem"
@@ -40,28 +79,33 @@
                            data-mega-menu="about">
                             ABOUT
                         </a>
-                        <div class="mega-menu-dropdown" 
-                             id="aboutDropdown" 
+                        <div class="mega-menu-dropdown"
+                             id="aboutDropdown"
                              role="menu"
                              aria-labelledby="aboutMegaMenu"
-                             data-dropdown="about">
+                    <!-- Recherche -->
                             {% include 'components/mega_menu_about.html' %}
                         </div>
                     </li>
-                    
-                    <!-- Futures -->
+
+                                aria-label="Ouvrir la recherche"
+                                data-search-toggle>
                     <li class="nav-item mega-menu-item" role="none">
-                        <a class="nav-link-rhode" 
+                        <a class="nav-link-rhode"
                            href="{% url 'pages:contact' %}" 
+                        <!-- Panneau de recherche -->
+                        <div class="search-panel" id="searchPanel">
+                            {% include 'components/search_panel.html' %}
+                        </div>
                            id="futuresMegaMenu"
                            role="menuitem"
-                           aria-haspopup="true"
+                    <!-- Compte utilisateur -->
                            aria-expanded="false"
-                           data-mega-menu="futures">
+                        <li class="nav-item dropdown account-dropdown" role="none">
                             FUTURES
                         </a>
-                        <div class="mega-menu-dropdown" 
-                             id="futuresDropdown" 
+                        <div class="mega-menu-dropdown"
+                             id="futuresDropdown"
                              role="menu"
                              aria-labelledby="futuresMegaMenu"
                              data-dropdown="futures">
@@ -72,6 +116,12 @@
             </div>
             
             <!-- Logo central -->
+                                    <span class="dropdown-item-text user-greeting" role="menuitem">
+                                        Bonjour, {{ user.get_full_name|default:user.username }}
+                                    </span>
+                                </li>
+                                <li role="separator"><hr class="dropdown-divider"></li>
+                                <li role="none">
             <div class="navbar-brand">
                 <a href="{% url 'index' %}" 
                    class="navbar-brand-rhode"
@@ -102,7 +152,7 @@
                     <!-- Compte utilisateur -->
                     {% if user.is_authenticated %}
                         <li class="nav-item dropdown account-dropdown" role="none">
-                            <button class="nav-button dropdown-toggle" 
+                            <button class="nav-button dropdown-toggle"
                                     type="button" 
                                     id="userDropdown" 
                                     data-bs-toggle="dropdown" 
@@ -117,12 +167,12 @@
                                 role="menu">
                                 <li role="none">
                                     <span class="dropdown-item-text user-greeting" role="menuitem">
-                                        Bonjour, {{ user.get_full_name|default:user.username }}
+                    <!-- Panier -->
                                     </span>
                                 </li>
                                 <li role="separator"><hr class="dropdown-divider"></li>
                                 <li role="none">
-                                    <a class="dropdown-item" 
+                                    <a class="dropdown-item"
                                        href="{% url 'profile' %}"
                                        role="menuitem">
                                         <i class="bi bi-person me-2" aria-hidden="true"></i>
@@ -134,7 +184,7 @@
                                        href="{% url 'accounts:order_history' %}"
                                        role="menuitem">
                                         <i class="bi bi-bag me-2" aria-hidden="true"></i>
-                                        Mes commandes
+                    <!-- Menu mobile toggle -->
                                     </a>
                                 </li>
                                 <li role="none">
@@ -210,8 +260,8 @@
 </nav>
 
 <!-- Overlay pour les mega menus -->
-<div class="mega-menu-overlay" 
-     id="megaMenuOverlay" 
+<div class="mega-menu-overlay"
+     id="megaMenuOverlay"
      aria-hidden="true"
      data-mega-overlay></div>
 
@@ -259,56 +309,6 @@
 .nav-button {
     font-size: 0.9rem;
     font-weight: 400;
-    color: var(--rhode-black);
-    text-decoration: none;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    padding: 0.5rem 0;
-    border: none;
-    background: none;
-    cursor: pointer;
-    position: relative;
-    transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-.nav-link-rhode:hover,
-.nav-button:hover {
-    color: var(--rhode-accent);
-}
-
-.nav-link-rhode::after {
-    content: '';
-    position: absolute;
-    bottom: -2px;
-    left: 0;
-    width: 0;
-    height: 2px;
-    background: var(--rhode-accent);
-    transition: width 0.3s ease;
-}
-
-.nav-link-rhode:hover::after {
-    width: 100%;
-}
-
-.navbar-brand-rhode {
-    font-size: 1.5rem;
-    font-weight: 400;
-    color: var(--rhode-black);
-    text-decoration: none;
-    letter-spacing: -0.02em;
-    text-transform: lowercase;
-    transition: all 0.3s ease;
-}
-
-.navbar-brand-rhode:hover {
-    color: var(--rhode-accent);
-    transform: scale(1.05);
-}
-
 /* Mega Menu Styles */
 .mega-menu-dropdown {
     position: absolute;
@@ -352,26 +352,28 @@
     visibility: visible;
 }
 
-/* Cart Counter */
-.cart-count {
-    font-weight: 600;
-    color: var(--rhode-accent);
+    color: var(--rhode-black);
+    text-decoration: none;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 0.5rem 0;
+    border: none;
+/* Mobile Styles */
+    cursor: pointer;
+    position: relative;
+    transition: all 0.3s ease;
+    display: flex;
+    transition: all 0.3s ease;
+    z-index: 999;
 }
 
-/* Mobile Styles */
-@media (max-width: 991.98px) {
-    .navbar-wrapper {
-        grid-template-columns: auto 1fr auto;
-        gap: 1rem;
-    }
-    
-    .navbar-left,
-    .navbar-right .search-item,
-    .navbar-right .account-dropdown,
-    .navbar-right .cart-item {
+.mega-menu-overlay.active {
         display: none;
-    }
-    
+    visibility: visible;
+        grid-template-columns: auto 1fr auto;
+    .mobile-toggle {
+        display: none;
+        display: block !important;
     .mobile-toggle {
         display: block !important;
     }
@@ -381,16 +383,16 @@
     .mobile-toggle {
         display: none;
     }
-}
+/* Hamburger Animation */
 
 /* Hamburger Animation */
-.hamburger-line {
+    width: 25px;
     display: block;
     width: 25px;
-    height: 2px;
-    background: var(--rhode-black);
     margin: 5px 0;
     transition: 0.3s;
+
+
 }
 
 .navbar-toggler[aria-expanded="true"] .hamburger-line:nth-child(1) {
