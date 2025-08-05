@@ -151,11 +151,6 @@ if database_url and database_url.startswith(('postgres://', 'postgresql://')):
             database_url,
             conn_max_age=300,  # Réduire la durée de vie des connexions
             conn_health_checks=True,
-            options={
-                'MAX_CONNS': 10,  # Limiter le nombre de connexions
-                'connect_timeout': 30,
-                'application_name': 'ecommerce_app',
-            }
         )
     }
 
