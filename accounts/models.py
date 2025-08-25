@@ -86,7 +86,7 @@ class Shopper(AbstractUser):
     two_factor_enabled = models.BooleanField(
         default=False, verbose_name="Authentification à deux facteurs"
     )
-    
+
     # Firebase
     firebase_uid = models.CharField(
         max_length=128, blank=True, null=True, unique=True,
@@ -409,3 +409,86 @@ class WebhookLog(models.Model):
     def __str__(self):
         status = "✓" if self.processed_successfully else "✗"
         return f"{status} {self.provider} - {self.event_type}"
+
+
+class EmailTemplate(models.Model):
+    """Modèle pour gérer les templates d'emails depuis l'interface admin"""
+
+    TEMPLATE_CHOICES = [
+        ('welcome', '🎉 Email de bienvenue'),
+        ('order_confirmation', '📋 Confirmation de commande'),
+        ('order_status_update', '📦 Mise à jour de statut'),
+        ('newsletter', '📰 Newsletter'),
+    ]
+
+    name = models.CharField(
+        max_length=50,
+        choices=TEMPLATE_CHOICES,
+        unique=True,
+        verbose_name="Type de template"
+    )
+    subject = models.CharField(
+        max_length=200,
+        verbose_name="Sujet de l'email",
+        help_text="Le sujet par défaut pour ce type d'email"
+    )
+    html_content = models.TextField(
+        verbose_name="Contenu HTML",
+        help_text="Le contenu HTML du template. Utilisez {{ variable }} pour les variables dynamiques."
+    )
+    is_active = models.BooleanField(
+        default=True,
+        verbose_name="Template actif",
+        help_text="Désactiver temporairement ce template"
+    )
+    last_modified = models.DateTimeField(auto_now=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Template d'email"
+        verbose_name_plural = "Templates d'emails"
+        ordering = ['name']
+
+    def __str__(self):
+        return f"{self.get_name_display()}"
+
+    def get_template_path(self):
+        """Retourne le chemin du fichier template"""
+        template_files = {
+            'welcome': 'emails/welcome.html',
+            'order_confirmation': 'emails/order_confirmation.html',
+            'order_status_update': 'emails/order_status_update.html',
+            'newsletter': 'emails/newsletter.html',
+        }
+        return template_files.get(self.name, '')
+
+
+class EmailTestSend(models.Model):
+    """Modèle pour tester l'envoi d'emails depuis l'admin"""
+
+    template = models.ForeignKey(
+        EmailTemplate,
+        on_delete=models.CASCADE,
+        verbose_name="Template à tester"
+    )
+    test_email = models.EmailField(
+        verbose_name="Email de test",
+        help_text="L'adresse email où envoyer le test"
+    )
+    test_data = models.JSONField(
+        default=dict,
+        blank=True,
+        verbose_name="Données de test",
+        help_text="Variables JSON pour tester le template"
+    )
+    sent_at = models.DateTimeField(null=True, blank=True)
+    success = models.BooleanField(default=False)
+    error_message = models.TextField(blank=True)
+
+    class Meta:
+        verbose_name = "Test d'email"
+        verbose_name_plural = "Tests d'emails"
+        ordering = ['-sent_at']
+
+    def __str__(self):
+        return f"Test {self.template.name} → {self.test_email}"

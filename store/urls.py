@@ -31,6 +31,7 @@ urlpatterns = [
     ),
     path("order/<int:order_id>/reorder/", views.reorder, name="reorder"),
     path("order/<int:order_id>/cancel/", views.cancel_order, name="cancel_order"),
+    path("order-history/", views.order_history, name="order_history"),
     # Wishlist URLs
     path("wishlist/", views.wishlist_view, name="wishlist"),
     path("wishlist/add/", views.add_to_wishlist, name="add_to_wishlist"),

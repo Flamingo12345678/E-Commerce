@@ -1,0 +1,169 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}Se déconnecter - YEE Codes{% endblock %}
+
+{% block extra_css %}
+<style>
+/* Rhode Skin Auth Styles */
+:root {
+    --rhode-white: #ffffff;
+    --rhode-cream: #f8f6f3;
+    --rhode-black: #1a1a1a;
+    --rhode-gray-light: #e5e5e5;
+    --rhode-gray-medium: #999999;
+    --rhode-sage: #9caf88;
+    --rhode-accent: #d4a574;
+    --border-radius-lg: 12px;
+    --font-weight-medium: 500;
+}
+
+.auth-container {
+    background: linear-gradient(135deg, var(--rhode-cream) 0%, var(--rhode-white) 100%);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 1rem;
+}
+
+.auth-card {
+    background: var(--rhode-white);
+    border-radius: var(--border-radius-lg);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+    padding: 3rem;
+    width: 100%;
+    max-width: 420px;
+    border: 1px solid var(--rhode-gray-light);
+}
+
+.auth-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.auth-title {
+    font-size: 1.75rem;
+    font-weight: 400;
+    color: var(--rhode-black);
+    margin-bottom: 0.5rem;
+    letter-spacing: -0.02em;
+}
+
+.auth-subtitle {
+    color: var(--rhode-gray-medium);
+    font-size: 0.9rem;
+    margin-bottom: 2rem;
+}
+
+.logout-icon {
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(135deg, var(--rhode-sage), var(--rhode-accent));
+    border-radius: 50%;
+    margin: 0 auto 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.logout-message {
+    background: #f0f9ff;
+    border: 1px solid #bae6fd;
+    color: #0c4a6e;
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 2rem;
+    font-size: 0.9rem;
+    text-align: center;
+}
+
+.btn-primary {
+    width: 100%;
+    padding: 0.875rem 1rem;
+    background: var(--rhode-black);
+    color: var(--rhode-white);
+    border: none;
+    border-radius: 8px;
+    font-weight: var(--font-weight-medium);
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    margin-bottom: 1rem;
+}
+
+.btn-primary:hover {
+    background: #333;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.btn-secondary {
+    width: 100%;
+    padding: 0.875rem 1rem;
+    background: transparent;
+    color: var(--rhode-black);
+    border: 1px solid var(--rhode-gray-light);
+    border-radius: 8px;
+    font-weight: var(--font-weight-medium);
+    font-size: 0.9rem;
+    text-decoration: none;
+    display: inline-block;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.btn-secondary:hover {
+    background: var(--rhode-cream);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    color: var(--rhode-black);
+    text-decoration: none;
+}
+
+@media (max-width: 768px) {
+    .auth-card {
+        padding: 2rem 1.5rem;
+        margin: 1rem;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="auth-header">
+            <div class="logout-icon">
+                <i class="fas fa-sign-out-alt fa-2x" style="color: var(--rhode-white);"></i>
+            </div>
+            <h1 class="auth-title">Se déconnecter</h1>
+            <p class="auth-subtitle">Êtes-vous sûr de vouloir vous déconnecter ?</p>
+        </div>
+
+        <div class="logout-message">
+            <i class="fas fa-info-circle me-2"></i>
+            Vous allez être déconnecté de votre compte YEE. Vous pourrez vous reconnecter à tout moment.
+        </div>
+
+        <form method="post" action="{% url 'account_logout' %}">
+            {% csrf_token %}
+            {% if redirect_field_value %}
+                <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}"/>
+            {% endif %}
+
+            <button type="submit" class="btn-primary">
+                <i class="fas fa-sign-out-alt me-2"></i>
+                Confirmer la déconnexion
+            </button>
+        </form>
+
+        <a href="{% url 'index' %}" class="btn-secondary">
+            <i class="fas fa-arrow-left me-2"></i>
+            Retour à l'accueil
+        </a>
+    </div>
+</div>
+{% endblock %}

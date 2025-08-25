@@ -1,0 +1,376 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Modifier mon profil - Rhode Skin{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/auth-pages.css' %}">
+<style>
+/* Rhode Skin Profile Edit Styles */
+:root {
+    --rhode-white: #ffffff;
+    --rhode-cream: #f8f6f3;
+    --rhode-black: #1a1a1a;
+    --rhode-gray-light: #e5e5e5;
+    --rhode-gray-medium: #999999;
+    --rhode-sage: #9caf88;
+    --rhode-accent: #d4a574;
+    --border-radius-lg: 12px;
+    --font-weight-medium: 500;
+}
+
+.profile-edit-container {
+    background: linear-gradient(135deg, var(--rhode-cream) 0%, var(--rhode-white) 100%);
+    min-height: 100vh;
+    padding: 2rem 1rem;
+}
+
+.profile-edit-card {
+    background: var(--rhode-white);
+    border-radius: var(--border-radius-lg);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+    border: 1px solid var(--rhode-gray-light);
+    max-width: 800px;
+    margin: 0 auto;
+    overflow: hidden;
+}
+
+.profile-edit-header {
+    background: var(--rhode-cream);
+    padding: 2rem;
+    border-bottom: 1px solid var(--rhode-gray-light);
+    text-align: center;
+}
+
+.profile-edit-title {
+    font-size: 1.75rem;
+    font-weight: 400;
+    color: var(--rhode-black);
+    margin-bottom: 0.5rem;
+    letter-spacing: -0.02em;
+}
+
+.profile-edit-subtitle {
+    color: var(--rhode-gray-medium);
+    font-size: 0.95rem;
+    margin: 0;
+}
+
+.profile-edit-form {
+    padding: 3rem;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-label {
+    display: block;
+    font-weight: var(--font-weight-medium);
+    color: var(--rhode-black);
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.form-input {
+    width: 100%;
+    padding: 0.875rem 1rem;
+    border: 2px solid var(--rhode-gray-light);
+    border-radius: 8px;
+    font-size: 0.95rem;
+    color: var(--rhode-black);
+    background: var(--rhode-white);
+    transition: all 0.3s ease;
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: var(--rhode-sage);
+    box-shadow: 0 0 0 3px rgba(156, 175, 136, 0.1);
+}
+
+.form-input.error {
+    border-color: #e74c3c;
+}
+
+.error-message {
+    color: #e74c3c;
+    font-size: 0.8rem;
+    margin-top: 0.25rem;
+}
+
+.auth-message {
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+    font-size: 0.9rem;
+}
+
+.auth-message-success {
+    background: rgba(156, 175, 136, 0.1);
+    color: var(--rhode-sage);
+    border: 1px solid rgba(156, 175, 136, 0.2);
+}
+
+.auth-message-error {
+    background: rgba(231, 76, 60, 0.1);
+    color: #e74c3c;
+    border: 1px solid rgba(231, 76, 60, 0.2);
+}
+
+.form-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+    align-items: center;
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--rhode-gray-light);
+}
+
+.btn-primary {
+    background: var(--rhode-sage);
+    color: var(--rhode-white);
+    border: none;
+    padding: 0.875rem 2rem;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    font-weight: var(--font-weight-medium);
+    text-decoration: none;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.btn-primary:hover {
+    background: #8ba177;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(156, 175, 136, 0.3);
+    color: var(--rhode-white);
+}
+
+.btn-secondary {
+    background: transparent;
+    color: var(--rhode-gray-medium);
+    border: 2px solid var(--rhode-gray-light);
+    padding: 0.875rem 2rem;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    font-weight: var(--font-weight-medium);
+    text-decoration: none;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.btn-secondary:hover {
+    background: var(--rhode-gray-light);
+    color: var(--rhode-black);
+    text-decoration: none;
+}
+
+@media (max-width: 768px) {
+    .profile-edit-card {
+        margin: 1rem;
+        border-radius: 8px;
+    }
+
+    .profile-edit-form {
+        padding: 2rem 1.5rem;
+    }
+
+    .form-row {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    .form-actions {
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .btn-primary,
+    .btn-secondary {
+        width: 100%;
+        justify-content: center;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="profile-edit-container">
+    <div class="profile-edit-card">
+        <div class="profile-edit-header">
+            <h1 class="profile-edit-title">
+                <i class="fas fa-user-edit me-2"></i>
+                Modifier mon profil
+            </h1>
+            <p class="profile-edit-subtitle">
+                Mettez à jour vos informations personnelles
+            </p>
+        </div>
+
+        <div class="profile-edit-form">
+            <!-- Messages -->
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="auth-message auth-message-{{ message.tags }}">
+                        <i class="fas fa-{% if message.tags == 'success' %}check-circle{% else %}exclamation-circle{% endif %} me-2"></i>
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            <form method="post">
+                {% csrf_token %}
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="{{ form.first_name.id_for_label }}" class="form-label">
+                            <i class="fas fa-user me-1"></i>
+                            {{ form.first_name.label }}
+                        </label>
+                        <input
+                            type="text"
+                            class="form-input{% if form.first_name.errors %} error{% endif %}"
+                            id="{{ form.first_name.id_for_label }}"
+                            name="first_name"
+                            value="{{ form.first_name.value|default:'' }}"
+                            placeholder="Votre prénom"
+                        >
+                        {% if form.first_name.errors %}
+                            <div class="error-message">
+                                {% for error in form.first_name.errors %}
+                                    <i class="fas fa-exclamation-circle me-1"></i>{{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        <label for="{{ form.last_name.id_for_label }}" class="form-label">
+                            <i class="fas fa-user me-1"></i>
+                            {{ form.last_name.label }}
+                        </label>
+                        <input
+                            type="text"
+                            class="form-input{% if form.last_name.errors %} error{% endif %}"
+                            id="{{ form.last_name.id_for_label }}"
+                            name="last_name"
+                            value="{{ form.last_name.value|default:'' }}"
+                            placeholder="Votre nom"
+                        >
+                        {% if form.last_name.errors %}
+                            <div class="error-message">
+                                {% for error in form.last_name.errors %}
+                                    <i class="fas fa-exclamation-circle me-1"></i>{{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form.email.id_for_label }}" class="form-label">
+                        <i class="fas fa-envelope me-1"></i>
+                        {{ form.email.label }}
+                    </label>
+                    <input
+                        type="email"
+                        class="form-input{% if form.email.errors %} error{% endif %}"
+                        id="{{ form.email.id_for_label }}"
+                        name="email"
+                        value="{{ form.email.value|default:'' }}"
+                        placeholder="votre@email.com"
+                    >
+                    {% if form.email.errors %}
+                        <div class="error-message">
+                            {% for error in form.email.errors %}
+                                <i class="fas fa-exclamation-circle me-1"></i>{{ error }}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                {% if form.phone %}
+                <div class="form-group">
+                    <label for="{{ form.phone.id_for_label }}" class="form-label">
+                        <i class="fas fa-phone me-1"></i>
+                        {{ form.phone.label }}
+                    </label>
+                    <input
+                        type="tel"
+                        class="form-input{% if form.phone.errors %} error{% endif %}"
+                        id="{{ form.phone.id_for_label }}"
+                        name="phone"
+                        value="{{ form.phone.value|default:'' }}"
+                        placeholder="+33 1 23 45 67 89"
+                    >
+                    {% if form.phone.errors %}
+                        <div class="error-message">
+                            {% for error in form.phone.errors %}
+                                <i class="fas fa-exclamation-circle me-1"></i>{{ error }}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+                {% endif %}
+
+                {% if form.bio %}
+                <div class="form-group">
+                    <label for="{{ form.bio.id_for_label }}" class="form-label">
+                        <i class="fas fa-user-circle me-1"></i>
+                        {{ form.bio.label }}
+                    </label>
+                    <textarea
+                        class="form-input{% if form.bio.errors %} error{% endif %}"
+                        id="{{ form.bio.id_for_label }}"
+                        name="bio"
+                        rows="4"
+                        placeholder="Parlez-nous de vous..."
+                    >{{ form.bio.value|default:'' }}</textarea>
+                    {% if form.bio.errors %}
+                        <div class="error-message">
+                            {% for error in form.bio.errors %}
+                                <i class="fas fa-exclamation-circle me-1"></i>{{ error }}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+                {% endif %}
+
+                {% if form.non_field_errors %}
+                    <div class="auth-message auth-message-error">
+                        {% for error in form.non_field_errors %}
+                            <i class="fas fa-exclamation-circle me-1"></i>{{ error }}
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+                <div class="form-actions">
+                    <a href="{% url 'accounts:profile' %}" class="btn-secondary">
+                        <i class="fas fa-times me-2"></i>
+                        Annuler
+                    </a>
+                    <button type="submit" class="btn-primary">
+                        <i class="fas fa-save me-2"></i>
+                        Enregistrer les modifications
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

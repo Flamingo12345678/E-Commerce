@@ -18,6 +18,8 @@ from django.contrib.auth.tokens import default_token_generator
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_str
 from django.template.loader import render_to_string
+from .email_services import EmailService
+import logging
 
 # Django OTP imports
 from django_otp.plugins.otp_totp.models import TOTPDevice
@@ -34,6 +36,9 @@ from .utils import (
     mask_card_number,
 )
 from shop.firebase_config import get_firebase_config
+
+# Configure le logger
+logger = logging.getLogger(__name__)
 
 # Create your views here.
 
@@ -147,6 +152,10 @@ def signup(request):
                     username=username, email=email if email else "", password=password
                 )
 
+                # Envoi de l'email de bienvenue si l'email est fourni
+                if email:
+                    EmailService.send_welcome_email(user)
+
                 # Gestion robuste de la session lors de la connexion
                 try:
                     # Assurer que la session est propre avant la connexion
@@ -201,7 +210,7 @@ def login_user(request):
 
         if user is not None:
             if user.is_active:
-                # Vérifier si l'utilisateur a la 2FA activée
+                # V��rifier si l'utilisateur a la 2FA activée
                 if getattr(user, "two_factor_enabled", False):
                     # Si le code TOTP n'est pas fourni, afficher le formulaire 2FA
                     if not totp_code:
@@ -414,8 +423,28 @@ def manage_payment_methods(request):
 @login_required
 @require_POST
 def update_notifications(request):
-    """Met à jour les notifications"""
-    messages.success(request, "Préférences de notification mises à jour.")
+    """Met à jour les préférences de notification de l'utilisateur"""
+    try:
+        shopper = request.user
+
+        # Récupération des données du formulaire
+        email_notifications = request.POST.get('email_notifications') == 'on'
+        sms_notifications = request.POST.get('sms_notifications') == 'on'
+        push_notifications = request.POST.get('push_notifications') == 'on'
+        newsletter_subscription = request.POST.get('newsletter_subscription') == 'on'
+
+        # Mise à jour des préférences
+        shopper.email_notifications = email_notifications
+        shopper.sms_notifications = sms_notifications
+        shopper.push_notifications = push_notifications
+        shopper.newsletter_subscription = newsletter_subscription
+        shopper.save()
+
+        messages.success(request, "✅ Vos préférences de notification ont été mises à jour avec succès.")
+
+    except Exception as e:
+        messages.error(request, f"❌ Erreur lors de la mise à jour des préférences : {str(e)}")
+
     return redirect("accounts:profile")
 
 
@@ -474,10 +503,91 @@ def password_reset_request(request):
     if request.method == "POST":
         email = request.POST.get("email", "").strip()
         if email:
-            messages.success(
-                request,
-                "Si cette adresse email existe, vous recevrez un lien de réinitialisation.",
-            )
+            try:
+                # Vérifier si l'utilisateur existe
+                from django.contrib.auth import get_user_model
+                User = get_user_model()
+                user = User.objects.get(email=email)
+
+                # Générer le token de réinitialisation
+                from django.contrib.auth.tokens import default_token_generator
+                from django.utils.encoding import force_bytes
+                from django.utils.http import urlsafe_base64_encode
+                from django.core.mail import send_mail
+                from django.template.loader import render_to_string
+
+                # Générer les paramètres pour le lien
+                uid = urlsafe_base64_encode(force_bytes(user.pk))
+                token = default_token_generator.make_token(user)
+
+                # Construire l'URL de réinitialisation
+                site_url = settings.SITE_URL
+                reset_url = f"{site_url}/accounts/password-reset-confirm/{uid}/{token}/"
+
+                # Préparer le contenu de l'email
+                subject = "🔑 Réinitialisation de votre mot de passe - YEE Codes"
+
+                # Contenu HTML
+                html_content = render_to_string('emails/password_reset.html', {
+                    'user': user,
+                    'reset_url': reset_url,
+                    'site_name': 'YEE Codes',
+                    'site_url': site_url,
+                    'support_email': settings.EMAIL_ADDRESSES.get('contact', settings.DEFAULT_FROM_EMAIL),
+                })
+
+                # Contenu texte simple
+                text_content = f"""
+Bonjour {user.first_name or user.username},
+
+Vous avez demandé la réinitialisation de votre mot de passe sur YEE Codes.
+
+Cliquez sur le lien suivant pour définir un nouveau mot de passe :
+{reset_url}
+
+Ce lien est valide pendant 3 jours.
+
+Si vous n'avez pas fait cette demande, ignorez cet email.
+
+L'équipe YEE Codes
+{site_url}
+                """
+
+                # Envoyer l'email
+                from django.core.mail import EmailMultiAlternatives
+
+                email_message = EmailMultiAlternatives(
+                    subject=subject,
+                    body=text_content,
+                    from_email=settings.EMAIL_ADDRESSES.get('contact', settings.DEFAULT_FROM_EMAIL),
+                    to=[email],
+                    reply_to=[settings.REPLY_TO_EMAIL]
+                )
+                email_message.attach_alternative(html_content, "text/html")
+                email_message.send()
+
+                logger.info(f"Email de réinitialisation envoyé à {email}")
+
+                messages.success(
+                    request,
+                    "Un email de réinitialisation a été envoyé à votre adresse. Vérifiez votre boîte de réception et vos spams.",
+                )
+
+            except User.DoesNotExist:
+                # Pour des raisons de sécurité, on affiche le même message même si l'email n'existe pas
+                messages.success(
+                    request,
+                    "Si cette adresse email existe, vous recevrez un lien de réinitialisation.",
+                )
+                logger.warning(f"Tentative de réinitialisation pour email inexistant: {email}")
+
+            except Exception as e:
+                logger.error(f"Erreur lors de l'envoi de l'email de réinitialisation: {e}")
+                messages.error(
+                    request,
+                    "Une erreur s'est produite. Veuillez réessayer plus tard.",
+                )
+
             return render(request, "accounts/password_reset_done.html")
         else:
             messages.error(request, "Veuillez saisir votre adresse email.")
@@ -487,5 +597,68 @@ def password_reset_request(request):
 
 def password_reset_confirm(request, uidb64, token):
     """Confirme la réinitialisation de mot de passe"""
-    messages.info(request, "Réinitialisation de mot de passe en cours de développement.")
-    return redirect("accounts:login")
+    try:
+        # Décoder l'UID
+        uid = force_str(urlsafe_base64_decode(uidb64))
+        user = User.objects.get(pk=uid)
+    except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+        user = None
+
+    # Vérifier si le token est valide
+    if user is not None and default_token_generator.check_token(user, token):
+        if request.method == 'POST':
+            new_password = request.POST.get('new_password', '')
+            confirm_password = request.POST.get('confirm_password', '')
+
+            if new_password != confirm_password:
+                messages.error(request, "Les mots de passe ne correspondent pas.")
+                return render(request, "accounts/password_reset_confirm.html", {
+                    'valid_link': True,
+                    'uidb64': uidb64,
+                    'token': token
+                })
+
+            if not new_password:
+                messages.error(request, "Le mot de passe ne peut pas être vide.")
+                return render(request, "accounts/password_reset_confirm.html", {
+                    'valid_link': True,
+                    'uidb64': uidb64,
+                    'token': token
+                })
+
+            try:
+                # Valider le mot de passe selon les règles Django
+                validate_password(new_password, user)
+
+                # Définir le nouveau mot de passe
+                user.set_password(new_password)
+                user.save()
+
+                logger.info(f"Mot de passe réinitialisé avec succès pour {user.email}")
+
+                messages.success(request, "✅ Votre mot de passe a été réinitialisé avec succès ! Vous pouvez maintenant vous connecter.")
+                return redirect("accounts:login")
+
+            except ValidationError as e:
+                for error in e.messages:
+                    messages.error(request, error)
+                return render(request, "accounts/password_reset_confirm.html", {
+                    'valid_link': True,
+                    'uidb64': uidb64,
+                    'token': token
+                })
+
+        # GET request - afficher le formulaire
+        return render(request, "accounts/password_reset_confirm.html", {
+            'valid_link': True,
+            'uidb64': uidb64,
+            'token': token
+        })
+
+    else:
+        # Lien invalide ou expiré
+        logger.warning(f"Tentative d'utilisation d'un lien de réinitialisation invalide: uidb64={uidb64}")
+        messages.error(request, "❌ Ce lien de réinitialisation n'est plus valide ou a expiré.")
+        return render(request, "accounts/password_reset_confirm.html", {
+            'valid_link': False
+        })

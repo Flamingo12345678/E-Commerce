@@ -29,6 +29,7 @@ from .payment_services import (
     PayPalPaymentProcessor,
 )
 from store.models import Order, Cart
+from .email_services import EmailService
 
 
 @login_required
@@ -296,6 +297,33 @@ def confirm_stripe_payment(request):
                         f"Stock insuffisant pour {product.name} "
                         f"taille {order.size or 'unique'}, quantité demandée: {order.quantity}"
                     )
+
+            # Envoi automatique de l'email de confirmation de commande
+            try:
+                # Créer un objet commande fictif pour l'email (avec les informations nécessaires)
+                fake_order = type('Order', (), {
+                    'id': transaction.id,
+                    'date_ordered': timezone.now(),
+                    'get_cart_total': lambda: float(amount_decimal)
+                })()
+
+                # Préparer les items pour l'email
+                email_items = []
+                for order in cart_orders:
+                    email_items.append({
+                        'product': order.product,
+                        'quantity': order.quantity,
+                        'size': getattr(order, 'size', None),
+                        'get_total': lambda o=order: o.quantity * o.product.price
+                    })
+
+                # Envoyer l'email de confirmation
+                EmailService.send_order_confirmation(request.user, fake_order, email_items)
+                logger.info(f"Email de confirmation envoyé à {request.user.email}")
+
+            except Exception as email_error:
+                logger.error(f"Erreur envoi email confirmation: {email_error}")
+                # Ne pas faire échouer la transaction pour un problème d'email
 
             logger.info(f"Commande finalisée - Transaction: {transaction.id}")
 

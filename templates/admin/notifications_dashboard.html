@@ -1,0 +1,206 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+
+{% block title %}Dashboard Notifications - {{ site_title|default:"Django Admin" }}{% endblock %}
+
+{% block extrahead %}
+<style>
+    .dashboard-container {
+        max-width: 1200px;
+        margin: 20px auto;
+    }
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+        margin-bottom: 30px;
+    }
+    .stat-card {
+        background: white;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 20px;
+        text-align: center;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .stat-number {
+        font-size: 2.5em;
+        font-weight: bold;
+        color: #007cba;
+        margin: 10px 0;
+    }
+    .stat-label {
+        color: #666;
+        font-size: 14px;
+        margin-bottom: 5px;
+    }
+    .stat-percentage {
+        font-size: 18px;
+        font-weight: bold;
+        margin-top: 5px;
+    }
+    .percentage-good { color: #28a745; }
+    .percentage-warning { color: #ffc107; }
+    .percentage-danger { color: #dc3545; }
+
+    .actions-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 20px;
+        margin-top: 30px;
+    }
+    .action-card {
+        background: white;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 20px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .action-card h3 {
+        margin-top: 0;
+        color: #333;
+    }
+    .action-btn {
+        display: inline-block;
+        background: #007cba;
+        color: white;
+        padding: 10px 20px;
+        text-decoration: none;
+        border-radius: 4px;
+        margin-top: 10px;
+        transition: background 0.3s;
+    }
+    .action-btn:hover {
+        background: #005a8a;
+        color: white;
+    }
+    .btn-newsletter { background: #28a745; }
+    .btn-newsletter:hover { background: #1e7e34; }
+    .btn-stats { background: #17a2b8; }
+    .btn-stats:hover { background: #138496; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <h1>📧 Dashboard Notifications</h1>
+    <p>Gestion centralisée des notifications et newsletters YEE Codes</p>
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-label">👥 Total Utilisateurs Actifs</div>
+            <div class="stat-number">{{ stats.total_users }}</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-label">📬 Abonnés Newsletter</div>
+            <div class="stat-number">{{ stats.newsletter_subscribers }}</div>
+            <div class="stat-percentage {% if stats.newsletter_rate >= 50 %}percentage-good{% elif stats.newsletter_rate >= 25 %}percentage-warning{% else %}percentage-danger{% endif %}">
+                {{ stats.newsletter_rate }}% du total
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-label">📧 Notifications Email Activées</div>
+            <div class="stat-number">{{ stats.email_notifications_enabled }}</div>
+            <div class="stat-percentage {% if stats.email_rate >= 70 %}percentage-good{% elif stats.email_rate >= 40 %}percentage-warning{% else %}percentage-danger{% endif %}">
+                {{ stats.email_rate }}% du total
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-label">📊 Taux d'Engagement</div>
+            <div class="stat-number">
+                {% if stats.newsletter_rate >= 50 %}🔥{% elif stats.newsletter_rate >= 25 %}👍{% else %}📈{% endif %}
+            </div>
+            <div class="stat-percentage">
+                Newsletter: {{ stats.newsletter_rate }}%<br>
+                Email: {{ stats.email_rate }}%
+            </div>
+        </div>
+    </div>
+
+    <div class="actions-grid">
+        <div class="action-card">
+            <h3>📝 Composer Newsletter</h3>
+            <p>Créer et envoyer une newsletter personnalisée à tous les abonnés.</p>
+            <ul style="font-size: 13px; color: #666;">
+                <li>✅ Test avant envoi</li>
+                <li>✅ Gestion d'erreurs</li>
+                <li>✅ Rapport d'envoi</li>
+            </ul>
+            <a href="{% url 'admin:compose_newsletter' %}" class="action-btn btn-newsletter">
+                ✍️ Composer Newsletter
+            </a>
+        </div>
+
+        <div class="action-card">
+            <h3>👥 Gérer les Abonnés</h3>
+            <p>Voir la liste complète des abonnés à la newsletter et leurs statistiques.</p>
+            <ul style="font-size: 13px; color: #666;">
+                <li>📊 {{ stats.newsletter_subscribers }} abonnés actifs</li>
+                <li>📅 Dates d'inscription</li>
+                <li>🎯 Segmentation possible</li>
+            </ul>
+            <a href="{% url 'admin:view_subscribers' %}" class="action-btn">
+                👥 Voir les Abonnés
+            </a>
+        </div>
+
+        <div class="action-card">
+            <h3>📊 Statistiques Détaillées</h3>
+            <p>Analyses approfondies des performances email et engagement utilisateurs.</p>
+            <ul style="font-size: 13px; color: #666;">
+                <li>📈 Tendances d'inscription</li>
+                <li>🎯 Taux d'engagement</li>
+                <li>��� Évolution mensuelle</li>
+            </ul>
+            <a href="{% url 'admin:email_stats' %}" class="action-btn btn-stats">
+                📊 Voir Statistiques
+            </a>
+        </div>
+
+        <div class="action-card">
+            <h3>⚙️ Configuration Email</h3>
+            <p>Gérer les préférences et paramètres du système de notifications.</p>
+            <ul style="font-size: 13px; color: #666;">
+                <li>📧 Configuration SMTP Titan</li>
+                <li>🔧 Adresses spécialisées</li>
+                <li>🎨 Templates d'emails</li>
+            </ul>
+            <a href="{% url 'admin:accounts_shopper_changelist' %}" class="action-btn">
+                ⚙️ Gérer Utilisateurs
+            </a>
+        </div>
+    </div>
+
+    <div style="margin-top: 40px; padding: 20px; background: #f8f9fa; border-radius: 8px;">
+        <h3>🛠️ Configuration Actuelle</h3>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+            <div>
+                <strong>📬 Provider Email:</strong><br>
+                <span style="font-family: monospace; background: white; padding: 2px 6px; border-radius: 3px;">Titan Email (Hostinger)</span>
+            </div>
+            <div>
+                <strong>📧 Adresses Configurées:</strong><br>
+                <span style="font-size: 12px;">
+                    • Bienvenue: bienvenue@y-e-e.tech<br>
+                    • Commandes: confirmation@y-e-e.tech<br>
+                    • Newsletter: newsletters@y-e-e.tech<br>
+                    • Support: contact@y-e-e.tech
+                </span>
+            </div>
+            <div>
+                <strong>🔒 Sécurité:</strong><br>
+                <span style="color: #28a745;">✅ TLS activé</span><br>
+                <span style="color: #28a745;">✅ Authentification SMTP</span>
+            </div>
+            <div>
+                <strong>📊 Status Système:</strong><br>
+                <span style="color: #28a745;">🟢 Opérationnel</span><br>
+                <span style="font-size: 12px;">Dernière vérification: OK</span>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

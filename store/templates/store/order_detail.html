@@ -259,8 +259,8 @@ background: linear-gradient(135deg, #000, #222);
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb breadcrumb-rhode">
                 <li class="breadcrumb-item"><a href="{% url 'index' %}">Accueil</a></li>
-                <li class="breadcrumb-item"><a href="{% url 'profile' %}">Mon Profil</a></li>
-                <li class="breadcrumb-item"><a href="{% url 'accounts:order_history' %}">Mes Commandes</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'accounts:profile' %}">Mon Profil</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'store:order_history' %}">Mes Commandes</a></li>
                 <li class="breadcrumb-item active" aria-current="page">Commande #{{ order.id }}</li>
             </ol>
         </nav>

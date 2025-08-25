@@ -1,0 +1,129 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+
+{% block title %}Abonnés newsletter - {{ site_title|default:"Django Admin" }}{% endblock %}
+
+{% block extrahead %}
+<style>
+    .subscribers-list {
+        max-width: 1000px;
+        margin: 20px auto;
+    }
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+        margin-bottom: 30px;
+    }
+    .stat-card {
+        background: #f8f9fa;
+        padding: 15px;
+        border-radius: 5px;
+        text-align: center;
+    }
+    .stat-number {
+        font-size: 2em;
+        font-weight: bold;
+        color: #007cba;
+    }
+    .subscribers-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+    }
+    .subscribers-table th,
+    .subscribers-table td {
+        padding: 12px;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+    }
+    .subscribers-table th {
+        background-color: #f5f5f5;
+        font-weight: bold;
+    }
+    .status-badge {
+        padding: 4px 8px;
+        border-radius: 12px;
+        font-size: 0.8em;
+        font-weight: bold;
+    }
+    .status-active {
+        background-color: #d4edda;
+        color: #155724;
+    }
+    .status-inactive {
+        background-color: #f8d7da;
+        color: #721c24;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="subscribers-list">
+    <h1>📧 Abonnés à la newsletter</h1>
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-number">{{ total_count }}</div>
+            <div>Total abonnés</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">{{ subscribers|length }}</div>
+            <div>Abonnés actifs</div>
+        </div>
+    </div>
+
+    {% if subscribers %}
+        <table class="subscribers-table">
+            <thead>
+                <tr>
+                    <th>👤 Utilisateur</th>
+                    <th>📧 Email</th>
+                    <th>📅 Inscription</th>
+                    <th>🔔 Notifications</th>
+                    <th>📱 Statut</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for subscriber in subscribers %}
+                <tr>
+                    <td>
+                        <strong>{{ subscriber.get_full_name|default:subscriber.username }}</strong>
+                    </td>
+                    <td>{{ subscriber.email|default:"Non renseigné" }}</td>
+                    <td>{{ subscriber.date_joined|date:"d/m/Y" }}</td>
+                    <td>
+                        {% if subscriber.email_notifications %}
+                            <span class="status-badge status-active">✅ Activées</span>
+                        {% else %}
+                            <span class="status-badge status-inactive">❌ Désactivées</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if subscriber.is_active %}
+                            <span class="status-badge status-active">🟢 Actif</span>
+                        {% else %}
+                            <span class="status-badge status-inactive">🔴 Inactif</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <div style="text-align: center; padding: 40px; color: #666;">
+            <h3>📭 Aucun abonné pour le moment</h3>
+            <p>Les utilisateurs qui s'abonnent à la newsletter apparaîtront ici.</p>
+        </div>
+    {% endif %}
+
+    <div style="margin-top: 30px; text-align: center;">
+        <a href="{% url 'admin:compose_newsletter' %}" class="btn btn-primary">
+            📝 Composer une newsletter
+        </a>
+        <a href="{% url 'admin:accounts_shopper_changelist' %}" class="btn btn-secondary">
+            👥 Gérer les utilisateurs
+        </a>
+    </div>
+</div>
+{% endblock %}

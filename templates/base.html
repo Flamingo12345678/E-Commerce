@@ -679,10 +679,10 @@
                 <ul class="dropdown-menu dropdown-menu-end shadow-sm" aria-labelledby="userDropdown" style="border: 1px solid var(--rhode-gray-light); border-radius: var(--border-radius-lg); min-width: 200px;">
                   <li><span class="dropdown-item-text" style="color: var(--rhode-gray-medium); font-size: 0.85rem;">{{ user.get_full_name|default:user.username }}</span></li>
                   <li><hr class="dropdown-divider" style="margin: 0.5rem 0;"></li>
-                  <li><a class="dropdown-item nav-link-rhode" href="{% url 'profile' %}" style="padding: 0.5rem 1rem; font-size: 0.9rem;">profile</a></li>
-                  <li><a class="dropdown-item nav-link-rhode" href="{% url 'accounts:order_history' %}" style="padding: 0.5rem 1rem; font-size: 0.9rem;">orders</a></li>
+                  <li><a class="dropdown-item nav-link-rhode" href="{% url 'accounts:profile' %}" style="padding: 0.5rem 1rem; font-size: 0.9rem;">profile</a></li>
+                  <li><a class="dropdown-item nav-link-rhode" href="{% url 'store:order_history' %}" style="padding: 0.5rem 1rem; font-size: 0.9rem;">orders</a></li>
                   <li><hr class="dropdown-divider" style="margin: 0.5rem 0;"></li>
-                  <li><a class="dropdown-item nav-link-rhode" href="{% url 'logout' %}" style="padding: 0.5rem 1rem; font-size: 0.9rem; color: var(--rhode-gray-medium);">sign out</a></li>
+                  <li><a class="dropdown-item nav-link-rhode" href="{% url 'account_logout' %}" style="padding: 0.5rem 1rem; font-size: 0.9rem; color: var(--rhode-gray-medium);">sign out</a></li>
                 </ul>
               </div>
 
@@ -694,7 +694,7 @@
                 </a>
               </div>
             {% else %}
-              <a href="{% url 'login' %}" style="background: none; border: none; color: var(--rhode-black); text-decoration: none; font-size: 0.9rem; font-weight: 400; text-transform: uppercase; letter-spacing: 0.5px;" class="d-none d-lg-block">
+              <a href="{% url 'account_login' %}" style="background: none; border: none; color: var(--rhode-black); text-decoration: none; font-size: 0.9rem; font-weight: 400; text-transform: uppercase; letter-spacing: 0.5px;" class="d-none d-lg-block">
                 ACCOUNT
               </a>
             {% endif %}
@@ -783,20 +783,20 @@
             <div class="collapse" id="mobileAccountMenu">
               <div class="mobile-submenu">
                 <span class="mobile-nav-user">{{ user.get_full_name|default:user.username }}</span>
-                <a href="{% url 'profile' %}" class="mobile-nav-subitem">
+                <a href="{% url 'accounts:profile' %}" class="mobile-nav-subitem">
                   <i class="bi bi-person me-2"></i>Mon Profil
                 </a>
-                <a href="{% url 'accounts:order_history' %}" class="mobile-nav-subitem">
+                <a href="{% url 'store:order_history' %}" class="mobile-nav-subitem">
                   <i class="bi bi-bag me-2"></i>Mes Commandes
                 </a>
-                <a href="{% url 'logout' %}" class="mobile-nav-subitem danger">
+                <a href="{% url 'account_logout' %}" class="mobile-nav-subitem danger">
                   <i class="bi bi-box-arrow-right me-2"></i>Déconnexion
                 </a>
               </div>
             </div>
           </div>
         {% else %}
-          <a href="{% url 'login' %}" class="mobile-nav-item-link">
+          <a href="{% url 'account_login' %}" class="mobile-nav-item-link">
             <span>ACCOUNT</span>
           </a>
         {% endif %}

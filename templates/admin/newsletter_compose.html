@@ -1,0 +1,153 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+
+{% block title %}Composer une newsletter - {{ site_title|default:"Django Admin" }}{% endblock %}
+
+{% block extrahead %}
+<style>
+    .newsletter-compose {
+        max-width: 800px;
+        margin: 20px auto;
+    }
+    .newsletter-stats {
+        background: #f8f9fa;
+        padding: 15px;
+        border-radius: 5px;
+        margin-bottom: 20px;
+    }
+    .form-group {
+        margin-bottom: 20px;
+    }
+    .form-group label {
+        display: block;
+        font-weight: bold;
+        margin-bottom: 5px;
+    }
+    .form-control {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+    }
+    .btn {
+        padding: 10px 20px;
+        margin-right: 10px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+    .btn-primary {
+        background-color: #007cba;
+        color: white;
+    }
+    .btn-secondary {
+        background-color: #6c757d;
+        color: white;
+    }
+    .test-section {
+        background: #fff3cd;
+        padding: 15px;
+        border-radius: 5px;
+        margin-top: 20px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="newsletter-compose">
+    <h1>📧 Composer une newsletter</h1>
+
+    <div class="newsletter-stats">
+        <h3>📊 Statistiques</h3>
+        <p><strong>Total d'utilisateurs :</strong> {{ total_users }}</p>
+        <p><strong>Abonnés à la newsletter :</strong> {{ newsletter_subscribers }}</p>
+        <p><strong>Taux d'abonnement :</strong>
+            {% if total_users > 0 %}
+                {{ newsletter_subscribers|floatformat:0 }}/{{ total_users }}
+                ({{ newsletter_subscribers|mul:100|div:total_users|floatformat:1 }}%)
+            {% else %}
+                0%
+            {% endif %}
+        </p>
+    </div>
+
+    <form method="post">
+        {% csrf_token %}
+
+        <div class="form-group">
+            <label for="subject">Sujet de la newsletter :</label>
+            <input type="text"
+                   id="subject"
+                   name="subject"
+                   class="form-control"
+                   placeholder="Ex: Nouvelles promotions chez YEE Codes !"
+                   required>
+        </div>
+
+        <div class="form-group">
+            <label for="content">Contenu HTML :</label>
+            <textarea id="content"
+                      name="content"
+                      class="form-control"
+                      rows="15"
+                      placeholder="Contenu HTML de votre newsletter..."
+                      required></textarea>
+            <small class="help-text">
+                Vous pouvez utiliser du HTML pour formater votre newsletter.
+                Les variables {{ shopper.first_name }} et {{ site_name }} sont disponibles.
+            </small>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">
+                📤 Envoyer à tous les abonnés ({{ newsletter_subscribers }})
+            </button>
+        </div>
+    </form>
+
+    <div class="test-section">
+        <h3>🧪 Envoi de test</h3>
+        <p>Testez votre newsletter avant l'envoi général :</p>
+
+        <form method="post">
+            {% csrf_token %}
+            <input type="hidden" name="subject" id="test_subject">
+            <input type="hidden" name="content" id="test_content">
+            <input type="hidden" name="send_test" value="1">
+
+            <div class="form-group">
+                <label for="test_email">Email de test :</label>
+                <input type="email"
+                       id="test_email"
+                       name="test_email"
+                       class="form-control"
+                       placeholder="votre-email@exemple.com"
+                       style="width: 300px; display: inline-block;">
+                <button type="button" onclick="sendTestNewsletter()" class="btn btn-secondary">
+                    🔍 Envoyer un test
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function sendTestNewsletter() {
+    const subject = document.getElementById('subject').value;
+    const content = document.getElementById('content').value;
+    const testEmail = document.getElementById('test_email').value;
+
+    if (!subject || !content || !testEmail) {
+        alert('Veuillez remplir le sujet, le contenu et l\'email de test');
+        return;
+    }
+
+    document.getElementById('test_subject').value = subject;
+    document.getElementById('test_content').value = content;
+
+    // Soumettre le formulaire de test
+    const testForm = document.querySelector('form[method="post"]:last-of-type');
+    testForm.submit();
+}
+</script>
+{% endblock %}

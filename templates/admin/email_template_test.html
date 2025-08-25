@@ -1,0 +1,210 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+
+{% block title %}Test du template: {{ template.get_name_display }} - {{ site_title|default:"Django Admin" }}{% endblock %}
+
+{% block extrahead %}
+<style>
+    .test-container {
+        max-width: 800px;
+        margin: 20px auto;
+    }
+    .template-info {
+        background: #f8f9fa;
+        padding: 20px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        border-left: 4px solid #007cba;
+    }
+    .test-form {
+        background: white;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 25px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .form-group {
+        margin-bottom: 20px;
+    }
+    .form-group label {
+        display: block;
+        font-weight: bold;
+        margin-bottom: 8px;
+        color: #333;
+    }
+    .form-control {
+        width: 100%;
+        padding: 12px;
+        border: 2px solid #ddd;
+        border-radius: 6px;
+        font-size: 14px;
+        transition: border-color 0.3s;
+    }
+    .form-control:focus {
+        outline: none;
+        border-color: #007cba;
+        box-shadow: 0 0 0 3px rgba(0,124,186,0.1);
+    }
+    .btn {
+        padding: 12px 24px;
+        border: none;
+        border-radius: 6px;
+        font-size: 14px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s;
+        text-decoration: none;
+        display: inline-block;
+        margin-right: 10px;
+    }
+    .btn-primary {
+        background: #007cba;
+        color: white;
+    }
+    .btn-primary:hover {
+        background: #005a8a;
+        transform: translateY(-1px);
+    }
+    .btn-secondary {
+        background: #6c757d;
+        color: white;
+    }
+    .btn-secondary:hover {
+        background: #545b62;
+    }
+    .btn-preview {
+        background: #17a2b8;
+        color: white;
+    }
+    .btn-preview:hover {
+        background: #138496;
+    }
+    .preview-note {
+        background: #d1ecf1;
+        border: 1px solid #bee5eb;
+        color: #0c5460;
+        padding: 15px;
+        border-radius: 6px;
+        margin-top: 20px;
+    }
+    .template-badge {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: bold;
+        margin-bottom: 10px;
+    }
+    .badge-welcome { background: #28a745; color: white; }
+    .badge-order_confirmation { background: #007bff; color: white; }
+    .badge-order_status_update { background: #ffc107; color: #212529; }
+    .badge-newsletter { background: #17a2b8; color: white; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="test-container">
+    <h1>🧪 Test du Template Email</h1>
+
+    <div class="template-info">
+        <span class="template-badge badge-{{ template.name }}">
+            {% if template.name == 'welcome' %}🎉{% elif template.name == 'order_confirmation' %}📋{% elif template.name == 'order_status_update' %}📦{% else %}📰{% endif %}
+            {{ template.get_name_display }}
+        </span>
+        <h3>{{ template.subject }}</h3>
+        <p><strong>Fichier:</strong> <code>{{ template.get_template_path }}</code></p>
+        <p><strong>Dernière modification:</strong> {{ template.last_modified|date:"d/m/Y H:i" }}</p>
+        <p><strong>Statut:</strong>
+            {% if template.is_active %}
+                <span style="color: #28a745; font-weight: bold;">✅ Actif</span>
+            {% else %}
+                <span style="color: #dc3545; font-weight: bold;">❌ Inactif</span>
+            {% endif %}
+        </p>
+    </div>
+
+    <div class="test-form">
+        <h2>📧 Envoyer un Email de Test</h2>
+        <p>Envoyez ce template à une adresse email pour tester son rendu et sa livraison.</p>
+
+        <form method="post">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="test_email">Adresse email de test :</label>
+                <input
+                    type="email"
+                    id="test_email"
+                    name="test_email"
+                    class="form-control"
+                    placeholder="votre-email@exemple.com"
+                    required
+                >
+                <small style="color: #666; margin-top: 5px; display: block;">
+                    L'email sera envoyé avec des données d'exemple pour ce type de template
+                </small>
+            </div>
+
+            <div style="margin-top: 25px;">
+                <button type="submit" class="btn btn-primary">
+                    📤 Envoyer le Test
+                </button>
+
+                <a href="/admin/accounts/emailtemplate/{{ template.pk }}/preview/"
+                   target="_blank"
+                   class="btn btn-preview">
+                    👁️ Aperçu HTML
+                </a>
+
+                <a href="/admin/accounts/emailtemplate/" class="btn btn-secondary">
+                    ← Retour à la liste
+                </a>
+            </div>
+        </form>
+
+        <div class="preview-note">
+            <h4>💡 À propos du test</h4>
+            <ul style="margin: 10px 0 0 20px;">
+                <li><strong>Données d'exemple</strong> : Le test utilise des données fictives appropriées au type de template</li>
+                <li><strong>Sujet</strong> : Le sujet sera préfixé par "[TEST]" pour identifier l'envoi</li>
+                <li><strong>Expéditeur</strong> : L'email sera envoyé depuis l'adresse configurée dans les paramètres</li>
+                <li><strong>Aperçu</strong> : Utilisez le bouton "Aperçu HTML" pour voir le rendu sans envoyer d'email</li>
+            </ul>
+        </div>
+    </div>
+
+    {% if template.name == 'welcome' %}
+    <div style="background: #fff3cd; border: 1px solid #ffeaa7; padding: 15px; border-radius: 6px; margin-top: 20px;">
+        <h4>🎉 Template de Bienvenue</h4>
+        <p><strong>Variables disponibles :</strong></p>
+        <ul>
+            <li><code>{{ "{{ shopper.first_name }}" }}</code> - Prénom de l'utilisateur</li>
+            <li><code>{{ "{{ shopper.email }}" }}</code> - Email de l'utilisateur</li>
+            <li><code>{{ "{{ site_name }}" }}</code> - Nom du site (YEE Codes)</li>
+            <li><code>{{ "{{ website_url }}" }}</code> - URL du site</li>
+        </ul>
+    </div>
+    {% elif template.name == 'order_confirmation' %}
+    <div style="background: #d1ecf1; border: 1px solid #bee5eb; padding: 15px; border-radius: 6px; margin-top: 20px;">
+        <h4>📋 Template de Confirmation</h4>
+        <p><strong>Variables disponibles :</strong></p>
+        <ul>
+            <li><code>{{ "{{ shopper.first_name }}" }}</code> - Prénom du client</li>
+            <li><code>{{ "{{ order.id }}" }}</code> - Numéro de commande</li>
+            <li><code>{{ "{{ order.total }}" }}</code> - Montant total</li>
+            <li><code>{{ "{{ items }}" }}</code> - Liste des articles</li>
+        </ul>
+    </div>
+    {% elif template.name == 'newsletter' %}
+    <div style="background: #d4edda; border: 1px solid #c3e6cb; padding: 15px; border-radius: 6px; margin-top: 20px;">
+        <h4>📰 Template de Newsletter</h4>
+        <p><strong>Variables disponibles :</strong></p>
+        <ul>
+            <li><code>{{ "{{ shopper.first_name }}" }}</code> - Prénom de l'abonné</li>
+            <li><code>{{ "{{ content }}" }}</code> - Contenu de la newsletter</li>
+            <li><code>{{ "{{ subject }}" }}</code> - Sujet de la newsletter</li>
+            <li><code>{{ "{{ unsubscribe_url }}" }}</code> - Lien de désabonnement</li>
+        </ul>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

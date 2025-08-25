@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bienvenue chez {{ site_name }}</title>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background: #000; color: white; padding: 20px; text-align: center; }
+        .content { padding: 20px; background: #f9f9f9; }
+        .welcome-message { background: white; padding: 20px; margin: 20px 0; border-radius: 5px; border-left: 4px solid #000; }
+        .benefits { background: white; padding: 15px; margin: 15px 0; }
+        .footer { text-align: center; padding: 20px; color: #666; font-size: 0.9em; }
+        .cta-button { background: #000; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block; margin: 10px 0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>{{ site_name }}</h1>
+            <h2>Bienvenue dans notre communauté !</h2>
+        </div>
+
+        <div class="content">
+            <div class="welcome-message">
+                <h3>Bonjour {{ shopper.first_name|default:shopper.username }} ! 👋</h3>
+
+                <p>Bienvenue chez {{ site_name }} ! Nous sommes ravis de vous compter parmi nos membres.</p>
+
+                <p>Votre compte a été créé avec succès et vous pouvez dès maintenant profiter de tous nos services.</p>
+            </div>
+
+            <div class="benefits">
+                <h4>En tant que membre, vous bénéficiez de :</h4>
+                <ul>
+                    <li>✅ Suivi de vos commandes en temps réel</li>
+                    <li>✅ Historique complet de vos achats</li>
+                    <li>✅ Offres exclusives et promotions</li>
+                    <li>✅ Newsletter avec les dernières nouveautés</li>
+                    <li>✅ Support client prioritaire</li>
+                </ul>
+            </div>
+
+            <p style="text-align: center;">
+                <a href="{{ shop_url }}" class="cta-button">Découvrir notre boutique</a>
+                <a href="{{ profile_url }}" class="cta-button">Mon profil</a>
+            </p>
+
+            <p>N'hésitez pas à explorer notre catalogue et à nous contacter si vous avez des questions.</p>
+
+            <p>Bon shopping !</p>
+            <p>L'équipe {{ site_name }}</p>
+        </div>
+
+        <div class="footer">
+            <p>Cet email a été envoyé automatiquement lors de votre inscription.</p>
+            <p>{{ site_name }} - {{ site_url }}</p>
+            <p>Support : <a href="mailto:{{ support_email }}">{{ support_email }}</a></p>
+        </div>
+    </div>
+</body>
+</html>

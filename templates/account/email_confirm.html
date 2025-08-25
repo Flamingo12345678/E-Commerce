@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}Confirmer votre email - YEE Codes{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white text-center">
+                    <h4><i class="fas fa-envelope-open"></i> Vérification de l'email</h4>
+                </div>
+                <div class="card-body text-center">
+                    {% if confirmation %}
+                        <div class="mb-4">
+                            <i class="fas fa-check-circle text-success" style="font-size: 3rem;"></i>
+                        </div>
+                        <h5 class="text-success mb-3">Email vérifié avec succès !</h5>
+                        <p class="text-muted mb-4">
+                            Votre adresse email <strong>{{ confirmation.email_address.email }}</strong> a été confirmée.
+                            Vous pouvez maintenant vous connecter à votre compte.
+                        </p>
+
+                        <form method="post" action="{% url 'account_confirm_email' confirmation.key %}">
+                            {% csrf_token %}
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-success btn-lg">
+                                    <i class="fas fa-sign-in-alt"></i> Continuer
+                                </button>
+                            </div>
+                        </form>
+                    {% else %}
+                        <div class="mb-4">
+                            <i class="fas fa-exclamation-triangle text-warning" style="font-size: 3rem;"></i>
+                        </div>
+                        <h5 class="text-warning mb-3">Lien de confirmation invalide</h5>
+                        <p class="text-muted mb-4">
+                            Ce lien de confirmation d'email n'est pas valide ou a expiré.
+                        </p>
+
+                        <div class="d-grid">
+                            <a href="{% url 'account_email' %}" class="btn btn-primary">
+                                <i class="fas fa-envelope"></i> Renvoyer un email de confirmation
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
