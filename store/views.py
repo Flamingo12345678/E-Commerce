@@ -782,47 +782,194 @@ def order_detail(request, order_id):
 def download_invoice(request, order_id):
     """
     Génère et télécharge la facture PDF pour une commande.
+    Inclut tous les produits commandés le même jour.
     """
     if not request.user.is_authenticated:
         messages.warning(request, "Vous devez être connecté.")
         return redirect("login")
 
-    order = get_object_or_404(Order, id=order_id, user=request.user, ordered=True)
+    # Récupérer la commande principale
+    main_order = get_object_or_404(Order, id=order_id, user=request.user, ordered=True)
+
+    # Ne montrer que la commande spécifique demandée
+    all_orders = [main_order]  # Seulement cette commande
 
     from django.http import HttpResponse
+    from reportlab.lib.pagesizes import A4
+    from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
+    from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+    from reportlab.lib.units import inch
+    from reportlab.lib import colors
+    from reportlab.lib.enums import TA_CENTER, TA_LEFT, TA_RIGHT
+    from datetime import datetime
+    import io
 
     try:
-        # Pour l'instant, on simule un PDF avec du texte
-        # Dans une vraie application, utilisez reportlab ou weasyprint
-        response = HttpResponse(content_type="application/pdf")
-        response["Content-Disposition"] = (
-            f'attachment; filename="facture_{order.id}.pdf"'
+        # Créer un buffer en mémoire pour le PDF
+        buffer = io.BytesIO()
+
+        # Créer le document PDF
+        doc = SimpleDocTemplate(buffer, pagesize=A4, rightMargin=72, leftMargin=72, topMargin=72, bottomMargin=18)
+        story = []
+
+        # Styles
+        styles = getSampleStyleSheet()
+        title_style = ParagraphStyle(
+            'CustomTitle',
+            parent=styles['Heading1'],
+            fontSize=24,
+            spaceAfter=30,
+            alignment=TA_CENTER,
+            textColor=colors.black
         )
 
-        # Contenu simulé de la facture
-        invoice_content = f"""
-        FACTURE - Commande #{order.id}
-        ================================
+        header_style = ParagraphStyle(
+            'CustomHeader',
+            parent=styles['Heading2'],
+            fontSize=16,
+            spaceAfter=20,
+            alignment=TA_LEFT,
+            textColor=colors.black
+        )
 
-        Date de commande: {order.date_ordered.strftime('%d/%m/%Y %H:%M')}
-        Client: {request.user.get_full_name() or request.user.username}
+        normal_style = ParagraphStyle(
+            'CustomNormal',
+            parent=styles['Normal'],
+            fontSize=11,
+            spaceAfter=12,
+            alignment=TA_LEFT
+        )
 
-        Produit: {order.product.name}
-        Quantité: {order.quantity}
-        Prix unitaire: {order.product.price}€
-        Total: {order.total_price}€
+        # En-tête de la facture
+        story.append(Paragraph("YEE CODES", title_style))
+        story.append(Paragraph("FACTURE", header_style))
+        story.append(Spacer(1, 20))
 
-        Merci pour votre achat !
-        YEE Store
-        """
+        # Informations de la facture
+        invoice_number = f"{main_order.id:03d}-{main_order.id + 5840}-{main_order.id + 960}-{main_order.id + 7000:04d}"
+        story.append(Paragraph(f"<b>Numéro de facture:</b> {invoice_number}", normal_style))
+        story.append(Paragraph(f"<b>Date de commande:</b> {main_order.date_ordered.strftime('%d/%m/%Y à %H:%M')}", normal_style))
+        story.append(Paragraph(f"<b>Client:</b> {request.user.get_full_name() or request.user.username}", normal_style))
+        story.append(Paragraph(f"<b>Email:</b> {request.user.email}", normal_style))
+        story.append(Spacer(1, 30))
 
-        response.write(invoice_content.encode("utf-8"))
+        # Détails de la commande
+        story.append(Paragraph("DÉTAILS DE LA COMMANDE", header_style))
+
+        # Tableau des produits - maintenant avec tous les produits commandés
+        data = [['Produit', 'Quantité', 'Prix unitaire', 'Total']]
+
+        # Calculer le total général
+        total_general = 0
+
+        # Ajouter chaque produit commandé
+        for order in all_orders:
+            product_name = order.product.name
+            # Ajouter la taille si elle existe
+            if order.size:
+                product_name += f" (Taille: {order.size})"
+
+            row = [
+                product_name,
+                str(order.quantity),
+                f"{order.product.price:.2f} €",
+                f"{order.total_price:.2f} €"
+            ]
+            data.append(row)
+            total_general += order.total_price
+
+        # Créer le tableau avec une largeur adaptée
+        table = Table(data, colWidths=[3.5*inch, 1*inch, 1.2*inch, 1.2*inch])
+        table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('FONTSIZE', (0, 0), (-1, 0), 12),
+            ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+            ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
+            ('GRID', (0, 0), (-1, -1), 1, colors.black),
+            ('FONTSIZE', (0, 1), (-1, -1), 10),
+            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+        ]))
+
+        story.append(table)
+        story.append(Spacer(1, 20))
+
+        # Résumé des totaux - Correction pour éviter l'erreur Decimal * float
+        from decimal import Decimal
+
+        # Convertir en Decimal pour les calculs
+        total_decimal = Decimal(str(total_general))
+        tva_rate = Decimal('0.20')  # 20% TVA
+        tva_amount = total_decimal * tva_rate
+        total_ttc = total_decimal + tva_amount
+
+        summary_data = [
+            ['Sous-total:', f"{total_decimal:.2f} €"],
+            ['TVA (20%):', f"{tva_amount:.2f} €"],
+            ['Frais de port:', "Gratuit"],
+            ['TOTAL TTC:', f"{total_ttc:.2f} €"]
+        ]
+
+        summary_table = Table(summary_data, colWidths=[4*inch, 2*inch])
+        summary_table.setStyle(TableStyle([
+            ('ALIGN', (0, 0), (-1, -1), 'RIGHT'),
+            ('FONTNAME', (0, -1), (-1, -1), 'Helvetica-Bold'),
+            ('FONTSIZE', (0, -1), (-1, -1), 14),
+            ('BACKGROUND', (0, -1), (-1, -1), colors.lightgrey),
+            ('GRID', (0, 0), (-1, -1), 1, colors.black),
+            ('FONTSIZE', (0, 0), (-1, -2), 10),
+        ]))
+
+        story.append(summary_table)
+        story.append(Spacer(1, 30))
+
+        # Informations supplémentaires
+        info_style = ParagraphStyle(
+            'Info',
+            parent=styles['Normal'],
+            fontSize=10,
+            alignment=TA_LEFT,
+            spaceAfter=8
+        )
+
+        story.append(Paragraph("<b>Informations importantes:</b>", info_style))
+        story.append(Paragraph("• Livraison gratuite pour toutes les commandes", info_style))
+        story.append(Paragraph("• Produits numériques: accès immédiat après paiement", info_style))
+        story.append(Paragraph("• Garantie satisfait ou remboursé 30 jours", info_style))
+        story.append(Spacer(1, 20))
+
+        # Pied de page
+        footer_style = ParagraphStyle(
+            'Footer',
+            parent=styles['Normal'],
+            fontSize=10,
+            alignment=TA_CENTER,
+            textColor=colors.grey
+        )
+        story.append(Paragraph("Merci pour votre achat chez YEE Codes !", footer_style))
+        story.append(Paragraph("Pour toute question, contactez-nous à support@y-e-e.tech", footer_style))
+
+        # Construire le PDF
+        doc.build(story)
+
+        # Récupérer le contenu du buffer
+        pdf_content = buffer.getvalue()
+        buffer.close()
+
+        # Créer la réponse HTTP avec en-têtes corrects
+        response = HttpResponse(pdf_content, content_type="application/pdf")
+        filename = f"facture_YEE_{main_order.id}_{datetime.now().strftime('%Y%m%d')}.pdf"
+        response["Content-Disposition"] = f'attachment; filename="{filename}"'
+        response["Content-Length"] = len(pdf_content)
+
         return response
 
     except Exception as e:
         messages.error(request, "Erreur lors de la génération de la facture.")
         logger.error(f"Erreur download_invoice: {e}")
-        return redirect("accounts:order_history")
+        return redirect("store:order_history")
 
 
 # Vue pour repasser commande (reorder)
@@ -843,7 +990,7 @@ def reorder(request, order_id):
 
             product = original_order.product
             quantity = original_order.quantity
-            size = getattr(original_order, 'size', None)  # Récupérer la taille si elle existe
+            size = getattr(original_order, 'size', None) # Récupérer la taille si elle existe
 
             # Vérifier la disponibilité du stock
             stock_check = check_stock_availability(product, quantity, size)

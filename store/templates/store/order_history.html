@@ -102,11 +102,11 @@
                     </button>
                     <ul class="dropdown-menu dropdown-menu-end">
                       <li><a class="dropdown-item" href="{% url 'store:order_detail' order.id %}"><i class="bi bi-eye me-2"></i>View Details</a></li>
-                      <li><a class="dropdown-item" href="{% url 'download_invoice' order.id %}"><i class="bi bi-download me-2"></i>Download Invoice</a></li>
-                      <li><a class="dropdown-item" href="{% url 'reorder' order.id %}"><i class="bi bi-arrow-repeat me-2"></i>Reorder</a></li>
+                      <li><a class="dropdown-item" href="{% url 'store:download_invoice' order.id %}"><i class="bi bi-download me-2"></i>Download Invoice</a></li>
+                      <li><a class="dropdown-item" href="{% url 'store:reorder' order.id %}"><i class="bi bi-arrow-repeat me-2"></i>Reorder</a></li>
                       <li><hr class="dropdown-divider"></li>
                       <li>
-                        <form method="post" action="{% url 'cancel_order' order.id %}" class="d-inline">
+                        <form method="post" action="{% url 'store:cancel_order' order.id %}" class="d-inline">
                           {% csrf_token %}
                           <button type="submit" class="dropdown-item text-danger" onclick="return confirm('Êtes-vous sûr de vouloir annuler cette commande ?')">
                             <i class="bi bi-trash me-2"></i>Cancel Order
