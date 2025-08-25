@@ -305,7 +305,7 @@
         <!-- Navigation Tabs -->
         <div class="profile-nav-rhode">
             <span class="profile-nav-item-rhode active">mon profil</span>
-            <a href="{% url 'accounts:order_history' %}" class="profile-nav-item-rhode">mes commandes</a>
+            <a href="{% url 'store:order_history' %}" class="profile-nav-item-rhode">mes commandes</a>
             <a href="{% url 'store:cart' %}" class="profile-nav-item-rhode">panier</a>
             <a href="{% url 'store:checkout' %}" class="profile-nav-item-rhode">commande</a>
         </div>
@@ -423,7 +423,7 @@
                                     <div class="profile-quick-action-desc-rhode">sécuriser votre compte</div>
                                 </a>
 
-                                <a href="{% url 'accounts:order_history' %}" class="profile-quick-action-rhode">
+                                <a href="{% url 'store:order_history' %}" class="profile-quick-action-rhode">
                                     <div class="profile-quick-action-icon-rhode">
                                         <i class="bi bi-bag-check"></i>
                                     </div>

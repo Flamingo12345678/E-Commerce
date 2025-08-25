@@ -12,6 +12,7 @@
         .welcome-message { background: white; padding: 20px; margin: 20px 0; border-radius: 5px; border-left: 4px solid #000; }
         .benefits { background: white; padding: 15px; margin: 15px 0; }
         .footer { text-align: center; padding: 20px; color: #666; font-size: 0.9em; }
+        .cta-button { background: #000; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block; margin: 10px 0; }
     </style>
 </head>
 <body>
@@ -41,6 +42,11 @@
                 </ul>
             </div>
 
+            <p style="text-align: center;">
+                <a href="{{ shop_url }}" class="cta-button">Découvrir notre boutique</a>
+                <a href="{{ profile_url }}" class="cta-button">Mon profil</a>
+            </p>
+
             <p>N'hésitez pas à explorer notre catalogue et à nous contacter si vous avez des questions.</p>
 
             <p>Bon shopping !</p>
@@ -49,8 +55,9 @@
 
         <div class="footer">
             <p>Cet email a été envoyé automatiquement lors de votre inscription.</p>
+            <p>{{ site_name }} - {{ site_url }}</p>
+            <p>Support : <a href="mailto:{{ support_email }}">{{ support_email }}</a></p>
         </div>
     </div>
 </body>
 </html>
-

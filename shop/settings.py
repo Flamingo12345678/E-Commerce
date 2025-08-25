@@ -92,6 +92,13 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "django.contrib.sites",  # Requis pour allauth
+    # Django Allauth
+    "allauth",
+    "allauth.account",
+    "allauth.socialaccount",
+    "allauth.socialaccount.providers.google",
+    "allauth.socialaccount.providers.facebook",
     # OTP applications
     "django_otp",
     "django_otp.plugins.otp_totp",
@@ -109,6 +116,7 @@ MIDDLEWARE = [
     "accounts.middleware_session.SessionErrorHandlerMiddleware",  # Gestion des erreurs de session
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "allauth.account.middleware.AccountMiddleware",  # Middleware Django Allauth requis
     "django_otp.middleware.OTPMiddleware",  # OTP middleware
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
@@ -271,14 +279,104 @@ AUTH_USER_MODEL = "accounts.Shopper"  # Use the custom user model
 
 # Authentication backends
 AUTHENTICATION_BACKENDS = [
-    "django.contrib.auth.backends.ModelBackend",
-    "accounts.firebase_auth.FirebaseAuthenticationBackend",
+    # Needed to login by username in Django admin, regardless of `allauth`
+    'django.contrib.auth.backends.ModelBackend',
+    # `allauth` specific authentication methods, such as login by e-mail
+    'allauth.account.auth_backends.AuthenticationBackend',
 ]
 
 # Configuration de l'interface admin
 ADMIN_SITE_HEADER = "YEE E-Commerce - Administration"
 ADMIN_SITE_TITLE = "YEE Admin"
 ADMIN_INDEX_TITLE = "Tableau de bord administrateur"
+
+# =============================================================================
+# DJANGO ALLAUTH CONFIGURATION
+# =============================================================================
+
+SITE_ID = 1
+
+# Allauth settings (nouvelle syntaxe)
+ACCOUNT_LOGIN_METHODS = {'email'}
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
+ACCOUNT_USERNAME_REQUIRED = False
+ACCOUNT_USER_MODEL_USERNAME_FIELD = None
+ACCOUNT_USER_MODEL_EMAIL_FIELD = 'email'
+ACCOUNT_SIGNUP_FIELDS = ['email*', 'password1*', 'password2*']
+
+# URLs de redirection
+LOGIN_URL = '/accounts/login/'
+LOGIN_REDIRECT_URL = '/'
+ACCOUNT_LOGOUT_REDIRECT_URL = '/'
+ACCOUNT_LOGIN_ON_EMAIL_CONFIRMATION = True
+ACCOUNT_EMAIL_CONFIRMATION_HMAC = False
+ACCOUNT_EMAIL_CONFIRMATION_EXPIRE_DAYS = 3
+
+# Configuration des redirections pour la réinitialisation de mot de passe
+PASSWORD_RESET_TIMEOUT = 259200  # 3 jours en secondes
+
+# Configuration des formulaires
+ACCOUNT_FORMS = {
+    'signup': 'accounts.forms.CustomSignupForm',
+    'login': 'accounts.forms.CustomLoginForm',
+}
+
+# Configuration des templates
+ACCOUNT_EMAIL_CONFIRMATION_TEMPLATE = 'account/email/email_confirmation_signup_message.html'
+ACCOUNT_EMAIL_SUBJECT_PREFIX = '[YEE Codes] '
+
+# Configuration des adaptateurs personnalisés
+ACCOUNT_ADAPTER = 'accounts.adapters.CustomAccountAdapter'
+SOCIALACCOUNT_ADAPTER = 'accounts.adapters.CustomSocialAccountAdapter'
+
+# Configuration des providers sociaux
+SOCIALACCOUNT_PROVIDERS = {
+    'google': {
+        'SCOPE': [
+            'profile',
+            'email',
+        ],
+        'AUTH_PARAMS': {
+            'access_type': 'online',
+        },
+        'OAUTH_PKCE_ENABLED': True,
+    },
+    'facebook': {
+        'METHOD': 'oauth2',
+        'SDK_URL': '//connect.facebook.net/{locale}/sdk.js',
+        'SCOPE': ['email', 'public_profile'],
+        'AUTH_PARAMS': {'auth_type': 'reauthenticate'},
+        'INIT_PARAMS': {'cookie': True},
+        'FIELDS': [
+            'id',
+            'first_name',
+            'last_name',
+            'middle_name',
+            'name',
+            'name_format',
+            'picture',
+            'short_name',
+            'email',
+        ],
+        'EXCHANGE_TOKEN': True,
+        'LOCALE_FUNC': 'path.to.callable',
+        'VERIFIED_EMAIL': False,
+        'VERSION': 'v13.0',
+    }
+}
+
+# Configuration Google OAuth2
+SOCIALACCOUNT_GOOGLE_OAUTH2_CLIENT_ID = env('GOOGLE_OAUTH2_CLIENT_ID', default='')
+SOCIALACCOUNT_GOOGLE_OAUTH2_CLIENT_SECRET = env('GOOGLE_OAUTH2_CLIENT_SECRET', default='')
+
+# Configuration Facebook OAuth2
+SOCIALACCOUNT_FACEBOOK_APP_ID = env('FACEBOOK_APP_ID', default='')
+SOCIALACCOUNT_FACEBOOK_APP_SECRET = env('FACEBOOK_APP_SECRET', default='')
+
+# Auto-signup pour les comptes sociaux
+SOCIALACCOUNT_AUTO_SIGNUP = True
+SOCIALACCOUNT_EMAIL_VERIFICATION = 'none'  # Les comptes sociaux sont déjà vérifiés
 
 # =============================================================================
 # PAYMENT SYSTEM CONFIGURATION
@@ -303,39 +401,41 @@ PAYMENT_CANCEL_URL = PAYMENT_HOST_URL + "/accounts/payment/cancelled/"
 PAYMENT_ENCRYPTION_KEY = env("PAYMENT_ENCRYPTION_KEY", default="default-key-change-me")
 
 # =============================================================================
-# EMAIL CONFIGURATION - GMAIL
+# EMAIL CONFIGURATION - CONFIGURATION UNIFIÉE
 # =============================================================================
 EMAIL_BACKEND = env(
     "EMAIL_BACKEND", default="django.core.mail.backends.smtp.EmailBackend"
 )
 
-# Configuration Gmail SMTP
+# Configuration SMTP
 EMAIL_HOST = env("EMAIL_HOST", default="smtp.gmail.com")
 EMAIL_PORT = env.int("EMAIL_PORT", default=587)
 EMAIL_USE_TLS = env.bool("EMAIL_USE_TLS", default=True)
 EMAIL_USE_SSL = env.bool("EMAIL_USE_SSL", default=False)
-EMAIL_HOST_USER = env("EMAIL_HOST_USER", default="")  # Votre adresse Gmail
-EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD", default="")  # Mot de passe d'application Gmail
+EMAIL_HOST_USER = env("EMAIL_HOST_USER", default="")
+EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD", default="")
 
-# Configuration des adresses email
-DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL", default="YEE Codes <noreply@gmail.com>")
-SERVER_EMAIL = env("SERVER_EMAIL", default="noreply@gmail.com")
+# Configuration des adresses email avec domaine cohérent
+DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL", default="YEE Codes <ernestyombi20@gmail.com>")
+SERVER_EMAIL = env("SERVER_EMAIL", default="ernestyombi20@gmail.com")
+REPLY_TO_EMAIL = env("REPLY_TO_EMAIL", default="ernestyombi20@gmail.com")
 
 # Adresses email spécialisées pour différents types de notifications
 EMAIL_ADDRESSES = {
-    'welcome': env("EMAIL_WELCOME", default="Bienvenue chez YEE Codes <noreply@gmail.com>"),
-    'order_confirmation': env("EMAIL_ORDER_CONFIRMATION", default="Confirmation de Commande <noreply@gmail.com>"),
-    'newsletter': env("EMAIL_NEWSLETTER", default="Newsletter YEE Codes <noreply@gmail.com>"),
-    'contact': env("EMAIL_CONTACT", default="Support YEE Codes <noreply@gmail.com>"),
-    'admin': env("EMAIL_ADMIN", default="Administration YEE Codes <noreply@gmail.com>"),
+    'welcome': env("EMAIL_WELCOME", default="Bienvenue chez YEE Codes <ernestyombi20@gmail.com>"),
+    'order_confirmation': env("EMAIL_ORDER_CONFIRMATION", default="Confirmation de Commande <ernestyombi20@gmail.com>"),
+    'newsletter': env("EMAIL_NEWSLETTER", default="Newsletter YEE Codes <ernestyombi20@gmail.com>"),
+    'contact': env("EMAIL_CONTACT", default="Support YEE Codes <ernestyombi20@gmail.com>"),
+    'admin': env("EMAIL_ADMIN", default="Administration YEE Codes <ernestyombi20@gmail.com>"),
 }
 
 # Configuration des templates d'email
 EMAIL_TEMPLATE_NAME = env("EMAIL_TEMPLATE_NAME", default="YEE Codes")
 EMAIL_SIGNATURE = env("EMAIL_SIGNATURE", default="L'équipe YEE Codes\nVotre boutique de codes et services numériques")
 
-# Configuration pour les réponses
-REPLY_TO_EMAIL = env("REPLY_TO_EMAIL", default="noreply@gmail.com")
+# Informations du site pour cohérence
+SITE_DOMAIN = env("SITE_DOMAIN", default="y-e-e.tech")
+SITE_URL = env("SITE_URL", default="https://y-e-e.tech")
 
 # =============================================================================
 # FIREBASE CONFIGURATION

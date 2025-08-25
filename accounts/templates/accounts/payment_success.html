@@ -79,7 +79,7 @@
                     
                     <!-- Actions -->
                     <div class="d-grid gap-3 d-md-flex justify-content-md-center mt-4">
-                        <a href="{% url 'accounts:order_history' %}" class="btn btn-primary btn-lg">
+                        <a href="{% url 'store:order_history' %}" class="btn btn-primary btn-lg">
                             <i class="bi bi-list-check"></i> Voir mes commandes
                         </a>
                         <a href="{% url 'transaction_history' %}" class="btn btn-outline-primary btn-lg">
@@ -95,11 +95,11 @@
                         <h6 class="text-muted">Besoin d'aide ?</h6>
                         <p class="text-muted small">
                             Si vous avez des questions concernant votre commande ou votre paiement, 
-                            n'hésitez pas à consulter votre <a href="{% url 'profile' %}" class="text-decoration-none">profil</a> 
+                            n'hésitez pas à consulter votre <a href="{% url 'accounts:profile' %}" class="text-decoration-none">profil</a>
                             ou à nous contacter.
                         </p>
                         <div class="d-flex justify-content-center gap-3">
-                            <a href="{% url 'profile' %}" class="btn btn-outline-secondary btn-sm">
+                            <a href="{% url 'accounts:profile' %}" class="btn btn-outline-secondary btn-sm">
                                 <i class="bi bi-person"></i> Mon profil
                             </a>
                             <a href="#" class="btn btn-outline-secondary btn-sm">

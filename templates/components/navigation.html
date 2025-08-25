@@ -173,7 +173,7 @@
                                 <li role="separator"><hr class="dropdown-divider"></li>
                                 <li role="none">
                                     <a class="dropdown-item"
-                                       href="{% url 'profile' %}"
+                                       href="{% url 'accounts:profile' %}"
                                        role="menuitem">
                                         <i class="bi bi-person me-2" aria-hidden="true"></i>
                                         Mon profil
@@ -181,10 +181,10 @@
                                 </li>
                                 <li role="none">
                                     <a class="dropdown-item" 
-                                       href="{% url 'accounts:order_history' %}"
+                                       href="{% url 'store:order_history' %}"
                                        role="menuitem">
                                         <i class="bi bi-bag me-2" aria-hidden="true"></i>
-                    <!-- Menu mobile toggle -->
+                                        Mes commandes
                                     </a>
                                 </li>
                                 <li role="none">
@@ -208,7 +208,7 @@
                         </li>
                     {% else %}
                         <li class="nav-item" role="none">
-                            <a href="{% url 'login' %}" 
+                            <a href="{% url 'account_login' %}"
                                class="nav-button login-link"
                                role="menuitem">
                                 <span class="account-text">ACCOUNT</span>

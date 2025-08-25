@@ -1,6 +1,6 @@
 """
 Services d'email pour les notifications et newsletters
-Configuré pour Titan Email avec adresses professionnelles
+Configuration unifiée pour YEE Codes avec Gmail SMTP
 """
 
 import logging
@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 
 
 class EmailService:
-    """Service centralisé pour l'envoi d'emails avec Titan Email"""
+    """Service centralisé pour l'envoi d'emails avec configuration unifiée"""
 
     @staticmethod
     def _get_email_address(email_type):
@@ -22,10 +22,19 @@ class EmailService:
         return settings.EMAIL_ADDRESSES.get(email_type, settings.DEFAULT_FROM_EMAIL)
 
     @staticmethod
+    def _get_site_info():
+        """Récupère les informations du site de manière cohérente"""
+        return {
+            'site_name': 'YEE Codes',
+            'site_domain': getattr(settings, 'SITE_DOMAIN', 'y-e-e.tech'),
+            'site_url': getattr(settings, 'SITE_URL', 'https://y-e-e.tech'),
+            'support_email': settings.EMAIL_ADDRESSES.get('contact', settings.DEFAULT_FROM_EMAIL),
+        }
+
+    @staticmethod
     def send_order_confirmation(shopper, order, items):
         """
         Envoie un email de confirmation de commande
-        Utilise: confirmation@y-e-e.tech
         """
         if not shopper.email_notifications:
             logger.info(f"Notifications désactivées pour {shopper.email}")
@@ -34,15 +43,14 @@ class EmailService:
         try:
             subject = f"✅ Confirmation de votre commande #{order.id} - YEE Codes"
             from_email = EmailService._get_email_address('order_confirmation')
+            site_info = EmailService._get_site_info()
 
             # Contenu HTML
             html_content = render_to_string('emails/order_confirmation.html', {
                 'shopper': shopper,
                 'order': order,
                 'items': items,
-                'site_name': 'YEE Codes',
-                'support_email': 'contact@y-e-e.tech',
-                'website_url': 'https://y-e-e.tech'
+                **site_info
             })
 
             # Contenu texte
@@ -70,7 +78,6 @@ class EmailService:
     def send_order_status_update(shopper, order, new_status):
         """
         Envoie un email de mise à jour du statut de commande
-        Utilise: confirmation@y-e-e.tech
         """
         if not shopper.email_notifications:
             return False
@@ -78,14 +85,13 @@ class EmailService:
         try:
             subject = f"📦 Mise à jour de votre commande #{order.id} - YEE Codes"
             from_email = EmailService._get_email_address('order_confirmation')
+            site_info = EmailService._get_site_info()
 
             html_content = render_to_string('emails/order_status_update.html', {
                 'shopper': shopper,
                 'order': order,
                 'new_status': new_status,
-                'site_name': 'YEE Codes',
-                'support_email': 'contact@y-e-e.tech',
-                'website_url': 'https://y-e-e.tech'
+                **site_info
             })
 
             text_content = strip_tags(html_content)
@@ -111,7 +117,6 @@ class EmailService:
     def send_newsletter(subject, content, recipients=None):
         """
         Envoie une newsletter aux abonnés
-        Utilise: newsletters@y-e-e.tech
         """
         if recipients is None:
             recipients = Shopper.objects.filter(
@@ -123,6 +128,7 @@ class EmailService:
         sent_count = 0
         error_count = 0
         from_email = EmailService._get_email_address('newsletter')
+        site_info = EmailService._get_site_info()
 
         for shopper in recipients:
             try:
@@ -132,10 +138,8 @@ class EmailService:
                     'shopper': shopper,
                     'content': content,
                     'subject': subject,
-                    'site_name': 'YEE Codes',
-                    'website_url': 'https://y-e-e.tech',
-                    'unsubscribe_url': 'https://y-e-e.tech/accounts/profile/',
-                    'support_email': 'contact@y-e-e.tech'
+                    'unsubscribe_url': f"{site_info['site_url']}/accounts/profile/",
+                    **site_info
                 })
 
                 text_content = strip_tags(html_content)
@@ -163,19 +167,17 @@ class EmailService:
     def send_welcome_email(shopper):
         """
         Envoie un email de bienvenue aux nouveaux utilisateurs
-        Utilise: bienvenue@y-e-e.tech
         """
         try:
             subject = "🎉 Bienvenue chez YEE Codes ! Votre compte a été créé avec succès"
             from_email = EmailService._get_email_address('welcome')
+            site_info = EmailService._get_site_info()
 
             html_content = render_to_string('emails/welcome.html', {
                 'shopper': shopper,
-                'site_name': 'YEE Codes',
-                'website_url': 'https://y-e-e.tech',
-                'shop_url': 'https://y-e-e.tech/store/',
-                'profile_url': 'https://y-e-e.tech/accounts/profile/',
-                'support_email': 'contact@y-e-e.tech'
+                'shop_url': f"{site_info['site_url']}/store/",
+                'profile_url': f"{site_info['site_url']}/accounts/profile/",
+                **site_info
             })
 
             text_content = strip_tags(html_content)
@@ -201,12 +203,12 @@ class EmailService:
     def send_contact_form_notification(name, email, subject, message):
         """
         Envoie une notification pour les formulaires de contact
-        Utilise: contact@y-e-e.tech
         """
         try:
             admin_subject = f"📝 Nouveau message de contact - {subject}"
             from_email = EmailService._get_email_address('contact')
             admin_email = EmailService._get_email_address('admin')
+            site_info = EmailService._get_site_info()
 
             # Email à l'admin
             admin_message = f"""
@@ -220,7 +222,7 @@ class EmailService:
             {message}
             
             ---
-            Envoyé depuis https://y-e-e.tech
+            Envoyé depuis {site_info['site_url']}
             """
 
             send_mail(
@@ -242,7 +244,7 @@ class EmailService:
             Merci de votre confiance !
             
             L'équipe YEE Codes
-            https://y-e-e.tech
+            {site_info['site_url']}
             """
 
             send_mail(
@@ -258,4 +260,33 @@ class EmailService:
 
         except Exception as e:
             logger.error(f"Erreur envoi notifications contact: {e}")
+            return False
+
+    @staticmethod
+    def test_email_configuration():
+        """
+        Teste la configuration email en envoyant un email de test
+        """
+        try:
+            from django.core.mail import get_connection
+
+            # Test de connexion
+            connection = get_connection()
+            connection.open()
+            connection.close()
+
+            # Test d'envoi simple
+            send_mail(
+                'Test Configuration Email YEE Codes',
+                'Ce message confirme que la configuration email fonctionne correctement.',
+                settings.DEFAULT_FROM_EMAIL,
+                [settings.EMAIL_HOST_USER],
+                fail_silently=False,
+            )
+
+            logger.info("Test de configuration email réussi")
+            return True
+
+        except Exception as e:
+            logger.error(f"Erreur test configuration email: {e}")
             return False
