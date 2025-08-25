@@ -39,20 +39,20 @@ urlpatterns = [
                 path(
                     "dashboard/",
                     ShopperAdmin.notifications_dashboard,
-                    name="admin:notifications_dashboard",
+                    name="admin_notifications_dashboard",
                 ),
                 path(
                     "compose/",
                     ShopperAdmin.compose_newsletter,
-                    name="admin:compose_newsletter",
+                    name="admin_compose_newsletter",
                 ),
                 path(
                     "subscribers/",
                     ShopperAdmin.view_subscribers,
-                    name="admin:view_subscribers",
+                    name="admin_view_subscribers",
                 ),
                 path(
-                    "stats/", ShopperAdmin.email_stats, name="admin:email_stats"
+                    "stats/", ShopperAdmin.email_stats, name="admin_email_stats"
                 ),
             ]
         ),
