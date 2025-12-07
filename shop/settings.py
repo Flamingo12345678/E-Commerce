@@ -18,7 +18,7 @@ from django.urls import reverse_lazy
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-DEBUG = os.getenv("DEBUG", "True") == "True"
+DEBUG = os.getenv("DEBUG", "True") == "False"
 
 ALLOWED_HOSTS = ['y-e-e.tech', 'www.y-e-e.tech', '.herokuapp.com']
 
