@@ -81,3 +81,4 @@ payment.log
 *.pem
 *.key
 *.crt
+.do
