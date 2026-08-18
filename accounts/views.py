@@ -360,12 +360,16 @@ def change_password(request):
     """Permet de changer le mot de passe"""
     if request.method == "POST":
         current_password = request.POST.get("current_password", "")
-        new_password = request.POST.get("new_password", "")
+        new_password = request.POST.get("new_password") or None
         confirm_password = request.POST.get("confirm_password", "")
 
         # Vérifications
         if not request.user.check_password(current_password):
             messages.error(request, "Le mot de passe actuel est incorrect.")
+            return render(request, "accounts/change_password.html")
+
+        if not new_password:
+            messages.error(request, "Le nouveau mot de passe est obligatoire.")
             return render(request, "accounts/change_password.html")
 
         if new_password != confirm_password:
@@ -607,7 +611,7 @@ def password_reset_confirm(request, uidb64, token):
     # Vérifier si le token est valide
     if user is not None and default_token_generator.check_token(user, token):
         if request.method == 'POST':
-            new_password = request.POST.get('new_password', '')
+            new_password = request.POST.get('new_password') or None
             confirm_password = request.POST.get('confirm_password', '')
 
             if new_password != confirm_password:
